@@ -23,6 +23,7 @@
 import sys
 import os
 import json
+import requests
 from COPASI import *
 
 # create a datamodel
