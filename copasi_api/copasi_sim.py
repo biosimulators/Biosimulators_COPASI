@@ -21,7 +21,8 @@
 # 
 
 import sys
-
+import os
+import json
 from COPASI import *
 
 # create a datamodel
@@ -31,20 +32,34 @@ except:
     dataModel = CCopasiRootContainer.addDatamodel()
 
 
+# Get environment variables
+JOB_ID = os.getenv('JOB_ID')
+INITIAL_TIME = os.getenv('INITIAL_TIME')
+NUMBER_OF_POINTS = os.getenv('NUMBER_OF_POINTS')
+OUTPUT_START_TIME = os.getenv('OUTPUT_START_TIME')
+OUTPUT_END_TIME = os.getenv('OUTPUT_END_TIME')
+JOBHOOK_URL = os.getenv('JOBHOOK_URL')
+
+
+# TODO: Combine print, error and jobhook_request_builder in single method
 def main(args):
     # the only argument to the main routine should be the name of an SBML file
     if len(args) != 1:
-        sys.stderr.write("Usage: example3 SBMLFILE\n")
-        return 1;
+        sys.stderr.write("Usage: copasi_sim  SBMLFILE\n")
+        print(jobhook_request_builder("Usage: copasi_sim  SBMLFILE\n", error=True))
+        return 1
 
     filename = args[0]
     try:
         # load the model
         if not dataModel.importSBML(filename):
             print("Couldn't load {0}:".format(filename))
+            print(jobhook_request_builder("Couldn't load {0}:".format(filename)))
             print(CCopasiMessage.getAllMessageText())
+            print(jobhook_request_builder(CCopasiMessage.getAllMessageText()))
     except:
         sys.stderr.write("Error while importing the model from file named \"" + filename + "\".\n")
+        print(jobhook_request_builder("Error while importing the model from file named \"" + filename + "\".\n", error=True))
         return 1
 
     model = dataModel.getModel()
@@ -66,7 +81,7 @@ def main(args):
     # set the report for the task
     trajectoryTask.getReport().setReportDefinition(report)
     # set the output filename
-    trajectoryTask.getReport().setTarget("example3.txt")
+    trajectoryTask.getReport().setTarget("result.ida")
     # don't append output if the file exists, but overwrite the file
     trajectoryTask.getReport().setAppend(False)
 
@@ -100,21 +115,26 @@ def main(args):
         result = trajectoryTask.process(True)
     except:
         sys.stderr.write("Error. Running the time course simulation failed.\n")
+        print(jobhook_request_builder("Error. Running the time course simulation failed.\n", error=True))
         # check if there are additional error messages
         if CCopasiMessage.size() > 0:
             # print the messages in chronological order
             sys.stderr.write(CCopasiMessage.getAllMessageText(True))
+            print(jobhook_request_builder(CCopasiMessage.getAllMessageText(True), error=True))
         return 1
     if not result:
         sys.stderr.write("Error. Running the time course simulation failed.\n")
+        print(jobhook_request_builder("Error. Running the time course simulation failed.\n", error=True))
         # check if there are additional error messages
         if CCopasiMessage.size() > 0:
             # print the messages in chronological order
             sys.stderr.write(CCopasiMessage.getAllMessageText(True))
+            print(jobhook_request_builder(CCopasiMessage.getAllMessageText(True), error=True))
         return 1
 
     # look at the timeseries
     print_results(trajectoryTask)
+    
 
 
 def print_results(trajectoryTask):
@@ -123,8 +143,11 @@ def print_results(trajectoryTask):
     # 101 step in the timeseries
     assert timeSeries.getRecordedSteps() == 101
     print("The time series consists of {0} steps.".format(timeSeries.getRecordedSteps()))
+    print(jobhook_request_builder("The time series consists of {0} steps.".format(timeSeries.getRecordedSteps())))
     print("Each step contains {0} variables.".format(timeSeries.getNumVariables()))
+    print(jobhook_request_builder("Each step contains {0} variables.".format(timeSeries.getNumVariables())))
     print("\nThe final state is: ")
+    print(jobhook_request_builder("\nThe final state is: "))
     iMax = timeSeries.getNumVariables()
     lastIndex = timeSeries.getRecordedSteps() - 1
     for i in range(0, iMax):
@@ -132,6 +155,7 @@ def print_results(trajectoryTask):
         # the unit of the other variables may not be particle numbers
         # the concentration data can be acquired with getConcentrationData
         print("  {0}: {1}".format(timeSeries.getTitle(i), timeSeries.getData(lastIndex, i)))
+        print(jobhook_request_builder("  {0}: {1}".format(timeSeries.getTitle(i), timeSeries.getData(lastIndex, i))))
     # the CTimeSeries class now has some new methods to get all variable titles
     # as a python list (getTitles())
     # and methods to get the complete time course data for a certain variable based on
@@ -188,6 +212,15 @@ def create_report(model):
                 body.push_back(CRegisteredCommonName(report.getSeparator().getCN().getString()))
                 header.push_back(CRegisteredCommonName(report.getSeparator().getCN().getString()))
     return report
+
+def jobhook_request_builder(msg: str, error=False):
+    info_type = {True: 'INFO', False: 'ERROR'} [error]
+    req_data = {
+        'jobId': JOB_ID,
+        'infoType': info_type,
+        'message': msg
+    }
+    return requests.post(JOBHOOK_URL, json.dumps(req_data))
 
 
 if __name__ == '__main__':
