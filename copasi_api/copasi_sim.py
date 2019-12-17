@@ -91,9 +91,9 @@ def main(args):
     assert (isinstance(problem, CTrajectoryProblem))
 
     # simulate 100 steps
-    problem.setStepNumber(NUMBER_OF_POINTS)
+    problem.setStepNumber(int(NUMBER_OF_POINTS))
     # start at time 0
-    dataModel.getModel().setInitialTime(INITIAL_TIME)
+    dataModel.getModel().setInitialTime(int(INITIAL_TIME))
     # simulate a duration of 10 time units
     problem.setDuration(int(OUTPUT_END_TIME) - int(OUTPUT_START_TIME))
     # tell the problem to actually generate time series data
