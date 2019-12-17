@@ -215,13 +215,16 @@ def create_report(model):
     return report
 
 def jobhook_request_builder(msg: str, error=False):
-    info_type = {True: 'INFO', False: 'ERROR'} [error]
-    req_data = {
-        'jobId': JOB_ID,
-        'infoType': info_type,
-        'message': msg
-    }
-    return requests.post(JOBHOOK_URL, json.dumps(req_data))
+    try:
+        info_type = {True: 'INFO', False: 'ERROR'} [error]
+        req_data = {
+            'jobId': JOB_ID,
+            'infoType': info_type,
+            'message': msg
+        }
+        return requests.post(JOBHOOK_URL, json.dumps(req_data))
+    except BaseException as ex:
+        print('Exception occured: ', str(ex))
 
 
 if __name__ == '__main__':
