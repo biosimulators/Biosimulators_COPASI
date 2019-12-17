@@ -9,4 +9,4 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 COPY copasi_api ./
 ARG filename
 
-ENTRYPOINT [ "python3",  "copasi_sim.py", "model.xml"]
+ENTRYPOINT [ "python3",  "copasi_sim.py", "simulations/model.xml"]
