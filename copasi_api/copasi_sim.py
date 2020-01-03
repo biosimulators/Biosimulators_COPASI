@@ -33,6 +33,19 @@ except:
     dataModel = CCopasiRootContainer.addDatamodel()
 
 
+ALGORITHMS_MAP = {
+    "Method_RADAU5": CTaskEnum.Method_RADAU5,
+    "Method_directMethod": CTaskEnum.Method_directMethod,
+    "Method_stochastic": CTaskEnum.Method_stochastic,
+    "Method_tauLeap": CTaskEnum.Method_tauLeap,
+    "Method_adaptiveSA": CTaskEnum.Method_adaptiveSA,
+    "Method_hybridLSODA": CTaskEnum.Method_hybridLSODA,
+    "Method_hybridODE45": CTaskEnum.Method_hybridODE45,
+    "Method_DsaLsodar": CTaskEnum.Method_DsaLsodar,
+    "Method_stochasticRunkeKuttaRI5": CTaskEnum.Method_stochasticRunkeKuttaRI5
+}
+
+
 # Get environment variables
 JOB_ID = os.getenv('JOB_ID')
 INITIAL_TIME = os.getenv('INITIAL_TIME')
@@ -40,6 +53,7 @@ NUMBER_OF_POINTS = os.getenv('NUMBER_OF_POINTS')
 OUTPUT_START_TIME = os.getenv('OUTPUT_START_TIME')
 OUTPUT_END_TIME = os.getenv('OUTPUT_END_TIME')
 JOBHOOK_URL = os.getenv('JOBHOOK_URL')
+ALGORITHM = os.getenv('ALGORITHM')
 
 
 # TODO: Combine print, error and jobhook_request_builder in single method
@@ -71,7 +85,7 @@ def main(args):
     assert (isinstance(trajectoryTask, CTrajectoryTask))
 
     # run a deterministic time course
-    trajectoryTask.setMethodType(CTaskEnum.Method_deterministic)
+    trajectoryTask.setMethodType(ALGORITHMS_MAP[ALGORITHM])
 
     # activate the task so that it will be run when the model is saved
     # and passed to CopasiSE
