@@ -84,7 +84,6 @@ def main(args):
     trajectoryTask = dataModel.getTask("Time-Course")
     assert (isinstance(trajectoryTask, CTrajectoryTask))
 
-    # run a deterministic time course
     trajectoryTask.setMethodType(ALGORITHMS_MAP[ALGORITHM])
 
     # activate the task so that it will be run when the model is saved
