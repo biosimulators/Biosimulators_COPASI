@@ -234,6 +234,7 @@ def jobhook_request_builder(msg: str, error=False):
         req_data = {
             'jobId': JOB_ID,
             'infoType': info_type,
+            'simulator': 'copasi'
             'message': msg
         }
         return requests.post(JOBHOOK_URL, json.dumps(req_data))
