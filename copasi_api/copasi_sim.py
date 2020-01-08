@@ -20,9 +20,8 @@ create a report for a time course simulation
 and run a time course simulation
 """
 
-import sys
-import os
 import json
+
 import requests
 from COPASI import *
 
@@ -30,8 +29,7 @@ from COPASI import *
 try:
     dataModel = CRootContainer.addDatamodel()
 except:
-    dataModel = CCopasiRootContainer.addDatamodel()
-
+    dataModel = CRootContainer.getUndefinedFunction()
 
 ALGORITHMS_MAP = {
     "Method_DsaLsodar": CTaskEnum.Method_DsaLsodar,
@@ -46,15 +44,14 @@ ALGORITHMS_MAP = {
     "Method_stochasticRunkeKuttaRI5": CTaskEnum.Method_stochasticRunkeKuttaRI5
 }
 
-
 # Get environment variables
+ALGORITHM = os.getenv('ALGORITHM')
 JOB_ID = os.getenv('JOB_ID')
 INITIAL_TIME = os.getenv('INITIAL_TIME')
 NUMBER_OF_POINTS = os.getenv('NUMBER_OF_POINTS')
 OUTPUT_START_TIME = os.getenv('OUTPUT_START_TIME')
 OUTPUT_END_TIME = os.getenv('OUTPUT_END_TIME')
 JOBHOOK_URL = os.getenv('JOBHOOK_URL')
-ALGORITHM = os.getenv('ALGORITHM')
 
 
 # TODO: Combine print, error and jobhook_request_builder in single method
@@ -75,7 +72,8 @@ def main(args):
             print(jobhook_request_builder(CCopasiMessage.getAllMessageText()))
     except:
         sys.stderr.write("Error while importing the model from file named \"" + filename + "\".\n")
-        print(jobhook_request_builder("Error while importing the model from file named \"" + filename + "\".\n", error=True))
+        print(jobhook_request_builder("Error while importing the model from file named \"" + filename + "\".\n",
+                                      error=True))
         return 1
 
     model = dataModel.getModel()
@@ -120,10 +118,15 @@ def main(args):
     # set some parameters for the LSODA method through the method
     method = trajectoryTask.getMethod()
 
-    parameter = method.getParameter("Absolute Tolerance")
-    assert parameter is not None
-    assert parameter.getType() == CCopasiParameter.Type_UDOUBLE
-    parameter.setValue(1.0e-12)
+    ATol = method.getParameter("Absolute Tolerance")
+    assert ATol is not None
+    assert ATol.getType() == CCopasiParameter.Type_UDOUBLE
+    ATol.setValue(1.0e-12)
+
+    RTol = method.getParameter("Relative Tolerance")
+    assert RTol is not None
+    assert RTol.getType() == CCopasiParameter.Type_UDOUBLE
+    RTol.setValue(1.0e-6)
 
     try:
         # now we run the actual trajectory
@@ -149,7 +152,7 @@ def main(args):
 
     # look at the timeseries
     print_results(trajectoryTask)
-    
+
 
 def print_results(trajectoryTask):
     timeSeries = trajectoryTask.getTimeSeries()
@@ -234,8 +237,8 @@ def jobhook_request_builder(msg: str, error=False):
         req_data = {
             'jobId': JOB_ID,
             'infoType': info_type,
-            'simulator': 'copasi'
-            'message': msg
+            'simulator': 'copasi',
+            'message': msg,
         }
         return requests.post(JOBHOOK_URL, json.dumps(req_data))
     except BaseException as ex:
