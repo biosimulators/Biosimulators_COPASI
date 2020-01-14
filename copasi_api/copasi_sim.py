@@ -1,28 +1,27 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2017 - 2018 by Pedro Mendes, Virginia Tech Intellectual 
-# Properties, Inc., University of Heidelberg, and University of 
-# of Connecticut School of Medicine. 
-# All rights reserved. 
+"""-*- coding: utf-8 -*-
+Copyright (C) 2017 - 2018 by Pedro Mendes, Virginia Tech Intellectual
+Properties, Inc., University of Heidelberg, and University of
+of Connecticut School of Medicine.
+All rights reserved.
 
-# Copyright (C) 2010 - 2016 by Pedro Mendes, Virginia Tech Intellectual 
-# Properties, Inc., University of Heidelberg, and The University 
-# of Manchester. 
-# All rights reserved. 
+Copyright (C) 2010 - 2016 by Pedro Mendes, Virginia Tech Intellectual
+Properties, Inc., University of Heidelberg, and The University
+of Manchester.
+All rights reserved.
 
-# Copyright (C) 2009 by Pedro Mendes, Virginia Tech Intellectual 
-# Properties, Inc., EML Research, gGmbH, University of Heidelberg, 
-# and The University of Manchester. 
-# All rights reserved. 
+Copyright (C) 2009 by Pedro Mendes, Virginia Tech Intellectual
+Properties, Inc., EML Research, gGmbH, University of Heidelberg,
+and The University of Manchester.
+All rights reserved.
 
 
-# This is an example on how to import an sbml file
-# create a report for a time course simulation 
-# and run a time course simulation
-# 
+This is an example on how to import an sbml file
+create a report for a time course simulation
+and run a time course simulation
+"""
 
-import sys
-import os
 import json
+
 import requests
 from COPASI import *
 
@@ -30,10 +29,23 @@ from COPASI import *
 try:
     dataModel = CRootContainer.addDatamodel()
 except:
-    dataModel = CCopasiRootContainer.addDatamodel()
+    dataModel = CRootContainer.getUndefinedFunction()
 
+ALGORITHMS_MAP = {
+    "Method_DsaLsodar": CTaskEnum.Method_DsaLsodar,
+    "Method_RADAU5": CTaskEnum.Method_RADAU5,
+    "Method_stochastic": CTaskEnum.Method_stochastic,
+    "Method_directMethod": CTaskEnum.Method_directMethod,
+    "Method_tauLeap": CTaskEnum.Method_tauLeap,
+    "Method_adaptiveSA": CTaskEnum.Method_adaptiveSA,
+    "Method_hybrid": CTaskEnum.Method_hybrid,
+    "Method_hybridLSODA": CTaskEnum.Method_hybridLSODA,
+    "Method_hybridODE45": CTaskEnum.Method_hybridODE45,
+    "Method_stochasticRunkeKuttaRI5": CTaskEnum.Method_stochasticRunkeKuttaRI5
+}
 
 # Get environment variables
+ALGORITHM = os.getenv('ALGORITHM')
 JOB_ID = os.getenv('JOB_ID')
 INITIAL_TIME = os.getenv('INITIAL_TIME')
 NUMBER_OF_POINTS = os.getenv('NUMBER_OF_POINTS')
@@ -60,7 +72,8 @@ def main(args):
             print(jobhook_request_builder(CCopasiMessage.getAllMessageText()))
     except:
         sys.stderr.write("Error while importing the model from file named \"" + filename + "\".\n")
-        print(jobhook_request_builder("Error while importing the model from file named \"" + filename + "\".\n", error=True))
+        print(jobhook_request_builder("Error while importing the model from file named \"" + filename + "\".\n",
+                                      error=True))
         return 1
 
     model = dataModel.getModel()
@@ -70,8 +83,7 @@ def main(args):
     trajectoryTask = dataModel.getTask("Time-Course")
     assert (isinstance(trajectoryTask, CTrajectoryTask))
 
-    # run a deterministic time course
-    trajectoryTask.setMethodType(CTaskEnum.Method_deterministic)
+    trajectoryTask.setMethodType(ALGORITHMS_MAP[ALGORITHM])
 
     # activate the task so that it will be run when the model is saved
     # and passed to CopasiSE
@@ -106,10 +118,15 @@ def main(args):
     # set some parameters for the LSODA method through the method
     method = trajectoryTask.getMethod()
 
-    parameter = method.getParameter("Absolute Tolerance")
-    assert parameter is not None
-    assert parameter.getType() == CCopasiParameter.Type_UDOUBLE
-    parameter.setValue(1.0e-12)
+    ATol = method.getParameter("Absolute Tolerance")
+    assert ATol is not None
+    assert ATol.getType() == CCopasiParameter.Type_UDOUBLE
+    ATol.setValue(1.0e-12)
+
+    RTol = method.getParameter("Relative Tolerance")
+    assert RTol is not None
+    assert RTol.getType() == CCopasiParameter.Type_UDOUBLE
+    RTol.setValue(1.0e-6)
 
     try:
         # now we run the actual trajectory
@@ -135,7 +152,6 @@ def main(args):
 
     # look at the timeseries
     print_results(trajectoryTask)
-    
 
 
 def print_results(trajectoryTask):
@@ -214,17 +230,19 @@ def create_report(model):
                 header.push_back(CRegisteredCommonName(report.getSeparator().getCN().getString()))
     return report
 
+
 def jobhook_request_builder(msg: str, error=False):
     try:
-        info_type = {True: 'INFO', False: 'ERROR'} [error]
+        info_type = {True: 'INFO', False: 'ERROR'}[error]
         req_data = {
             'jobId': JOB_ID,
             'infoType': info_type,
-            'message': msg
+            'simulator': 'copasi',
+            'message': msg,
         }
         return requests.post(JOBHOOK_URL, json.dumps(req_data))
     except BaseException as ex:
-        print('Exception occured: ', str(ex))
+        print('Exception occurred: ', str(ex))
 
 
 if __name__ == '__main__':
