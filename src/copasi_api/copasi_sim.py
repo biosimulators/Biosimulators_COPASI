@@ -20,6 +20,11 @@ create a report for a time course simulation
 and run a time course simulation
 """
 
+"""
+Contains simulation code using COPASI python bindings
+"""
+
+
 import json
 
 import requests
@@ -31,18 +36,7 @@ try:
 except:
     dataModel = CRootContainer.getUndefinedFunction()
 
-ALGORITHMS_MAP = {
-    "Method_DsaLsodar": CTaskEnum.Method_DsaLsodar,
-    "Method_RADAU5": CTaskEnum.Method_RADAU5,
-    "Method_stochastic": CTaskEnum.Method_stochastic,
-    "Method_directMethod": CTaskEnum.Method_directMethod,
-    "Method_tauLeap": CTaskEnum.Method_tauLeap,
-    "Method_adaptiveSA": CTaskEnum.Method_adaptiveSA,
-    "Method_hybrid": CTaskEnum.Method_hybrid,
-    "Method_hybridLSODA": CTaskEnum.Method_hybridLSODA,
-    "Method_hybridODE45": CTaskEnum.Method_hybridODE45,
-    "Method_stochasticRunkeKuttaRI5": CTaskEnum.Method_stochasticRunkeKuttaRI5
-}
+
 
 # Get environment variables
 ALGORITHM = os.getenv('ALGORITHM')
