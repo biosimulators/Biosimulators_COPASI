@@ -29,6 +29,7 @@ import json
 from config import Config
 import requests
 from COPASI import *
+from sim_spec_manager import SimulationSpecManager
 
 # create a datamodel
 try:
@@ -38,14 +39,10 @@ except:
 
 
 
-# Get environment variables
-ALGORITHM = os.getenv('ALGORITHM')
-JOB_ID = Config.JOB_ID
-INITIAL_TIME = os.getenv('INITIAL_TIME')
-NUMBER_OF_POINTS = os.getenv('NUMBER_OF_POINTS')
-OUTPUT_START_TIME = os.getenv('OUTPUT_START_TIME')
-OUTPUT_END_TIME = os.getenv('OUTPUT_END_TIME')
-JOBHOOK_URL = Config.JOBHOOK_URL
+sim_spec_manager = SimulationSpecManager()
+if not sim_spec_manager.parse_status:
+    ## Exit the process, log error
+
 
 
 # TODO: Combine print, error and jobhook_request_builder in single method
@@ -77,7 +74,7 @@ def main(args):
     trajectoryTask = dataModel.getTask("Time-Course")
     assert (isinstance(trajectoryTask, CTrajectoryTask))
 
-    trajectoryTask.setMethodType(ALGORITHMS_MAP[ALGORITHM])
+    trajectoryTask.setMethodType(sim_spec_manager.ALGORITHM)
 
     # activate the task so that it will be run when the model is saved
     # and passed to CopasiSE
@@ -97,11 +94,11 @@ def main(args):
     assert (isinstance(problem, CTrajectoryProblem))
 
     # simulate 100 steps
-    problem.setStepNumber(int(NUMBER_OF_POINTS))
+    problem.setStepNumber(int(sim_spec_manager.NUMBER_OF_POINTS))
     # start at time 0
-    dataModel.getModel().setInitialTime(int(INITIAL_TIME))
+    dataModel.getModel().setInitialTime(int(sim_spec_manager.INITIAL_TIME))
     # simulate a duration of 10 time units
-    problem.setDuration(int(OUTPUT_END_TIME) - int(OUTPUT_START_TIME))
+    problem.setDuration(int(sim_spec_manager.OUTPUT_END_TIME) - int(sim_spec_manager.OUTPUT_START_TIME))
     # tell the problem to actually generate time series data
     problem.setTimeSeriesRequested(True)
     # tell the problem, that we want exactly 100 simulation steps (not automatically controlled)
@@ -229,12 +226,11 @@ def jobhook_request_builder(msg: str, error=False):
     try:
         info_type = {True: 'INFO', False: 'ERROR'}[error]
         req_data = {
-            'jobId': JOB_ID,
+            'jobId': Config.JOB_ID,
             'infoType': info_type,
             'simulator': 'copasi',
             'message': msg,
         }
-        return requests.post(JOBHOOK_URL, json.dumps(req_data))
     except BaseException as ex:
         print('Exception occurred: ', str(ex))
 

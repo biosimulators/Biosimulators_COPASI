@@ -14,7 +14,7 @@ from .config import Config
 import xmltodict
 
 class SimulationSpecManager:
-    def __init__(self, job_id: str, jobhook_url, sedml_dir_path=Config.SEDML_DIR):
+    def __init__(self, job_id=Config.JOB_ID, jobhook_url=Config.JOBHOOK_URL, sedml_dir_path=Config.SEDML_DIR):
         self.ALGORITHMS_MAP = {
             "0000089": CTaskEnum.Method_DsaLsodar,
             "0000304": CTaskEnum.Method_RADAU5,
