@@ -16,10 +16,10 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
       - name: Build the tagged Docker image
-        run: docker build . --file Dockerfile --tag crbmapi/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+        run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
       - name: Push the tagged Docker image
-        run: docker push crbmapi/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+        run: docker push crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
       - name: Build the latest Docker image
-        run: docker build . --file Dockerfile --tag crbmapi/biosimulations_copasi_api:latest
+        run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:latest
       - name: Push the latest Docker image
-        run: docker push crbmapi/biosimulations_copasi_api:latest
+        run: docker push crbm/biosimulations_copasi_api:latest
