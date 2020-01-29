@@ -11,9 +11,10 @@ import sys
 import os
 from COPASI import *
 from .config import Config
+import xmltodict
 
 class SimulationSpecManager:
-    def __init__(self, job_id: str, jobhook_url):
+    def __init__(self, job_id: str, jobhook_url, sedml_dir_path=Config.SEDML_DIR):
         self.ALGORITHMS_MAP = {
             "0000089": CTaskEnum.Method_DsaLsodar,
             "0000304": CTaskEnum.Method_RADAU5,
@@ -36,14 +37,31 @@ class SimulationSpecManager:
         self.sedml = None
         self.sbml_path = None
 
-    def parse_sim_config_from_sedml(self, sedml: str):
-        # Use XML parser (from omex parser) to get timepoints, start time, etc.
-        # Update those timepoints, etc in self variables
-        pass
+        self.parse_status = self.parse_sim_config_from_sedml(path=sedml_dir_path)
 
-    def __get_sedml():
+        
+
+    def parse_sim_config_from_sedml(self, path: str):
+        sedml = self.__get_sedml__(dir_path=path)
+        if sedml:
+            self.sedml = xmltodict(sedml)
+            simulation = self.sedml['sedML']['listOfSimulations']['uniformTimeCourse']
+            task = self.sedml['sedML']['listOfTasks']['task']
+            model = self.sedml['sedML']['listOfModels']['model']
+            self.ALGORITHM = self.ALGORITHMS_MAP[simulation['algorithm']['@kisaoID'].split(':')[1]]
+            self.INITIAL_TIME = simulation['uniformTimeCourse']['@initialTime']
+            self.NUMBER_OF_POINTS = simulation['uniformTimeCourse']['@numberOfPoints']
+            self.OUTPUT_START_TIME = simulation['uniformTimeCourse']['@outputStartTime']
+            self.OUTPUT_END_TIME = simulation['uniformTimeCourse']['@outputEndTime']
+            self.sbml_path = os.path.join(path, model['@source'])
+
+            return True
+        else:
+            return False
+
+    def __get_sedml__(self, dir_path):
         files = list()
-        path = Config.SEDML_DIR
+        path = dir_path
         for file_path in os.listdir(path):
             if file_path.endswith(".sedml"):
                 files.append(file_path)

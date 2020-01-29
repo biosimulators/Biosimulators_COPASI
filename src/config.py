@@ -12,3 +12,5 @@ import os
 
 class Config:
     SEDML_DIR = 'usr/local/app/copasi/'
+    JOBHOOK_URL = os.getenv('JOBHOOK_URL')
+    JOB_ID = os.getenv('JOB_ID')

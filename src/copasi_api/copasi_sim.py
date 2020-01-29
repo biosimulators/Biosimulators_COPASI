@@ -26,7 +26,7 @@ Contains simulation code using COPASI python bindings
 
 
 import json
-
+from config import Config
 import requests
 from COPASI import *
 
@@ -40,12 +40,12 @@ except:
 
 # Get environment variables
 ALGORITHM = os.getenv('ALGORITHM')
-JOB_ID = os.getenv('JOB_ID')
+JOB_ID = Config.JOB_ID
 INITIAL_TIME = os.getenv('INITIAL_TIME')
 NUMBER_OF_POINTS = os.getenv('NUMBER_OF_POINTS')
 OUTPUT_START_TIME = os.getenv('OUTPUT_START_TIME')
 OUTPUT_END_TIME = os.getenv('OUTPUT_END_TIME')
-JOBHOOK_URL = os.getenv('JOBHOOK_URL')
+JOBHOOK_URL = Config.JOBHOOK_URL
 
 
 # TODO: Combine print, error and jobhook_request_builder in single method
