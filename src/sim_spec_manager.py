@@ -7,6 +7,8 @@
 
 """
 
+import sys
+import os
 from COPASI import *
 from .config import Config
 
@@ -31,6 +33,8 @@ class SimulationSpecManager:
         self.NUMBER_OF_POINTS = None
         self.OUTPUT_START_TIME = None
         self.OUTPUT_END_TIME = None
+        self.sedml = None
+        self.sbml_path = None
 
     def parse_sim_config_from_sedml(self, sedml: str):
         # Use XML parser (from omex parser) to get timepoints, start time, etc.
@@ -38,8 +42,15 @@ class SimulationSpecManager:
         pass
 
     def __get_sedml():
+        files = list()
         path = Config.SEDML_DIR
-        # Use path to scan for files with .sedml extension
-        # Convert to string
-        # pass to self.parse_sim_config_from_sedml
-        pass
+        for file_path in os.listdir(path):
+            if file_path.endswith(".sedml"):
+                files.append(file_path)
+        
+        if len(files) > 1:
+            return False
+        
+        else:
+            with open(file_path, 'r') as f:
+                return f.read()
