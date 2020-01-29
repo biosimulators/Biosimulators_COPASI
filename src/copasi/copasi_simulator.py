@@ -43,7 +43,8 @@ except:
 
 sim_spec_manager = SimulationSpecManager()
 if not sim_spec_manager.parse_status:
-    ## Exit the process, log error
+    logging.error("Error encoundered while parsing omex")
+    sys.exit()
 
 
 
@@ -54,6 +55,7 @@ def main(args):
         logger.error("Usage: copasi_sim  SBMLFILE\n")
         return 1
 
+    # TODO: Get SBML path from SimulationSpecManager
     filename = args[0]
     try:
         # load the model
