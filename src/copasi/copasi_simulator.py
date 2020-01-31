@@ -46,7 +46,6 @@ if not sim_spec_manager.parse_status:
     sys.exit()
 
 
-# TODO: Combine print, error and jobhook_request_builder in single method
 def main(args):
     # the only argument to the main routine should be the name of an SBML file
     if len(args) != 1:
