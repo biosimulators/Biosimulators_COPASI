@@ -24,13 +24,13 @@ and run a time course simulation
 Contains simulation code using COPASI python bindings
 """
 
-
+import os
 import json
-from config import Config
+from src.config import Config
 import requests
 from COPASI import *
-from sim_spec_manager import SimulationSpecManager
-from util.log import Logger
+from src.sim_spec_manager import SimulationSpecManager
+from src.util.log import Logger
 logger = Logger(push_to_crbmapi=True)
 
 # create a datamodel
@@ -40,12 +40,10 @@ except:
     dataModel = CRootContainer.getUndefinedFunction()
 
 
-
 sim_spec_manager = SimulationSpecManager()
 if not sim_spec_manager.parse_status:
     logging.error("Error encoundered while parsing omex")
     sys.exit()
-
 
 
 # TODO: Combine print, error and jobhook_request_builder in single method
@@ -211,8 +209,6 @@ def create_report(model):
                 body.push_back(CRegisteredCommonName(report.getSeparator().getCN().getString()))
                 header.push_back(CRegisteredCommonName(report.getSeparator().getCN().getString()))
     return report
-
-
 
 
 if __name__ == '__main__':

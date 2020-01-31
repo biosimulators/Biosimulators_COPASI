@@ -22,4 +22,3 @@ class Config:
     AUTH0_BIOSIMULATIONS_AUDIENCE = 'api.biosimulations.org'
     AUTH0_TOKEN_URL = 'https://crbm.auth0.com/oauth/token'
     AUTH0_GRANT_TYPE = 'client_credentials'
-

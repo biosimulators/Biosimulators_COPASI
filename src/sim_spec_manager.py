@@ -13,6 +13,7 @@ from COPASI import *
 from .config import Config
 import xmltodict
 
+
 class SimulationSpecManager:
     def __init__(self, job_id=Config.JOB_ID, jobhook_url=Config.JOBHOOK_URL, sedml_dir_path=Config.SEDML_DIR):
         self.ALGORITHMS_MAP = {
@@ -38,8 +39,6 @@ class SimulationSpecManager:
         self.sbml_path = None
 
         self.parse_status = self.parse_sim_config_from_sedml(path=sedml_dir_path)
-
-        
 
     def parse_sim_config_from_sedml(self, path: str):
         sedml = self.__get_sedml__(dir_path=path)
