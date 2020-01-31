@@ -10,6 +10,10 @@
 # -*- coding: ascii -*-
 import os
 
+if os.getenv('SIMULATION_ID') is None:    
+    from dotenv import load_dotenv
+    load_dotenv()
+
 
 class Config:
     SEDML_BASE = '/usr/local/app/copasi/'

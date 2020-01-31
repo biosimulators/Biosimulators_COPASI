@@ -52,8 +52,10 @@ class Logger:
 
     def __log__(self, log_type: str, message):
         message = '{}: {}'.format(log_type, message)
+        print(message)
         if self.push_to_crbmapi:
-            requests.post(self.jobhook_url,
+            try:
+                requests.post(self.jobhook_url,
                           headers=self.jobhook_headers,
                           data=json.dumps({
                               'simId': self.simulation_id,
@@ -61,6 +63,8 @@ class Logger:
                               'message': message
                           })
                           )
+            except BaseException as ex:
+                print('Error occured while sending logs to http server: ', str(ex))
 
     def __get_access_token__(self, url: str, request_headers: dict, request_payload: str):
         response = requests.request('POST', url, headers=request_headers, data=request_payload)

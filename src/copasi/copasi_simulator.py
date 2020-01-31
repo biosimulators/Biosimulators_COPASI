@@ -46,14 +46,13 @@ if not sim_spec_manager.parse_status:
     sys.exit()
 
 
-def main(args):
+def main():
     # the only argument to the main routine should be the name of an SBML file
-    if len(args) != 1:
-        logger.error("Usage: copasi_sim  SBMLFILE\n")
-        return 1
+    # if len(args) != 1:
+    #     logger.error("Usage: copasi_sim  SBMLFILE\n")
+    #     return 1
 
-    # TODO: Get SBML path from SimulationSpecManager
-    filename = args[0]
+    filename = sim_spec_manager.sbml_path
     try:
         # load the model
         if not dataModel.importSBML(filename):
@@ -105,15 +104,15 @@ def main(args):
     # set some parameters for the LSODA method through the method
     method = trajectoryTask.getMethod()
 
+    
     ATol = method.getParameter("Absolute Tolerance")
-    assert ATol is not None
-    assert ATol.getType() == CCopasiParameter.Type_UDOUBLE
-    ATol.setValue(1.0e-12)
+    if ATol is not None and ATol.getType() == CCopasiParameter.Type_UDOUBLE:
+        # TODO: Get tolerance values from SEDML in future
+        ATol.setValue(1.0e-12)
 
     RTol = method.getParameter("Relative Tolerance")
-    assert RTol is not None
-    assert RTol.getType() == CCopasiParameter.Type_UDOUBLE
-    RTol.setValue(1.0e-6)
+    if RTol is not None and RTol.getType() == CCopasiParameter.Type_UDOUBLE:
+        RTol.setValue(1.0e-6)
 
     try:
         # now we run the actual trajectory
@@ -210,5 +209,5 @@ def create_report(model):
     return report
 
 
-if __name__ == '__main__':
-    main(sys.argv[1:])
+
+main()

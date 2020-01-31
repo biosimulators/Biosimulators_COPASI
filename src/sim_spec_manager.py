@@ -43,15 +43,15 @@ class SimulationSpecManager:
     def parse_sim_config_from_sedml(self, path: str):
         sedml = self.__get_sedml__(dir_path=path)
         if sedml:
-            self.sedml = xmltodict(sedml)
+            self.sedml = xmltodict.parse(sedml)
             simulation = self.sedml['sedML']['listOfSimulations']['uniformTimeCourse']
             task = self.sedml['sedML']['listOfTasks']['task']
             model = self.sedml['sedML']['listOfModels']['model']
             self.ALGORITHM = self.ALGORITHMS_MAP[simulation['algorithm']['@kisaoID'].split(':')[1]]
-            self.INITIAL_TIME = simulation['uniformTimeCourse']['@initialTime']
-            self.NUMBER_OF_POINTS = simulation['uniformTimeCourse']['@numberOfPoints']
-            self.OUTPUT_START_TIME = simulation['uniformTimeCourse']['@outputStartTime']
-            self.OUTPUT_END_TIME = simulation['uniformTimeCourse']['@outputEndTime']
+            self.INITIAL_TIME = simulation['@initialTime']
+            self.NUMBER_OF_POINTS = simulation['@numberOfPoints']
+            self.OUTPUT_START_TIME = simulation['@outputStartTime']
+            self.OUTPUT_END_TIME = simulation['@outputEndTime']
             self.sbml_path = os.path.join(path, model['@source'])
 
             return True
@@ -63,11 +63,11 @@ class SimulationSpecManager:
         path = dir_path
         for file_path in os.listdir(path):
             if file_path.endswith(".sedml"):
-                files.append(file_path)
+                files.append(os.path.join(path, file_path))
         
         if len(files) > 1:
             return False
         
         else:
-            with open(file_path, 'r') as f:
+            with open(files[0], 'r') as f:
                 return f.read()

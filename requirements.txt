@@ -1,7 +1,8 @@
-xmltodict
 certifi==2019.11.28
 chardet==3.0.4
 idna==2.8
-python-copasi #Do not add version
+python-copasi==4.27.214
+python-dotenv==0.10.5
 requests==2.22.0
 urllib3==1.25.7
+xmltodict==0.12.0
