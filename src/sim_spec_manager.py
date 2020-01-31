@@ -10,7 +10,7 @@
 import sys
 import os
 from COPASI import *
-from .config import Config
+from config import Config
 import xmltodict
 
 

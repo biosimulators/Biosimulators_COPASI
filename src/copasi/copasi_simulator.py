@@ -26,7 +26,7 @@ Contains simulation code using COPASI python bindings
 
 import os
 import json
-from src.config import Config
+from config import Config
 import requests
 from COPASI import *
 from sim_spec_manager import SimulationSpecManager

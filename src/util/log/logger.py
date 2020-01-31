@@ -63,5 +63,5 @@ class Logger:
                           )
 
     def __get_access_token__(self, url: str, request_headers: dict, request_payload: str):
-        response = requests.post(url, headers=request_headers, data=request_payload)
-        return response.text.encode('utf8')['access_token']
+        response = requests.request('POST', url, headers=request_headers, data=request_payload)
+        return json.loads(response.content)['access_token']
