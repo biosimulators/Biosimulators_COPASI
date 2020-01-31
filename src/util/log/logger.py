@@ -6,7 +6,7 @@
 :License: MIT
 
 """
-from src.config import Config
+from config import Config
 import requests
 import json
 

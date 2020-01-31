@@ -29,8 +29,8 @@ import json
 from src.config import Config
 import requests
 from COPASI import *
-from src.sim_spec_manager import SimulationSpecManager
-from src.util.log import Logger
+from sim_spec_manager import SimulationSpecManager
+from util.log import Logger
 logger = Logger(push_to_crbmapi=True)
 
 # create a datamodel
