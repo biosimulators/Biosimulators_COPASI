@@ -42,7 +42,7 @@ except:
 
 sim_spec_manager = SimulationSpecManager()
 if not sim_spec_manager.parse_status:
-    logging.error("Error encoundered while parsing omex")
+    logger.error("Error encountered while parsing omex")
     sys.exit()
 
 
