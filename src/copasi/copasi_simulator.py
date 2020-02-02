@@ -20,10 +20,18 @@ create a report for a time course simulation
 and run a time course simulation
 """
 
-import json
+"""
+Contains simulation code using COPASI python bindings
+"""
 
+import os
+import json
+from config import Config
 import requests
 from COPASI import *
+from sim_spec_manager import SimulationSpecManager
+from util.log import Logger
+logger = Logger(push_to_crbmapi=True)
 
 # create a datamodel
 try:
@@ -31,49 +39,27 @@ try:
 except:
     dataModel = CRootContainer.getUndefinedFunction()
 
-ALGORITHMS_MAP = {
-    "Method_DsaLsodar": CTaskEnum.Method_DsaLsodar,
-    "Method_RADAU5": CTaskEnum.Method_RADAU5,
-    "Method_stochastic": CTaskEnum.Method_stochastic,
-    "Method_directMethod": CTaskEnum.Method_directMethod,
-    "Method_tauLeap": CTaskEnum.Method_tauLeap,
-    "Method_adaptiveSA": CTaskEnum.Method_adaptiveSA,
-    "Method_hybrid": CTaskEnum.Method_hybrid,
-    "Method_hybridLSODA": CTaskEnum.Method_hybridLSODA,
-    "Method_hybridODE45": CTaskEnum.Method_hybridODE45,
-    "Method_stochasticRunkeKuttaRI5": CTaskEnum.Method_stochasticRunkeKuttaRI5
-}
 
-# Get environment variables
-ALGORITHM = os.getenv('ALGORITHM')
-JOB_ID = os.getenv('JOB_ID')
-INITIAL_TIME = os.getenv('INITIAL_TIME')
-NUMBER_OF_POINTS = os.getenv('NUMBER_OF_POINTS')
-OUTPUT_START_TIME = os.getenv('OUTPUT_START_TIME')
-OUTPUT_END_TIME = os.getenv('OUTPUT_END_TIME')
-JOBHOOK_URL = os.getenv('JOBHOOK_URL')
+sim_spec_manager = SimulationSpecManager()
+if not sim_spec_manager.parse_status:
+    logger.error("Error encountered while parsing omex")
+    sys.exit()
 
 
-# TODO: Combine print, error and jobhook_request_builder in single method
-def main(args):
+def main():
     # the only argument to the main routine should be the name of an SBML file
-    if len(args) != 1:
-        sys.stderr.write("Usage: copasi_sim  SBMLFILE\n")
-        print(jobhook_request_builder("Usage: copasi_sim  SBMLFILE\n", error=True))
-        return 1
+    # if len(args) != 1:
+    #     logger.error("Usage: copasi_sim  SBMLFILE\n")
+    #     return 1
 
-    filename = args[0]
+    filename = sim_spec_manager.sbml_path
     try:
         # load the model
         if not dataModel.importSBML(filename):
-            print("Couldn't load {0}:".format(filename))
-            print(jobhook_request_builder("Couldn't load {0}:".format(filename)))
-            print(CCopasiMessage.getAllMessageText())
-            print(jobhook_request_builder(CCopasiMessage.getAllMessageText()))
+            logger.info("Couldn't load {0}:".format(filename))
+            logger.info(CCopasiMessage.getAllMessageText())
     except:
-        sys.stderr.write("Error while importing the model from file named \"" + filename + "\".\n")
-        print(jobhook_request_builder("Error while importing the model from file named \"" + filename + "\".\n",
-                                      error=True))
+        logger.error("Error while importing the model from file named \"" + filename + "\".\n")
         return 1
 
     model = dataModel.getModel()
@@ -83,7 +69,7 @@ def main(args):
     trajectoryTask = dataModel.getTask("Time-Course")
     assert (isinstance(trajectoryTask, CTrajectoryTask))
 
-    trajectoryTask.setMethodType(ALGORITHMS_MAP[ALGORITHM])
+    trajectoryTask.setMethodType(sim_spec_manager.ALGORITHM)
 
     # activate the task so that it will be run when the model is saved
     # and passed to CopasiSE
@@ -103,11 +89,11 @@ def main(args):
     assert (isinstance(problem, CTrajectoryProblem))
 
     # simulate 100 steps
-    problem.setStepNumber(int(NUMBER_OF_POINTS))
+    problem.setStepNumber(int(sim_spec_manager.NUMBER_OF_POINTS))
     # start at time 0
-    dataModel.getModel().setInitialTime(int(INITIAL_TIME))
+    dataModel.getModel().setInitialTime(int(sim_spec_manager.INITIAL_TIME))
     # simulate a duration of 10 time units
-    problem.setDuration(int(OUTPUT_END_TIME) - int(OUTPUT_START_TIME))
+    problem.setDuration(int(sim_spec_manager.OUTPUT_END_TIME) - int(sim_spec_manager.OUTPUT_START_TIME))
     # tell the problem to actually generate time series data
     problem.setTimeSeriesRequested(True)
     # tell the problem, that we want exactly 100 simulation steps (not automatically controlled)
@@ -118,36 +104,32 @@ def main(args):
     # set some parameters for the LSODA method through the method
     method = trajectoryTask.getMethod()
 
+    
     ATol = method.getParameter("Absolute Tolerance")
-    assert ATol is not None
-    assert ATol.getType() == CCopasiParameter.Type_UDOUBLE
-    ATol.setValue(1.0e-12)
+    if ATol is not None and ATol.getType() == CCopasiParameter.Type_UDOUBLE:
+        # TODO: Get tolerance values from SEDML in future
+        ATol.setValue(1.0e-12)
 
     RTol = method.getParameter("Relative Tolerance")
-    assert RTol is not None
-    assert RTol.getType() == CCopasiParameter.Type_UDOUBLE
-    RTol.setValue(1.0e-6)
+    if RTol is not None and RTol.getType() == CCopasiParameter.Type_UDOUBLE:
+        RTol.setValue(1.0e-6)
 
     try:
         # now we run the actual trajectory
         result = trajectoryTask.process(True)
     except:
-        sys.stderr.write("Error. Running the time course simulation failed.\n")
-        print(jobhook_request_builder("Error. Running the time course simulation failed.\n", error=True))
+        logger.error("Error. Running the time course simulation failed.\n")
         # check if there are additional error messages
         if CCopasiMessage.size() > 0:
             # print the messages in chronological order
-            sys.stderr.write(CCopasiMessage.getAllMessageText(True))
-            print(jobhook_request_builder(CCopasiMessage.getAllMessageText(True), error=True))
+            logger.error(CCopasiMessage.getAllMessageText(True))
         return 1
     if not result:
-        sys.stderr.write("Error. Running the time course simulation failed.\n")
-        print(jobhook_request_builder("Error. Running the time course simulation failed.\n", error=True))
+        logger.error("Error. Running the time course simulation failed.\n")
         # check if there are additional error messages
         if CCopasiMessage.size() > 0:
             # print the messages in chronological order
-            sys.stderr.write(CCopasiMessage.getAllMessageText(True))
-            print(jobhook_request_builder(CCopasiMessage.getAllMessageText(True), error=True))
+            logger.error(CCopasiMessage.getAllMessageText(True))
         return 1
 
     # look at the timeseries
@@ -159,20 +141,16 @@ def print_results(trajectoryTask):
     # we simulated 100 steps, including the initial state, this should be
     # 101 step in the timeseries
     # assert timeSeries.getRecordedSteps() == 101
-    print("The time series consists of {0} steps.".format(timeSeries.getRecordedSteps()))
-    print(jobhook_request_builder("The time series consists of {0} steps.".format(timeSeries.getRecordedSteps())))
-    print("Each step contains {0} variables.".format(timeSeries.getNumVariables()))
-    print(jobhook_request_builder("Each step contains {0} variables.".format(timeSeries.getNumVariables())))
-    print("\nThe final state is: ")
-    print(jobhook_request_builder("\nThe final state is: "))
+    logger.info("The time series consists of {0} steps.".format(timeSeries.getRecordedSteps()))
+    logger.info("Each step contains {0} variables.".format(timeSeries.getNumVariables()))
+    logger.info("\nThe final state is: ")
     iMax = timeSeries.getNumVariables()
     lastIndex = timeSeries.getRecordedSteps() - 1
     for i in range(0, iMax):
         # here we get the particle number (at least for the species)
         # the unit of the other variables may not be particle numbers
         # the concentration data can be acquired with getConcentrationData
-        print("  {0}: {1}".format(timeSeries.getTitle(i), timeSeries.getData(lastIndex, i)))
-        print(jobhook_request_builder("  {0}: {1}".format(timeSeries.getTitle(i), timeSeries.getData(lastIndex, i))))
+        logger.info("  {0}: {1}".format(timeSeries.getTitle(i), timeSeries.getData(lastIndex, i)))
     # the CTimeSeries class now has some new methods to get all variable titles
     # as a python list (getTitles())
     # and methods to get the complete time course data for a certain variable based on
@@ -231,19 +209,5 @@ def create_report(model):
     return report
 
 
-def jobhook_request_builder(msg: str, error=False):
-    try:
-        info_type = {True: 'INFO', False: 'ERROR'}[error]
-        req_data = {
-            'jobId': JOB_ID,
-            'infoType': info_type,
-            'simulator': 'copasi',
-            'message': msg,
-        }
-        return requests.post(JOBHOOK_URL, json.dumps(req_data))
-    except BaseException as ex:
-        print('Exception occurred: ', str(ex))
 
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
+main()
