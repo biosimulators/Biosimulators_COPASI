@@ -11,7 +11,7 @@ The docker image is eventually converted to Singularity image in CRBM service us
 
 Make sure to have all env variables placed in root dir for singularity image
 
-## To push latest image to docker hub
+### To push latest image to docker hub
 Create a new release tag version that pushes latest and version images to docker hub
 
 To check it manually with docker image locally:
