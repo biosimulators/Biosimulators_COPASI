@@ -16,7 +16,7 @@ if os.getenv('SIMULATION_ID') is None:
 
 
 class Config:
-    SEDML_BASE = '/usr/local/app/copasi/'
+    SEDML_BASE = '/usr/local/app/copasi/simulation'
     SIMULATION_ID = os.getenv('SIMULATION_ID')
     USER_SUB_ID = os.getenv('USER_SUB_ID')
     JOBHOOK_URL = os.getenv('JOBHOOK_URL')
