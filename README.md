@@ -14,8 +14,8 @@ Make sure to have all env variables placed in root dir for singularity image
 ### To push latest image to docker hub
 Create a new release tag version that pushes latest and version images to docker hub
 
-To check it manually with docker image locally:
-1. `docker pull crbm/biosimulations_copasi_api:latest`
+#### To check it manually with docker image locally:
+1. ```docker pull crbm/biosimulations_copasi_api:latest```
 2. use env.sample as `.env` file with all variables filled
-3. run this command  `docker run -v <LOCAL_DIR_WITH_SEDMLAND SBML>:/usr/local/app/copasi/<SUB_ID>/<SIM_ID> --env-file <PATH_OF_ENV_FILE> <DOCKER_IMAGE>`
+3. run this command  ```docker run -v <LOCAL_DIR_WITH_SEDML AND SBML>:/usr/local/app/copasi/<SUB_ID>/<SIM_ID> --env-file <PATH_OF_ENV_FILE> <DOCKER_IMAGE>```
 4. Make sure to bind sedml file inbound directory
