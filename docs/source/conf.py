@@ -17,9 +17,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'CRBM COPASI'
-copyright = '2020, gmarupilla'
-author = 'gmarupilla'
+project = 'Biosimulations COPASI Simulator'
+copyright = '2019, Center for Reproducible Biomedical Modelling'
+author = 'Center for Reproducible Biomedical Modelling'
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'
