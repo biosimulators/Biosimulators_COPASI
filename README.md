@@ -1,7 +1,7 @@
 ![Logo](https://raw.githubusercontent.com/reproducible-biomedical-modeling/CRBM-Viz/master/CRBM-Viz/src/assets/logo/logo-white.svg?sanitize=true)
 ---
 # Biosimulations COPASI Simulator
-![Publish Docker](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Publish%20Docker/badge.svg)   ![Docker Image CI](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Docker%20Image%20CI/badge.svg)
+![Publish Docker](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Publish%20Docker/badge.svg)   ![Docker Image CI](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Docker%20Image%20CI/badge.svg)   [![GitHub issues](https://img.shields.io/github/issues/reproducible-biomedical-modeling/CRBM-COPASI?logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/issues) [![GitHub license](https://img.shields.io/github/license/reproducible-biomedical-modeling/CRBM-COPASI?badges-awesome-green.svg&logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/blob/master/LICENSE)
 
 ## The COPASI simulator for [BioSimulations](https://biosimulations.io)
 
