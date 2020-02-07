@@ -80,7 +80,7 @@ def main():
     # set the report for the task
     trajectoryTask.getReport().setReportDefinition(report)
     # set the output filename
-    trajectoryTask.getReport().setTarget("result.ida")
+    trajectoryTask.getReport().setTarget(os.path.join(sim_spec_manager.out_path, 'result.ida'))
     # don't append output if the file exists, but overwrite the file
     trajectoryTask.getReport().setAppend(False)
 

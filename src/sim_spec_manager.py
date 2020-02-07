@@ -37,6 +37,9 @@ class SimulationSpecManager:
         self.OUTPUT_END_TIME = None
         self.sedml = None
         self.sbml_path = None
+        self.simulation = None
+        self.task = None
+        self.out_path = None
 
         self.parse_status = self.parse_sim_config_from_sedml(path=sedml_dir_path)
 
@@ -44,15 +47,19 @@ class SimulationSpecManager:
         sedml = self.__get_sedml__(dir_path=path)
         if sedml:
             self.sedml = xmltodict.parse(sedml)
-            simulation = self.sedml['sedML']['listOfSimulations']['uniformTimeCourse']
-            task = self.sedml['sedML']['listOfTasks']['task']
+            self.simulation = self.sedml['sedML']['listOfSimulations']['uniformTimeCourse']
+            self.task = self.sedml['sedML']['listOfTasks']['task']
             model = self.sedml['sedML']['listOfModels']['model']
-            self.ALGORITHM = self.ALGORITHMS_MAP[simulation['algorithm']['@kisaoID'].split(':')[1]]
-            self.INITIAL_TIME = simulation['@initialTime']
-            self.NUMBER_OF_POINTS = simulation['@numberOfPoints']
-            self.OUTPUT_START_TIME = simulation['@outputStartTime']
-            self.OUTPUT_END_TIME = simulation['@outputEndTime']
+            self.ALGORITHM = self.ALGORITHMS_MAP[self.simulation['algorithm']['@kisaoID'].split(':')[1]]
+            self.INITIAL_TIME = self.simulation['@initialTime']
+            self.NUMBER_OF_POINTS = self.simulation['@numberOfPoints']
+            self.OUTPUT_START_TIME = self.simulation['@outputStartTime']
+            self.OUTPUT_END_TIME = self.simulation['@outputEndTime']
             self.sbml_path = os.path.join(path, model['@source'])
+
+            # Create directory for output
+            self.out_path = os.path.join(path, 'out', self.task['@id'])
+            os.makedirs(self.out_path, exist_ok=True)
 
             return True
         else:
