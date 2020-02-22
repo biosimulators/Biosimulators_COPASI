@@ -22,4 +22,4 @@ jobs:
         AUTH0_TOKEN_URL: ${{secrets.AUTH0_TOKEN_URL}}
         AUTH0_GRANT_TYPE: ${{secrets.AUTH0_GRANT_TYPE}}
         JOBHOOK_URL: ${{secrets.JOBHOOK_URL}}
-      run: docker run -v sample_model:/usr/local/app/copasi/simulation -e JOB_ID -e SIMULATION_ID -e AUTH0_CLIENT_ID -e AUTH0_CLIENT_SECRET -e AUTH0_BIOSIMULATIONS_AUDIENCE -e AUTH0_TOKEN_URL -e AUTH0_GRANT_TYPE -e JOBHOOK_URL copasi_img:latest
+      run: docker run -v /sample_model:/usr/local/app/copasi/simulation -e JOB_ID -e SIMULATION_ID -e AUTH0_CLIENT_ID -e AUTH0_CLIENT_SECRET -e AUTH0_BIOSIMULATIONS_AUDIENCE -e AUTH0_TOKEN_URL -e AUTH0_GRANT_TYPE -e JOBHOOK_URL copasi_img:latest
