@@ -87,7 +87,7 @@ def main():
     # get the problem for the task to set some parameters
     problem = trajectoryTask.getProblem()
     assert (isinstance(problem, CTrajectoryProblem))
-
+    # Todo: Check time points with float type
     # simulate 100 steps
     problem.setStepNumber(int(sim_spec_manager.NUMBER_OF_POINTS))
     # start at time 0
