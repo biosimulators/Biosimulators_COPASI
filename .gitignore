@@ -111,3 +111,4 @@ venv.bak/
 # Mac related ignores
 .DS_Store/
 
+/sample_model/out/
