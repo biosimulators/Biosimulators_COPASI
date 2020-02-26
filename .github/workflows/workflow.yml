@@ -1,0 +1,66 @@
+name: Main Workflow
+on: [push, pull_request, published]
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+            - name: Build the Docker image
+              run: docker build --file Dockerfile --tag crbm/biosimulations_copasi_api:latest .
+            - name: Test the docker image
+              env:
+                JOB_ID: ${{secrets.JOB_ID}}
+                SIMULATION_ID: ${{secrets.SIMULATION_ID}}
+                AUTH0_CLIENT_ID: ${{secrets.AUTH0_CLIENT_ID}}
+                AUTH0_CLIENT_SECRET: ${{secrets.AUTH0_CLIENT_SECRET}}
+                AUTH0_BIOSIMULATIONS_AUDIENCE: ${{secrets.AUTH0_BIOSIMULATIONS_AUDIENCE}}
+                AUTH0_TOKEN_URL: ${{secrets.AUTH0_TOKEN_URL}}
+                AUTH0_GRANT_TYPE: ${{secrets.AUTH0_GRANT_TYPE}}
+                JOBHOOK_URL: ${{secrets.JOBHOOK_URL}}
+              run: docker run -v /home/runner/work/CRBM-COPASI/CRBM-COPASI/sample_model/:/usr/local/app/copasi/simulation -e JOB_ID -e SIMULATION_ID -e AUTH0_CLIENT_ID -e AUTH0_CLIENT_SECRET -e AUTH0_BIOSIMULATIONS_AUDIENCE -e AUTH0_TOKEN_URL -e AUTH0_GRANT_TYPE -e JOBHOOK_URL crbm/biosimulations_copasi_api:latest
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+            - name: Login to DockerHub Registry
+                run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            - name: Get the version
+                id: vars
+                run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+            - name: Build the tagged Docker image
+                run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+            - name: Push the tagged Docker image
+                run: docker push crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+            - name: Build the latest Docker image
+                run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:latest
+            - name: Push the latest Docker image
+                run: docker push crbm/biosimulations_copasi_api:latest
+    document:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@master
+            - name: Set up Python 3.8
+              uses: actions/setup-python@v1
+              with:
+                python-version: 3.8
+            - name: Install requirements
+      
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r docs/requirements.txt
+            - name: Create index html document
+              run: |
+                sphinx-apidoc ./ -o ./docs/source/
+                sphinx-build ./docs/source/ ./docs/html/
+      
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v2
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
+                title: "Documentation "
+                body: "Created auto-documentation using sphinx"
+                lables: Documentation
+                branch: documentation
+                assignees: gmarupilla
+                reviewers: gmarupilla        
+            
