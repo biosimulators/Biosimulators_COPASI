@@ -23,18 +23,18 @@ jobs:
         steps:
             - uses: actions/checkout@v1
             - name: Login to DockerHub Registry
-                run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+              run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             - name: Get the version
-                id: vars
-                run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+              id: vars
+              run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
             - name: Build the tagged Docker image
-                run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+              run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
             - name: Push the tagged Docker image
-                run: docker push crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+              run: docker push crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
             - name: Build the latest Docker image
-                run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:latest
+              run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:latest
             - name: Push the latest Docker image
-                run: docker push crbm/biosimulations_copasi_api:latest
+              run: docker push crbm/biosimulations_copasi_api:latest
     document:
         runs-on: ubuntu-latest
         steps:
@@ -44,7 +44,6 @@ jobs:
               with:
                 python-version: 3.8
             - name: Install requirements
-      
               run: |
                 python -m pip install --upgrade pip
                 pip install -r docs/requirements.txt
@@ -52,7 +51,6 @@ jobs:
               run: |
                 sphinx-apidoc ./ -o ./docs/source/
                 sphinx-build ./docs/source/ ./docs/html/
-      
             - name: Create Pull Request
               uses: peter-evans/create-pull-request@v2
               with:
@@ -62,5 +60,4 @@ jobs:
                 lables: Documentation
                 branch: documentation
                 assignees: gmarupilla
-                reviewers: gmarupilla        
-            
+                reviewers: gmarupilla
