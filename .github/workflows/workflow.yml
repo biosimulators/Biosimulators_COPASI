@@ -1,10 +1,16 @@
 name: Main Workflow
-runs-on: ubuntu-latest
+on: 
+    push:
+        branches: 
+            - '*'
+            - master
+    pull_request:
+        branches: '*'
+    release:
+        types: [published]
 jobs:
-    on: 
-        release:
-            types: [published]
     deploy:
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
             - name: Login to DockerHub Registry
@@ -12,16 +18,13 @@ jobs:
             - name: Get the version
               id: vars
               run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
-            - name: Build the tagged Docker image
-              run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{deploy.steps.vars.outputs.tag}}
-            - name: Push the tagged Docker image
-              run: docker push crbm/biosimulations_copasi_api:${{deploy.steps.vars.outputs.tag}}
-            - name: Build the latest Docker image
-              run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:latest
-            - name: Push the latest Docker image
-              run: docker push crbm/biosimulations_copasi_api:latest
+            - name: Build and push the tagged Docker image
+              if: github.event_name == 'published'
+              run: |
+                docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+                docker push crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
     build:
-        on: [push]
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
             - name: Build the Docker image
@@ -38,10 +41,7 @@ jobs:
                 JOBHOOK_URL: ${{secrets.JOBHOOK_URL}}
               run: docker run -v /home/runner/work/CRBM-COPASI/CRBM-COPASI/sample_model/:/usr/local/app/copasi/simulation -e JOB_ID -e SIMULATION_ID -e AUTH0_CLIENT_ID -e AUTH0_CLIENT_SECRET -e AUTH0_BIOSIMULATIONS_AUDIENCE -e AUTH0_TOKEN_URL -e AUTH0_GRANT_TYPE -e JOBHOOK_URL crbm/biosimulations_copasi_api:latest
     document:
-        on:
-            push:
-                branches:
-                    - master
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@master
             - name: Set up Python 3.8
@@ -49,6 +49,7 @@ jobs:
               with:
                 python-version: 3.8
             - name: Install requirements
+              if: github.event_path == 'master'
               run: |
                 python -m pip install --upgrade pip
                 pip install -r docs/requirements.txt
