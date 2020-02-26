@@ -1,14 +1,10 @@
 name: Main Workflow
+runs-on: ubuntu-latest
 on: 
-    push:
-        branches: '*'
-    pull_request:
-        branches: '*'
     release:
         types: [published]
 jobs:
     deploy:
-        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
             - name: Login to DockerHub Registry
@@ -17,15 +13,15 @@ jobs:
               id: vars
               run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
             - name: Build the tagged Docker image
-              run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+              run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{deploy.steps.vars.outputs.tag}}
             - name: Push the tagged Docker image
-              run: docker push crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+              run: docker push crbm/biosimulations_copasi_api:${{deploy.steps.vars.outputs.tag}}
             - name: Build the latest Docker image
               run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:latest
             - name: Push the latest Docker image
               run: docker push crbm/biosimulations_copasi_api:latest
+on: [push]
     build:
-        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
             - name: Build the Docker image
@@ -41,8 +37,11 @@ jobs:
                 AUTH0_GRANT_TYPE: ${{secrets.AUTH0_GRANT_TYPE}}
                 JOBHOOK_URL: ${{secrets.JOBHOOK_URL}}
               run: docker run -v /home/runner/work/CRBM-COPASI/CRBM-COPASI/sample_model/:/usr/local/app/copasi/simulation -e JOB_ID -e SIMULATION_ID -e AUTH0_CLIENT_ID -e AUTH0_CLIENT_SECRET -e AUTH0_BIOSIMULATIONS_AUDIENCE -e AUTH0_TOKEN_URL -e AUTH0_GRANT_TYPE -e JOBHOOK_URL crbm/biosimulations_copasi_api:latest
+on:
+    push:
+        branches:
+            - master
     document:
-        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@master
             - name: Set up Python 3.8
