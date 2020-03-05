@@ -55,10 +55,9 @@ class Logger:
         print(message)
         if self.push_to_crbmapi:
             try:
-                requests.post(self.jobhook_url,
+                requests.patch('{}/{}'.format(self.jobhook_url, self.simulation_id),
                           headers=self.jobhook_headers,
                           data=json.dumps({
-                              'simId': self.simulation_id,
                               'jobId': self.job_id,
                               'message': message
                           })

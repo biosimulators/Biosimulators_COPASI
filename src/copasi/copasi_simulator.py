@@ -133,6 +133,8 @@ def main():
     # look at the timeseries
     print_results(trajectoryTask)
 
+    logger.info('Success - Exit')
+
 
 def print_results(trajectoryTask):
     timeSeries = trajectoryTask.getTimeSeries()
