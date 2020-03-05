@@ -87,13 +87,12 @@ def main():
     # get the problem for the task to set some parameters
     problem = trajectoryTask.getProblem()
     assert (isinstance(problem, CTrajectoryProblem))
-    # Todo: Check time points with float type
     # simulate 100 steps
     problem.setStepNumber(int(sim_spec_manager.NUMBER_OF_POINTS))
     # start at time 0
-    dataModel.getModel().setInitialTime(int(sim_spec_manager.INITIAL_TIME))
+    dataModel.getModel().setInitialTime(float(sim_spec_manager.INITIAL_TIME))
     # simulate a duration of 10 time units
-    problem.setDuration(int(sim_spec_manager.OUTPUT_END_TIME) - int(sim_spec_manager.OUTPUT_START_TIME))
+    problem.setDuration(float(sim_spec_manager.OUTPUT_END_TIME) - float(sim_spec_manager.OUTPUT_START_TIME))
     # tell the problem to actually generate time series data
     problem.setTimeSeriesRequested(True)
     # tell the problem, that we want exactly 100 simulation steps (not automatically controlled)
@@ -104,7 +103,6 @@ def main():
     # set some parameters for the LSODA method through the method
     method = trajectoryTask.getMethod()
 
-    
     ATol = method.getParameter("Absolute Tolerance")
     if ATol is not None and ATol.getType() == CCopasiParameter.Type_UDOUBLE:
         # TODO: Get tolerance values from SEDML in future
@@ -207,7 +205,6 @@ def create_report(model):
                 body.push_back(CRegisteredCommonName(report.getSeparator().getCN().getString()))
                 header.push_back(CRegisteredCommonName(report.getSeparator().getCN().getString()))
     return report
-
 
 
 main()

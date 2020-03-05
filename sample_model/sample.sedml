@@ -2,7 +2,7 @@
 <!-- Created by COPASI version 4.27 (Build 217) on 2019-12-20 13:58 with libSBML version 5.18.0. -->
 <sedML xmlns="http://sed-ml.org/sed-ml/level1/version2" level="1" version="2">
   <listOfSimulations>
-    <uniformTimeCourse id="sim1" initialTime="0" outputStartTime="0" outputEndTime="400" numberOfPoints="4000">
+    <uniformTimeCourse id="sim1" initialTime="0.12" outputStartTime="0.23" outputEndTime="300.78" numberOfPoints="4000">
       <algorithm kisaoID="KISAO:0000089"/>
     </uniformTimeCourse>
   </listOfSimulations>
