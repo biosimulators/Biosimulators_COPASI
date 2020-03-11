@@ -57,10 +57,10 @@ class Logger:
             try:
                 requests.patch('{}/{}'.format(self.jobhook_url, self.simulation_id),
                           headers=self.jobhook_headers,
-                          data=json.dumps({
-                              'jobId': self.job_id,
-                              'message': message
-                          })
+                          data=json.dumps([
+                              { "op": "add", "path": "/log", "value": message},
+                              { "op": "replace", "path": "/jobId", "value": self.job_id}
+                          ])
                           )
             except BaseException as ex:
                 print('Error occured while sending logs to http server: ', str(ex))
