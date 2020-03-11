@@ -59,7 +59,7 @@ class Logger:
                           headers=self.jobhook_headers,
                           data=json.dumps([
                               { "op": "add", "path": "/log", "value": message},
-                              { "op": "replace", "path": "/jobId", "value": self.job_id}
+                              { "op": "replace", "path": "/slurmJobId", "value": self.job_id}
                           ])
                           )
             except BaseException as ex:
