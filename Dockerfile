@@ -28,9 +28,6 @@ RUN apt-get update -y \
 COPY . /root/Biosimulations_copasi
 RUN pip3 install /root/Biosimulations_copasi
 
-# Configure matplotlib backend
-# ENV MPLBACKEND="module://Agg" 
-
 # Entrypoint
 ENTRYPOINT ["copasi"]
 CMD []
