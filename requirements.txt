@@ -6,3 +6,6 @@ python-dotenv==0.10.5
 requests==2.22.0
 urllib3==1.25.7
 xmltodict==0.12.0
+python_libcombine
+cement
+matplotlib
