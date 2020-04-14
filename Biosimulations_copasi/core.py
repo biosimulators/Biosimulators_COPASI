@@ -14,7 +14,7 @@ import tempfile
 import warnings
 import zipfile
 # from COPASI import * as copasi
-import COPASI as cps
+import COPASI as copasi
 importlib.reload(libcombine)
 
 
@@ -38,13 +38,27 @@ def exec_combine_archive(archive_file, out_dir):
 
     # extract files from archive and simulate
     try:
+        # Create temp directory
+        tmp_dir = tempfile.mkdtemp()
+        
         # Create root container
-        data_model = cps.CRootContainer().addDatamodel()
+        # data_model = copasi.CRootContainer().addDatamodel()
 
         # open omex archive
-        data_model.openCombineArchive(fileName=archive_file)
+        # data_model.openCombineArchive(fileName=archive_file)  --> Would only work for single files (single sedml, sbml or cps)
 
-        model_analyser = cps.CModelAnalyzer(data_model.getModel())
+        # Process combine archive
+        archive = libcombine.CombineArchive()
+        archive.initializeFromArchive(archive_file)
+        archive.extractTo(tmp_dir)
+        manifest = archive.getManifest()
+        contents = manifest.getListOfContents()
+
+        sedml_locations = list()
+
+        for content in contents:
+            if content.isFormat('sedml'):
+                sedml_locations.append(content.getLocation())
 
         # run all sedml files
         for sedml_location in sedml_locations:
@@ -52,13 +66,14 @@ def exec_combine_archive(archive_file, out_dir):
             sedml_out_dir = os.path.join(out_dir, os.path.splitext(sedml_location)[0])
             if not os.path.isdir(sedml_out_dir):
                 os.makedirs(sedml_out_dir)
-            factory = tellurium.sedml.tesedml.SEDMLCodeFactory(sedml_path,
-                                                               workingDir=os.path.dirname(sedml_path),
-                                                               createOutputs=True,
-                                                               saveOutputs=True,
-                                                               outputDir=sedml_out_dir,
-                                                               )
-            factory.executePython()
+            data_model = copasi.CRootContainer().addDatamodel()
+            data_model.importSEDML(sedml_path)
+            for i in range(0, len(data_model.getTaskList())):
+                task = data_model.getTaskList().get(i)
+                task.getReport().setTarget(sedml_out_dir)
+                task.initialize(55)
+                task.process(True)
+
     finally:
         shutil.rmtree(tmp_dir)
 

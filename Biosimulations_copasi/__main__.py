@@ -27,7 +27,7 @@ class BaseController(cement.Controller):
                                        default='.',
                                        help='Directory to save outputs')),
             (['-v', '--version'], dict(action='version',
-                                       version=Biosimulations_tellurium.__version__)),
+                                       version=Biosimulations_copasi.__version__)),
         ]
 
     @cement.ex(hide=True)
