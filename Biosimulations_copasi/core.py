@@ -70,7 +70,7 @@ def exec_combine_archive(archive_file, out_dir):
             for task_index in range(0, len(data_model.getTaskList())):
                 task = data_model.getTaskList().get(task_index)
                 # Get Name and Class of task as string
-                task_str = str(task_str)
+                task_str = str(task)
                 try:
                     # Get name of Task
                     task_name = task_str.split('"')[1]
