@@ -13,7 +13,6 @@ import shutil
 import tempfile
 import warnings
 import zipfile
-# from COPASI import * as copasi
 import COPASI as copasi
 importlib.reload(libcombine)
 
@@ -36,26 +35,19 @@ def exec_combine_archive(archive_file, out_dir):
     if not zipfile.is_zipfile(archive_file):
         raise IOError("File is not an OMEX Combine Archive in zip format: {}".format(archive_file))
 
-    # extract files from archive and simulate
     try:
         # Create temp directory
         tmp_dir = tempfile.mkdtemp()
         
-        # Create root container
-        # data_model = copasi.CRootContainer().addDatamodel()
-
-        # open omex archive
-        # data_model.openCombineArchive(fileName=archive_file)  --> Would only work for single files (single sedml, sbml or cps)
-
-        # Process combine archive
+        # Get list of contents from Combine Archive
         archive = libcombine.CombineArchive()
         archive.initializeFromArchive(archive_file)
         archive.extractTo(tmp_dir)
         manifest = archive.getManifest()
         contents = manifest.getListOfContents()
 
+        # Get location of all SEDML files
         sedml_locations = list()
-
         for content in contents:
             if content.isFormat('sedml'):
                 sedml_locations.append(content.getLocation())
@@ -66,13 +58,32 @@ def exec_combine_archive(archive_file, out_dir):
             sedml_out_dir = os.path.join(out_dir, os.path.splitext(sedml_location)[0])
             if not os.path.isdir(sedml_out_dir):
                 os.makedirs(sedml_out_dir)
-            data_model = copasi.CRootContainer().addDatamodel()
+
+            # Create a base Copasi container to hold all the Tasks
+            try:
+                data_model = copasi.CRootContainer.addDatamodel()
+            except:
+                data_model = copasi.CRootContainer.getUndefinedFunction()
             data_model.importSEDML(sedml_path)
-            for i in range(0, len(data_model.getTaskList())):
-                task = data_model.getTaskList().get(i)
-                task.getReport().setTarget(sedml_out_dir)
-                task.initialize(55)
-                task.process(True)
+
+            # Run all Tasks
+            for task_index in range(0, len(data_model.getTaskList())):
+                task = data_model.getTaskList().get(task_index)
+                # Get Name and Class of task as string
+                task_str = str(task_str)
+                try:
+                    # Get name of Task
+                    task_name = task_str.split('"')[1]
+                except IndexError:
+                    # Get Class name if Task name is not present
+                    task_name = task_str.split("'")[1].split("*")[0]
+                    task_name = task_name[:len(task_name)-1]
+                # Set output file for the task
+                task_str.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name}.txt'))
+                # Initialising the task with default values
+                task_str.initialize(119)
+                # Run the task
+                task_str.process(True)
 
     finally:
         shutil.rmtree(tmp_dir)
