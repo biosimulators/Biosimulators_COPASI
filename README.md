@@ -1,27 +1,65 @@
-![Logo](https://raw.githubusercontent.com/reproducible-biomedical-modeling/CRBM-Viz/master/CRBM-Viz/src/assets/logo/logo-white.svg?sanitize=true)
----
-# Biosimulations COPASI Simulator
+# Biosimulations_COPASI 
 ![Publish Docker](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Publish%20Docker/badge.svg)   ![Docker Image CI](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Docker%20Image%20CI/badge.svg)
 ![Document](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Document/badge.svg)
 [![GitHub issues](https://img.shields.io/github/issues/reproducible-biomedical-modeling/CRBM-COPASI?logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/issues) [![GitHub license](https://img.shields.io/github/license/reproducible-biomedical-modeling/CRBM-COPASI?badges-awesome-green.svg&logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/blob/master/LICENSE)
 
-## The COPASI simulator for [BioSimulations](https://biosimulations.io)
+# Biosimulations_copasi
+Biosimulations-compliant command-line interface to the [COPASI](http://copasi.org/) simulation program.
 
-This repo builds a docker image of the COPASI Simulator for BioSimulations web application.
+## Contents
+* [Installation](#installation)
+* [Usage](#usage)
+* [License](#license)
+* [Development team](#development-team)
+* [Questions and comments](#questions-and-comments)
 
-The docker image is eventually converted to Singularity image in CRBM service user at HPC which further is used to perform actual simulation. The image is created automatically on  **crbmapi.cam.uchc.edu** server via service root user using cron jobs (cronjob scheduled with the latest docker hub image tag)
+## Installation
 
-Make sure to have all env variables placed in root dir for singularity image
+### Install Python package
+```
+pip install git+https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI
+```
 
-### To push latest image to docker hub
-Create a new release tag version that pushes latest and version images to docker hub
+### Install Docker image
+```
+docker pull crbm/biosimulations_copasi
+```
 
-#### To check it manually with docker image locally:
-1. ```docker pull crbm/biosimulations_copasi_api:latest```
-2. use env.sample as `.env` file with all variables filled
-3. run this command  ```docker run -v <LOCAL_DIR_WITH_SEDML AND SBML>:/usr/local/app/copasi/simulation --env-file <PATH_OF_ENV_FILE> crbm/biosimulations_copasi_api:latest```
-4. Make sure to bind sedml file inbound directory
+## Local usage
+```
+usage: copasi [-h] [-d] [-q] -i ARCHIVE [-o OUT_DIR] [-v]
 
-### License
+BioSimulations-compliant command-line interface to the copasi simulation program <http://copasi.org>.
 
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --debug           full application debug mode
+  -q, --quiet           suppress all console output
+  -i ARCHIVE, --archive ARCHIVE
+                        Path to OMEX file which contains one or more SED-ML-
+                        encoded simulation experiments
+  -o OUT_DIR, --out-dir OUT_DIR
+                        Directory to save outputs
+  -v, --version         show program's version number and exit
+```
+
+## Usage through Docker container
+```
+docker run \
+  --tty \
+  --rm \
+  --mount type=bind,source="$(pwd)"/tests/fixtures,target=/root/in,readonly \
+  --mount type=bind,source="$(pwd)"/tests/results,target=/root/out \
+  crbm/biosimulations_copasi:latest \
+    -i /root/in/BIOMD0000000297.omex \
+    -o /root/out
+```
+
+## License
 This package is released under the [MIT license](LICENSE).
+
+## Development team
+This package was developed by the [Center for Reproducible Biomedical Modeling](http://reproduciblebiomodels.org) 
+
+## Questions and comments
+Please contact the [Center for Reproducible Biomedical Modeling](mailto:info@reproduciblebiomodels.org) with any questions or comments.

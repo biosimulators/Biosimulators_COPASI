@@ -87,6 +87,3 @@ def exec_combine_archive(archive_file, out_dir):
 
     finally:
         shutil.rmtree(tmp_dir)
-
-
-
