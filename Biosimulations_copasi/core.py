@@ -14,6 +14,7 @@ import tempfile
 import warnings
 import zipfile
 import COPASI as copasi
+import sys
 importlib.reload(libcombine)
 
 
@@ -41,10 +42,13 @@ def exec_combine_archive(archive_file, out_dir):
         
         # Get list of contents from Combine Archive
         archive = libcombine.CombineArchive()
-        archive.initializeFromArchive(archive_file)
-        archive.extractTo(tmp_dir)
+        is_initialised = archive.initializeFromArchive(archive_file)
+        is_extracted = archive.extractTo(tmp_dir)
         manifest = archive.getManifest()
         contents = manifest.getListOfContents()
+
+        if not is_initialised or not is_extracted:
+            sys.exit("Problem while initialising/extract combine archive")
 
         # Get location of all SEDML files
         sedml_locations = list()
@@ -79,11 +83,11 @@ def exec_combine_archive(archive_file, out_dir):
                     task_name = task_str.split("'")[1].split("*")[0]
                     task_name = task_name[:len(task_name)-1]
                 # Set output file for the task
-                task_str.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name}.txt'))
+                task.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name}.txt'))
                 # Initialising the task with default values
-                task_str.initialize(119)
+                task.initialize(119)
                 # Run the task
-                task_str.process(True)
+                task.process(True)
 
     finally:
         shutil.rmtree(tmp_dir)
