@@ -86,6 +86,8 @@ def exec_combine_archive(archive_file, out_dir):
                 task.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name}.txt'))
                 # Initialising the task with default values
                 task.initialize(119)
+                # TODO: Few tasks run but no Report is generated (Like Time Course)
+                # @body: Create report generation methods for such tasks.
                 # Run the task
                 task.process(True)
 
