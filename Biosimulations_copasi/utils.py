@@ -1,27 +1,25 @@
 import COPASI as copasi
 
 def create_time_course_report(dataModel):
+    """Create Report definition for Time course simulation task
+    
+    :param dataModel: Data model of root container being used to hold related tasks
+    :type: copasi.CDataModel
+    :return: Report definition for time course simulation  
+    :rtype: copasi.CReportDefinition
+    """    
     model = dataModel.getModel()
-
-
-
     # create a report with the correct filename and all the species against
     # time.
     reports = dataModel.getReportDefinitionList()
-
-
     # create a report definition object
     report = reports.createReportDefinition("Time-Course", "Output for timecourse")
-
-
     # set the task type for the report definition to timecourse
     report.setTaskType(copasi.CTaskEnum.Task_timeCourse)
-
     # we don't want a table
     report.setIsTable(False)
     # the entries in the output should be separated by a ", "
     report.setSeparator(copasi.CCopasiReportSeparator(", "))
-
     # we need a handle to the header and the body
     # the header will display the ids of the metabolites and "time" for
     # the first column
@@ -51,6 +49,4 @@ def create_time_course_report(dataModel):
             if i != iMax - 1:
                 body.push_back(copasi.CRegisteredCommonName(report.getSeparator().getCN().getString()))
                 header.push_back(copasi.CRegisteredCommonName(report.getSeparator().getCN().getString()))
-
-            
     return report

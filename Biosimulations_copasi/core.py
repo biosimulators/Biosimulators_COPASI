@@ -23,13 +23,15 @@ __all__ = ['exec_combine_archive']
 
 
 def exec_combine_archive(archive_file, out_dir):
-    """ Execute the SED tasks defined in a COMBINE archive and save the outputs
-
-    Args:
-        archive_file (:obj:`str`): path to COMBINE archive
-        out_dir (:obj:`str`): directory to store the outputs of the tasks
-    """
-
+    """Execute the SED tasks defined in a COMBINE archive and save the outputs
+    
+    :param archive_file: path to COMBINE archive
+    :type archive_file: str
+    :param out_dir: directory to store the outputs of the tasks
+    :type out_dir: str
+    :raises FileNotFoundError: When the combine archive is not found
+    :raises IOError: When file is not an OMEX combine archive
+    """    
     # check that archive exists and is in zip format
     if not os.path.isfile(archive_file):
         raise FileNotFoundError("File does not exist: {}".format(archive_file))
