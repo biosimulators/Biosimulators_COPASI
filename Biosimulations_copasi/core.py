@@ -15,6 +15,7 @@ import warnings
 import zipfile
 import COPASI as copasi
 import sys
+from .utils import create_time_course_report
 importlib.reload(libcombine)
 
 
@@ -69,7 +70,8 @@ def exec_combine_archive(archive_file, out_dir):
             except:
                 data_model = copasi.CRootContainer.getUndefinedFunction()
             data_model.importSEDML(sedml_path)
-
+            
+            report = create_time_course_report(data_model)
             # Run all Tasks
             for task_index in range(0, len(data_model.getTaskList())):
                 task = data_model.getTaskList().get(task_index)
@@ -83,7 +85,11 @@ def exec_combine_archive(archive_file, out_dir):
                     task_name = task_str.split("'")[1].split("*")[0]
                     task_name = task_name[:len(task_name)-1]
                 # Set output file for the task
+                if task_name == 'Time-Course':
+                    task.getReport().setReportDefinition(report)
                 task.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name}.txt'))
+                # If file exists, don't append in it, overwrite it.
+                task.getReport().setAppend(False)
                 # Initialising the task with default values
                 task.initialize(119)
                 # TODO: Few tasks run but no Report is generated (Like Time Course)
