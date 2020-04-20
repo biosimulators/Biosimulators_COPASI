@@ -23,7 +23,6 @@ import importlib
 import libsbml  # noqa: F401
 import libsedml  # noqa: F401
 import os
-import PyPDF2
 import shutil
 import tempfile
 import unittest

@@ -11,7 +11,6 @@ import libcombine
 import os
 import shutil
 import tempfile
-import warnings
 import zipfile
 import COPASI as copasi
 import sys
