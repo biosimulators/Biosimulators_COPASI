@@ -68,7 +68,7 @@ def exec_combine_archive(archive_file, out_dir):
             # Create a base Copasi container to hold all the Tasks
             try:
                 data_model = copasi.CRootContainer.addDatamodel()
-            except:
+            except Exception:
                 data_model = copasi.CRootContainer.getUndefinedFunction()
             data_model.importSEDML(sedml_path)
             
