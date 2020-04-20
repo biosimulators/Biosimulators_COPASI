@@ -1,10 +1,10 @@
 {
   "id": "copasi",
   "name": "COmplex PAthway Simulator",
-  "version": "4.27",
+  "version": "4.27.214",
   "description": "COPASI is C++-based software application for simulation and analysis of biochemical networks and their dynamics.",
   "url": "http://copasi.org/",
-  "dockerHubImageId": "crbm/biosimulations_copasi:latest",
+  "dockerHubImageId": "crbm/biosimulations_copasi:4.27.214",
   "format": {
     "name": "Docker Image",
     "version": "1.2",
