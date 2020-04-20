@@ -1,7 +1,9 @@
 # Biosimulations_COPASI 
-![Publish Docker](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Publish%20Docker/badge.svg)   ![Docker Image CI](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Docker%20Image%20CI/badge.svg)
-![Document](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Document/badge.svg)
-[![GitHub issues](https://img.shields.io/github/issues/reproducible-biomedical-modeling/CRBM-COPASI?logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/issues) [![GitHub license](https://img.shields.io/github/license/reproducible-biomedical-modeling/CRBM-COPASI?badges-awesome-green.svg&logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/blob/master/LICENSE)
+[![Docker image](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Publish%20Docker/badge.svg)](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/actions?query=workflow%3A%22Publish+Docker+To+Hub%22)
+[![Unit tests](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Docker%20Image%20CI/badge.svg)](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/actions?query=workflow%3A%22Build+and+Test+Docker+Image%22)
+[![Documentation](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/workflows/Document/badge.svg)](https://reproducible-biomedical-modeling.github.io/Biosimulations_COPASI)
+[![Issues](https://img.shields.io/github/issues/reproducible-biomedical-modeling/CRBM-COPASI?logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/issues)
+[![License](https://img.shields.io/github/license/reproducible-biomedical-modeling/CRBM-COPASI?badges-awesome-green.svg&logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/blob/master/LICENSE)
 
 # Biosimulations_copasi
 BioSimulations-compliant command-line interface to the [COPASI](http://copasi.org/) simulation program.
