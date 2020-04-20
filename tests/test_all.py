@@ -19,9 +19,6 @@ try:
     import docker
 except ModuleNotFoundError:
     pass
-import importlib
-import libsbml  # noqa: F401
-import libsedml  # noqa: F401
 import os
 import shutil
 import tempfile
@@ -67,7 +64,7 @@ class CliTestCase(unittest.TestCase):
             app.run()
         self.assert_outputs_created(self.dirname)
 
-    @unittest.skipIf(True or os.getenv('CI', '0') in ['1', 'true'], 'Docker not setup in CI')
+    @unittest.skipIf(docker is None, 'Docker not available')
     def test_build_docker_image(self):
         docker_client = docker.from_env()
 
@@ -83,7 +80,7 @@ class CliTestCase(unittest.TestCase):
         image.tag(image_repo, tag='latest')
         image.tag(image_repo, tag=image_tag)
 
-    @unittest.skipIf(os.getenv('CI', '0') in ['1', 'true'], 'Docker not setup in CI')
+    @unittest.skipIf(docker is None, 'Docker not available')
     def test_sim_with_docker_image(self):
         docker_client = docker.from_env()
 
@@ -139,12 +136,18 @@ class CliTestCase(unittest.TestCase):
             )
         )
 
-    @unittest.skipIf(os.getenv('CI', '0') in ['1', 'true'], 'Docker not setup in CI')
-    def test_validator(self):
-        importlib.reload(libsbml)
-        importlib.reload(libsedml)
-
+    @unittest.skipIf(docker is None, 'Docker not available')
+    def test_one_case_with_validator(self):
         validator = SimulatorValidator()
-        valid_cases, case_exceptions = validator.run('crbm/biosimulations_copasi', 'properties.json')
+        valid_cases, case_exceptions, _ = validator.run('crbm/biosimulations_copasi', 'properties.json', test_case_ids=[
+            'BIOMD0000000734.omex',
+        ])
+        self.assertGreater(len(valid_cases), 0)
+        self.assertEqual(case_exceptions, [])
+
+    @unittest.skipIf(docker is None or os.getenv('CI', '0') in ['1', 'true'], 'Test too long for continuous integration')
+    def test_with_validator(self):
+        validator = SimulatorValidator()
+        valid_cases, case_exceptions, _ = validator.run('crbm/biosimulations_copasi', 'properties.json')
         self.assertGreater(len(valid_cases), 0)
         self.assertEqual(case_exceptions, [])
