@@ -2,7 +2,7 @@
   "id": "copasi",
   "name": "COmplex PAthway Simulator",
   "version": "4.27",
-  "description": "COPASI is C++ based software application for simulation and analysis of biochemical networks and their dynamics",
+  "description": "COPASI is C++-based software application for simulation and analysis of biochemical networks and their dynamics.",
   "url": "http://copasi.org/",
   "dockerHubImageId": "crbm/biosimulations_copasi:latest",
   "format": {
@@ -12,26 +12,237 @@
   },
   "authors": [
     {
-      "firstName": "firstName",
-      "lastName": "lastName"
+      "firstName": "Frank",
+      "lastName": "Bergmann"
+    },
+    {
+      "firstName": "Stefan",
+      "lastName": "Hoops"
+    },
+    {
+      "firstName": "Brian",
+      "lastName": "Klahn"
+    },
+    {
+      "firstName": "Ursula",
+      "lastName": "Kummer"
+    },
+    {
+      "firstName": "Pedro",
+      "lastName": "Mendes"
+    },
+    {
+      "firstName": "Jürgen",
+      "lastName": "Pahle"
+    },
+    {
+      "firstName": "Sven",
+      "lastName": "Shale"
+    },
+    {
+      "firstName": "Hasan",
+      "lastName": "Baig"
+    },
+    {
+      "firstName": "Lauren",
+      "lastName": "Marazzi"
+    },
+    {
+      "firstName": "Diogo",
+      "lastName": "Camacho"
+    },
+    {
+      "firstName": "Joseph",
+      "lastName": "Dada"
+    },
+    {
+      "firstName": "Ralph",
+      "lastName": "Gauges"
+    },
+    {
+      "firstName": "Abhishekh",
+      "lastName": "Gupta"
+    },
+    {
+      "firstName": "Ankur",
+      "lastName": "Gupta"
+    },
+    {
+      "firstName": "Yongqun",
+      "lastName": "He"
+    },
+    {
+      "firstName": "David",
+      "lastName": "Heilman"
+    },
+    {
+      "firstName": "Wenjun",
+      "lastName": "Hu"
+    },
+    {
+      "firstName": "Tim",
+      "lastName": "Johann"
+    },
+    {
+      "firstName": "Aejaaz",
+      "lastName": "Kamal"
+    },
+    {
+      "firstName": "Michalina",
+      "lastName": "Kaszuba"
+    },
+    {
+      "firstName": "Ed",
+      "lastName": "Kent"
+    },
+    {
+      "firstName": "Artjom",
+      "lastName": "König"
+    },
+    {
+      "firstName": "Mrinmyee",
+      "lastName": "Kulkarni"
+    },
+    {
+      "firstName": "Christine",
+      "lastName": "Lee"
+    },
+    {
+      "firstName": "Sarah",
+      "lastName": "Lilienthal"
+    },
+    {
+      "firstName": "Rohan",
+      "lastName": "Luktuke"
+    },
+    {
+      "firstName": "Ettore",
+      "lastName": "Murabito"
+    },
+    {
+      "firstName": "Olusegun",
+      "lastName": "Oshota"
+    },
+    {
+      "firstName": "Norman",
+      "lastName": "Paton"
+    },
+    {
+      "firstName": "Jignesh",
+      "lastName": "Parmar"
+    },
+    {
+      "firstName": "Robert",
+      "lastName": "Platt"
+    },
+    {
+      "firstName": "Ursula",
+      "lastName": "Rost"
+    },
+    {
+      "firstName": "Anton",
+      "lastName": "Ruff"
+    },
+    {
+      "firstName": "Natalia",
+      "lastName": "Simus"
+    },
+    {
+      "firstName": "Gaurav",
+      "lastName": "Singh"
+    },
+    {
+      "firstName": "Mudita",
+      "lastName": "Singhal"
+    },
+    {
+      "firstName": "Kieran",
+      "lastName": "Smallbone"
+    },
+    {
+      "firstName": "Anurag",
+      "lastName": "Srivastava"
+    },
+    {
+      "firstName": "Natalie",
+      "lastName": "Stanford"
+    },
+    {
+      "firstName": "Irina",
+      "lastName": "Surovtsova"
+    },
+    {
+      "firstName": "Wei",
+      "lastName": "Sun"
+    },
+    {
+      "firstName": "Sameer",
+      "lastName": "Tupe"
+    },
+    {
+      "firstName": "Carel",
+      "lastName": "van Gend"
+    },
+    {
+      "firstName": "Katja",
+      "lastName": "Wegner"
+    },
+    {
+      "firstName": "Paul",
+      "lastName": "Willy"
+    },
+    {
+      "firstName": "Liang",
+      "lastName": "Xu"
+    },
+    {
+      "firstName": "Jürgen",
+      "lastName": "Zobeley"
     }
   ],
   "references": [
     {
-      "title": "COPASI is C++ based software application for simulation and analysis of biochemical networks and their dynamics",
-      "authors": "Frank T. Bergmann, Stefan Hoops, Brian Klahn, Ursula Kummer, Pedro Mendes, Jürgen Pahle, Sven Shale",
+      "title": "COPASI and its applications in biotechnology",
+      "author": "Frank T Bergmann, Stefan Hoops, Brian Klahn, Ursula Kummer, Pedro Mendes Jürgen Pahle & Sven Sahle",
+      "journal": "Journal of Biotechnology",
+      "volume": 261,
+      "pages": "215-220",
+      "year": 2017,
+      "doi": "10.1016/j.jbiotec.2017.06.1200"
+    },
+    {
+      "title": "Computational modeling of biochemical networks using COPASI",
+      "author": "Pedro Mendes, Stefan Hoops, Sven Sahle, Ralph Gauges, Joseph Dada & Ursula Kummer",
+      "journal": "Methods in Molecular Biology",
+      "volume": 500,
+      "pages": "17-59",
+      "year": 2009,
+      "doi": "10.1007/978-1-59745-525-1_2"
+    },
+    {
+      "title": "COPASI—a complex pathway simulator",
+      "author": "Stefan Hoops, Sven Sahle, Ralph Gauges, Christine Lee, Jürgen Pahle, Natalia Simus, Mudita Singhal, Liang Xu, Pedro Mendes & Ursula Kummer",
       "journal": "Bioinformatics",
       "volume": 22,
-      "pages": "3067–3074",
-      "year": 2016,
-      "doi": "10.1093/bioinformatics/btv759"
+      "issue": 24,
+      "pages": "3067-3074",
+      "year": 2006,
+      "doi": "10.1093/bioinformatics/btl485"
+    },
+    {
+      "title": "Simulation of biochemical networks using COPASI—a complex pathway simulator",
+      "author": "Sven Sahle, Ralph Gauges, Jürgen Pahle, Natalia Simus, Ursula Kummer, Stefan Hoops, Christine Lee, Mudita Singhal, Liang Xu & Pedro Mendes",
+      "journal": "Proceedings of the 2006 Winter Simulation Conference",
+      "pages": "1698-1706",
+      "year": 2006,
+      "doi": "10.5555/1218112.1218421"
     }
   ],
   "license": "MIT",
   "algorithms": [
     {
-      "id": "deterministic lsodar",
-      "name": "ordinary differential equation solver for stiff or non-stiff systems with root finding",
+      "id": "deterministic_lsodar",
+      "name": "Ordinary differential equation solver for stiff or non-stiff systems with root finding",
       "kisaoTerm": {
         "ontology": "KISAO",
         "id": "0000089",
@@ -41,7 +252,8 @@
       "ontologyTerms": [
         {
           "ontology": "KISAO",
-          "id": "0000089"
+          "id": "0000088",
+          "name": "LSODA"
         }
       ],
       "modelingFrameworks": [
@@ -92,14 +304,9 @@
       ],
       "references": [
         {
-          "title": "CVODE, a stiff/nonstiff ODE solver in C",
-          "authors": "Scott D Cohen, Alan C Hindmarsh & and Paul F Dubois",
-          "journal": "Computers in Physics",
-          "volume": 10,
-          "issue": 2,
-          "pages": "138-143",
-          "year": 1996,
-          "doi": "10.1063/1.4822377"
+          "title": "LSODAR, Ordinary Differential Equation Solver for Stiff or Non-Stiff System with root-finding",
+          "author": "AC Hindmarsh & LR Petzold",
+          "year": 2005
         }
       ],
       "parameters": [
@@ -188,7 +395,7 @@
     },
     {
       "id": "radau5",
-      "name": "Implicit Runge-Kutta methods based on Radau quadrature.",
+      "name": "Implicit Runge-Kutta method based on Radau quadrature.",
       "kisaoTerm": {
         "ontology": "KISAO",
         "id": "0000304"
@@ -196,68 +403,8 @@
       "ontologyTerms": [
         {
           "ontology": "KISAO",
-          "id": "0000064"
-        }
-      ],
-      "modelingFrameworks": [
-        {
-          "ontology": "SBO",
-          "id": "0000293",
-          "name": "non-spatial continuous framework",
-          "description": "Modelling approach where the quantities of participants are considered continuous, and represented by real values. The associated simulation methods make use of differential equations. The models do not take into account the distribution of the entities and describe only the temporal fluxes.",
-          "iri": "http://biomodels.net/SBO/SBO_0000293"
-        }
-      ],
-      "modelFormats": [
-        {
-          "id": "SBML",
-          "name": "Systems Biology Markup Language",
-          "version": "L3V2",
-          "edamId": "format_2585",
-          "url": "http://sbml.org",
-          "specUrl": "http://identifiers.org/combine.specifications/sbml",
-          "mimeType": "application/sbml+xml",
-          "extension": "xml",
-          "sedUrn": "urn:sedml:language:sbml"
-        }
-      ],
-      "simulationFormats": [
-        {
-          "id": "SED-ML",
-          "name": "Simulation Experiment Description Markup Language",
-          "version": "L1V3",
-          "edamId": "format_3685",
-          "url": "https://sed-ml.org",
-          "specUrl": "http://identifiers.org/combine.specifications/sed-ml",
-          "mimeType": "application/xml",
-          "extension": "sedml"
-        }
-      ],
-      "archiveFormats": [
-        {
-          "id": "COMBINE",
-          "name": "COMBINE",
-          "version": "V1",
-          "edamId": "format_3686",
-          "url": "https://combinearchive.org/",
-          "specUrl": "http://identifiers.org/combine.specifications/omex",
-          "mimeType": "application/zip",
-          "extension": "omex"
-        }
-      ],
-      "parameters": []
-    },
-    {
-      "id": "Gibson + Bruck",
-      "name": "Gibson-Bruck next reaction algorithm",
-      "kisaoTerm": {
-        "ontology": "KISAO",
-        "id": "0000027"
-      },
-      "ontologyTerms": [
-        {
-          "ontology": "KISAO",
-          "id": "0000241"
+          "id": "0000064",
+          "name": "Runge-Kutta based method"
         }
       ],
       "modelingFrameworks": [
@@ -308,14 +455,88 @@
       ],
       "references": [
         {
-          "title": "Exact stochastic simulation of coupled chemical reactions",
-          "authors": "Daniel T Gillespie",
-          "journal": "Journal of Physical Chemistry",
-          "volume": 81,
-          "issue": 25,
-          "pages": "2340-2361",
-          "year": 1997,
-          "doi": "10.1021/j100540a008"
+          "title": "Implicit Runge--Kutta methods based on Radau quadrature formula",
+          "author": "Xiaohua Ding & Jiabo Tan",
+          "journal": "International Journal of Computer Mathematics",
+          "volume": 86,
+          "issue": 8,
+          "pages": "1394-1404",
+          "year": 2009,
+          "doi": "10.1080/00207160701870878"
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "id": "gibson_bruck",
+      "name": "Gibson-Bruck next reaction algorithm",
+      "kisaoTerm": {
+        "ontology": "KISAO",
+        "id": "0000027"
+      },
+      "ontologyTerms": [
+        {
+          "ontology": "KISAO",
+          "id": "0000241",
+          "name": "Gillespie-like method"
+        }
+      ],
+      "modelingFrameworks": [
+        {
+          "ontology": "SBO",
+          "id": "0000295",
+          "name": "non-spatial discrete framework",
+          "description": "Modelling approach where the quantities of participants are considered discrete, and represented by integer values. The associated simulation methods can be deterministic or stochastic.The models do not take into account the distribution of the entities and describe only the temporal fluxes.",
+          "iri": "http://biomodels.net/SBO/SBO_0000295"
+        }
+      ],
+      "modelFormats": [
+        {
+          "id": "SBML",
+          "name": "Systems Biology Markup Language",
+          "version": "L3V2",
+          "edamId": "format_2585",
+          "url": "http://sbml.org",
+          "specUrl": "http://identifiers.org/combine.specifications/sbml",
+          "mimeType": "application/sbml+xml",
+          "extension": "xml",
+          "sedUrn": "urn:sedml:language:sbml"
+        }
+      ],
+      "simulationFormats": [
+        {
+          "id": "SED-ML",
+          "name": "Simulation Experiment Description Markup Language",
+          "version": "L1V3",
+          "edamId": "format_3685",
+          "url": "https://sed-ml.org",
+          "specUrl": "http://identifiers.org/combine.specifications/sed-ml",
+          "mimeType": "application/xml",
+          "extension": "sedml"
+        }
+      ],
+      "archiveFormats": [
+        {
+          "id": "COMBINE",
+          "name": "COMBINE",
+          "version": "V1",
+          "edamId": "format_3686",
+          "url": "https://combinearchive.org/",
+          "specUrl": "http://identifiers.org/combine.specifications/omex",
+          "mimeType": "application/zip",
+          "extension": "omex"
+        }
+      ],
+      "references": [
+        {
+          "title": "Efficient exact stochastic simulation of chemical systems with many species and many channels",
+          "author": "Michael A Gibson & Jehoshua Bruck",
+          "journal": "Journal of Physical Chemistry A",
+          "volume": 104,
+          "issue": 9,
+          "pages": "1876-1889",
+          "year": 2000,
+          "doi": "10.1021/jp993732q"
         }
       ],
       "parameters": [
@@ -367,7 +588,7 @@
       ]
     },
     {
-      "id": "direct method",
+      "id": "sorting_direct_method",
       "name": "sorting stochastic simulation algorithm",
       "kisaoTerm": {
         "ontology": "KISAO",
@@ -376,16 +597,17 @@
       "ontologyTerms": [
         {
           "ontology": "KISAO",
-          "id": "0000099"
+          "id": "0000241",
+          "name": "Gillespie-like method"
         }
       ],
       "modelingFrameworks": [
         {
           "ontology": "SBO",
-          "id": "0000293",
-          "name": "non-spatial continuous framework",
-          "description": "Modelling approach where the quantities of participants are considered continuous, and represented by real values. The associated simulation methods make use of differential equations. The models do not take into account the distribution of the entities and describe only the temporal fluxes.",
-          "iri": "http://biomodels.net/SBO/SBO_0000293"
+          "id": "0000295",
+          "name": "non-spatial discrete framework",
+          "description": "Modelling approach where the quantities of participants are considered discrete, and represented by integer values. The associated simulation methods can be deterministic or stochastic.The models do not take into account the distribution of the entities and describe only the temporal fluxes.",
+          "iri": "http://biomodels.net/SBO/SBO_0000295"
         }
       ],
       "modelFormats": [
@@ -427,12 +649,14 @@
       ],
       "references": [
         {
-          "title": "A family of Newton codes for systems of highly nonlinear equations - algorithm, implementation, application",
-          "authors": "Ulrich Nowak & Lutz Weimann",
-          "journal": "Konrad-Zuse-Zentrum für Informationstechnik Berlin",
-          "volume": "91-10",
-          "year": 1991,
-          "doi": "10.1.1.43.3751"
+          "title": "The sorting direct method for stochastic simulation of biochemical systems with varying reaction execution behavior",
+          "author": "James M McCollum, Gregory D Peterson, Chris D Cox, Michael L Simpson & Nagiza F Samatova",
+          "journal": "Computational Biology and Chemistry",
+          "volume": 30,
+          "issue": 1,
+          "pages": "39-49",
+          "year": 2006,
+          "doi": "10.1016/j.compbiolchem.2005.10.007"
         }
       ],
       "parameters": [
@@ -466,7 +690,7 @@
       ]
     },
     {
-      "id": "tau-leap",
+      "id": "tau_leap",
       "name": "tau-leaping method",
       "kisaoTerm": {
         "ontology": "KISAO",
@@ -475,16 +699,17 @@
       "ontologyTerms": [
         {
           "ontology": "KISAO",
-          "id": "0000241"
+          "id": "0000241",
+          "name": "Gillespie-like method"
         }
       ],
       "modelingFrameworks": [
         {
           "ontology": "SBO",
-          "id": "0000293",
-          "name": "non-spatial continuous framework",
-          "description": "Modelling approach where the quantities of participants are considered continuous, and represented by real values. The associated simulation methods make use of differential equations. The models do not take into account the distribution of the entities and describe only the temporal fluxes.",
-          "iri": "http://biomodels.net/SBO/SBO_0000293"
+          "id": "0000295",
+          "name": "non-spatial discrete framework",
+          "description": "Modelling approach where the quantities of participants are considered discrete, and represented by integer values. The associated simulation methods can be deterministic or stochastic.The models do not take into account the distribution of the entities and describe only the temporal fluxes.",
+          "iri": "http://biomodels.net/SBO/SBO_0000295"
         }
       ],
       "modelFormats": [
@@ -526,14 +751,13 @@
       ],
       "references": [
         {
-          "title": "Exact stochastic simulation of coupled chemical reactions",
-          "authors": "Daniel T Gillespie",
-          "journal": "Journal of Physical Chemistry",
-          "volume": 81,
-          "issue": 25,
-          "pages": "2340-2361",
-          "year": 1997,
-          "doi": "10.1021/j100540a008"
+          "title": "Stochastic simulation of chemical kinetics",
+          "author": "Daniel T Gillespie",
+          "journal": "Annual Review of Physical Chemistry",
+          "volume": 58,
+          "pages": "35--55",
+          "year": 2007,
+          "doi": "10.1063/1.1378322"
         }
       ],
       "parameters": [
@@ -585,7 +809,7 @@
       ]
     },
     {
-      "id": "adaptive ssa/tau-leap",
+      "id": "adaptive_ssa_tau_leap",
       "name": "adaptive explicit-implicit tau-leaping method",
       "kisaoTerm": {
         "ontology": "KISAO",
@@ -594,16 +818,17 @@
       "ontologyTerms": [
         {
           "ontology": "KISAO",
-          "id": "0000241"
+          "id": "0000241",
+          "name": "Gillespie-like method"
         }
       ],
       "modelingFrameworks": [
         {
           "ontology": "SBO",
-          "id": "0000293",
-          "name": "non-spatial continuous framework",
-          "description": "Modelling approach where the quantities of participants are considered continuous, and represented by real values. The associated simulation methods make use of differential equations. The models do not take into account the distribution of the entities and describe only the temporal fluxes.",
-          "iri": "http://biomodels.net/SBO/SBO_0000293"
+          "id": "0000295",
+          "name": "non-spatial discrete framework",
+          "description": "Modelling approach where the quantities of participants are considered discrete, and represented by integer values. The associated simulation methods can be deterministic or stochastic.The models do not take into account the distribution of the entities and describe only the temporal fluxes.",
+          "iri": "http://biomodels.net/SBO/SBO_0000295"
         }
       ],
       "modelFormats": [
@@ -645,14 +870,14 @@
       ],
       "references": [
         {
-          "title": "Exact stochastic simulation of coupled chemical reactions",
-          "authors": "Daniel T Gillespie",
-          "journal": "Journal of Physical Chemistry",
-          "volume": 81,
-          "issue": 25,
-          "pages": "2340-2361",
-          "year": 1997,
-          "doi": "10.1021/j100540a008"
+          "title": "Adaptive explicit-implicit tau-leaping method with automatic tau selection",
+          "author": "Yang Cao, Daniel T Gillespie & Linda R Petzold",
+          "journal": "Journal of Chemical Physics",
+          "volume": 126,
+          "issue": 22,
+          "pages": "224101",
+          "year": 2007,
+          "doi": "10.1063/1.2745299"
         }
       ],
       "parameters": [
@@ -710,12 +935,7 @@
         "ontology": "KISAO",
         "id": "0000088"
       },
-      "ontologyTerms": [
-        {
-          "ontology": "KISAO",
-          "id": "0000241"
-        }
-      ],
+      "ontologyTerms": [],
       "modelingFrameworks": [
         {
           "ontology": "SBO",
@@ -764,14 +984,9 @@
       ],
       "references": [
         {
-          "title": "Exact stochastic simulation of coupled chemical reactions",
-          "authors": "Daniel T Gillespie",
-          "journal": "Journal of Physical Chemistry",
-          "volume": 81,
-          "issue": 25,
-          "pages": "2340-2361",
-          "year": 1997,
-          "doi": "10.1021/j100540a008"
+          "title": "LSODA, Ordinary Differential Equation Solver for Stiff or Non-Stiff System",
+          "author": "AC Hindmarsh & LR Petzold",
+          "year": 2005
         }
       ],
       "parameters": [
@@ -823,7 +1038,7 @@
       ]
     },
     {
-      "id": "RK-45",
+      "id": "rk_45",
       "name": "Fehlberg method",
       "kisaoTerm": {
         "ontology": "KISAO",
@@ -832,7 +1047,8 @@
       "ontologyTerms": [
         {
           "ontology": "KISAO",
-          "id": "0000241"
+          "id": "0000064",
+          "name": "Runge-Kutta based method"
         }
       ],
       "modelingFrameworks": [
@@ -883,14 +1099,13 @@
       ],
       "references": [
         {
-          "title": "Exact stochastic simulation of coupled chemical reactions",
-          "authors": "Daniel T Gillespie",
-          "journal": "Journal of Physical Chemistry",
-          "volume": 81,
-          "issue": 25,
-          "pages": "2340-2361",
-          "year": 1997,
-          "doi": "10.1021/j100540a008"
+          "title": "Classical fourth- and lower order Runge-Kutta formulas with stepsize control and their application to heat transfer problems",
+          "author": "Erwin Fehlberg",
+          "journal": "Computing",
+          "volume": 6,
+          "pages": "61-71",
+          "year": 1970,
+          "doi": "10.1007/BF02241732"
         }
       ],
       "parameters": [
@@ -942,7 +1157,7 @@
       ]
     },
     {
-      "id": "SDE Solver (RI5",
+      "id": "sde_solver_ri5",
       "name": "Gauss-Legendre Runge-Kutta method",
       "kisaoTerm": {
         "ontology": "KISAO",
@@ -951,7 +1166,8 @@
       "ontologyTerms": [
         {
           "ontology": "KISAO",
-          "id": "0000241"
+          "id": "0000064",
+          "name": "Runge-Kutta based method"
         }
       ],
       "modelingFrameworks": [
@@ -1002,14 +1218,9 @@
       ],
       "references": [
         {
-          "title": "Exact stochastic simulation of coupled chemical reactions",
-          "authors": "Daniel T Gillespie",
-          "journal": "Journal of Physical Chemistry",
-          "volume": 81,
-          "issue": 25,
-          "pages": "2340-2361",
-          "year": 1997,
-          "doi": "10.1021/j100540a008"
+          "title": "A First Course in the Numerical Analysis of Differential Equations",
+          "author": "Arieh Iserles",
+          "year": 1996
         }
       ],
       "parameters": [
