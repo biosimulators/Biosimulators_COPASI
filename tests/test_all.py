@@ -124,21 +124,20 @@ class CliTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(
                 set(
-                    os.listdir(dirname)), 
-                    ['CLyapTask.txt',
-                    'Elementary Flux Modes.txt',
-                    'Linear Noise Approximation.txt',
-                    'Metabolic Control Analysis.txt',
-                    'Moieties.txt',
-                    'Optimization.txt',
-                    'Parameter Estimation.txt',
-                    'Sensitivities.txt',
-                    'Steady-State.txt',
-                    'Time Scale Separation Analysis.txt',
-                    'Time-Course.txt']
+                    os.listdir(dirname)),
+                ['CLyapTask.txt',
+                 'Elementary Flux Modes.txt',
+                 'Linear Noise Approximation.txt',
+                 'Metabolic Control Analysis.txt',
+                 'Moieties.txt',
+                 'Optimization.txt',
+                 'Parameter Estimation.txt',
+                 'Sensitivities.txt',
+                 'Steady-State.txt',
+                 'Time Scale Separation Analysis.txt',
+                 'Time-Course.txt']
             )
         )
-
 
     @unittest.skipIf(os.getenv('CI', '0') in ['1', 'true'], 'Docker not setup in CI')
     def test_validator(self):

@@ -23,14 +23,14 @@ __all__ = ['exec_combine_archive']
 
 def exec_combine_archive(archive_file, out_dir):
     """Execute the SED tasks defined in a COMBINE archive and save the outputs
-    
+
     :param archive_file: path to COMBINE archive
     :type archive_file: str
     :param out_dir: directory to store the outputs of the tasks
     :type out_dir: str
     :raises FileNotFoundError: When the combine archive is not found
     :raises IOError: When file is not an OMEX combine archive
-    """    
+    """
     # check that archive exists and is in zip format
     if not os.path.isfile(archive_file):
         raise FileNotFoundError("File does not exist: {}".format(archive_file))
@@ -41,7 +41,7 @@ def exec_combine_archive(archive_file, out_dir):
     try:
         # Create temp directory
         tmp_dir = tempfile.mkdtemp()
-        
+
         # Get list of contents from Combine Archive
         archive = libcombine.CombineArchive()
         is_initialised = archive.initializeFromArchive(archive_file)
@@ -71,7 +71,7 @@ def exec_combine_archive(archive_file, out_dir):
             except Exception:
                 data_model = copasi.CRootContainer.getUndefinedFunction()
             data_model.importSEDML(sedml_path)
-            
+
             report = create_time_course_report(data_model)
             # Run all Tasks
             for task_index in range(0, len(data_model.getTaskList())):
@@ -84,7 +84,7 @@ def exec_combine_archive(archive_file, out_dir):
                 except IndexError:
                     # Get Class name if Task name is not present
                     task_name = task_str.split("'")[1].split("*")[0]
-                    task_name = task_name[:len(task_name)-1]
+                    task_name = task_name[:len(task_name) - 1]
                 # Set output file for the task
                 if task_name == 'Time-Course':
                     task.getReport().setReportDefinition(report)

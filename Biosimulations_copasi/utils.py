@@ -1,13 +1,14 @@
 import COPASI as copasi
 
+
 def create_time_course_report(dataModel):
     """Create Report definition for Time course simulation task
-    
+
     :param dataModel: Data model of root container being used to hold related tasks
     :type: copasi.CDataModel
-    :return: Report definition for time course simulation  
+    :return: Report definition for time course simulation
     :rtype: copasi.CReportDefinition
-    """    
+    """
     model = dataModel.getModel()
     # create a report with the correct filename and all the species against
     # time.
