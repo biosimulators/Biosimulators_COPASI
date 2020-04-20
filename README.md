@@ -4,7 +4,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/reproducible-biomedical-modeling/CRBM-COPASI?logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/issues) [![GitHub license](https://img.shields.io/github/license/reproducible-biomedical-modeling/CRBM-COPASI?badges-awesome-green.svg&logo=GitHub)](https://github.com/reproducible-biomedical-modeling/CRBM-COPASI/blob/master/LICENSE)
 
 # Biosimulations_copasi
-Biosimulations-compliant command-line interface to the [COPASI](http://copasi.org/) simulation program.
+BioSimulations-compliant command-line interface to the [COPASI](http://copasi.org/) simulation program.
 
 ## Contents
 * [Installation](#installation)
@@ -59,7 +59,8 @@ docker run \
 This package is released under the [MIT license](LICENSE).
 
 ## Development team
-This package was developed by the [Center for Reproducible Biomedical Modeling](http://reproduciblebiomodels.org) 
+This package was developed by the [Center for Reproducible Biomedical Modeling](http://reproduciblebiomodels.org).
 
 ## Questions and comments
 Please contact the [Center for Reproducible Biomedical Modeling](mailto:info@reproduciblebiomodels.org) with any questions or comments.
+  
