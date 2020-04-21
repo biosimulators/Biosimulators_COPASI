@@ -88,15 +88,15 @@ def exec_combine_archive(archive_file, out_dir):
                 # Set output file for the task
                 if task_name == 'Time-Course':
                     task.getReport().setReportDefinition(report)
-                task.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name}.txt'))
-                # If file exists, don't append in it, overwrite it.
-                task.getReport().setAppend(False)
-                # Initialising the task with default values
-                task.initialize(119)
-                # TODO: Few tasks run but no Report is generated (Like Time Course)
-                # @body: Create report generation methods for such tasks.
-                # Run the task
-                task.process(True)
+                    task.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name}.csv'))
+                    # If file exists, don't append in it, overwrite it.
+                    task.getReport().setAppend(False)
+                    # Initialising the task with default values
+                    task.initialize(119)
+                    # TODO: Few tasks run but no Report is generated (Like Time Course)
+                    # @body: Create report generation methods for such tasks.
+                    # Run the task
+                    task.process(True)
 
     finally:
         shutil.rmtree(tmp_dir)
