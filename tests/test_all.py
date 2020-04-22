@@ -138,15 +138,14 @@ class CliTestCase(unittest.TestCase):
         ]
 
         for file in files:
-            with open(file, newline='') as csvfile:
-                csv.reader(csvfile, delimiter=',')
+            with open(file, newline='') as csv_file:
+                csv.reader(csv_file, delimiter=',')
 
     @unittest.skipIf(docker is None, 'Docker not available')
     def test_one_case_with_validator(self):
         validator = SimulatorValidator()
-        valid_cases, case_exceptions, _ = validator.run('crbm/biosimulations_copasi', 'properties.json', test_case_ids=[
-            'BIOMD0000000297.omex',
-        ])
+        valid_cases, case_exceptions, _ = validator.run('crbm/biosimulations_copasi', 'properties.json',
+                                                        test_case_ids=['BIOMD0000000297.omex', ])
         self.assertGreater(len(valid_cases), 0)
         self.assertEqual(case_exceptions, [])
 
