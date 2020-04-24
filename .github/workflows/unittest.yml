@@ -31,9 +31,9 @@ jobs:
           pip install git+https://github.com/KarrLab/pkg_utils.git#egg=pkg_utils
           pip install git+https://github.com/KarrLab/wc_utils.git#egg=wc_utils
           pip install git+https://github.com/reproducible-biomedical-modeling/Biosimulations_utils.git#Biosimulations_utils
-          pip install -r ./Biosimulations_COPASI/requirements.txt
-          pip install ./Biosimulations_COPASI
-          pip install -r ./Biosimulations_COPASI/tests/requirements.txt
+          pip install -r requirements.txt
+          pip install .
+          pip install -r tests/requirements.txt
       - name: Test with pytest
         run: |
           pip install pytest
