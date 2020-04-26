@@ -138,7 +138,7 @@ class CliTestCase(unittest.TestCase):
     def test_one_case_with_validator(self):
         validator = SimulatorValidator()
         valid_cases, case_exceptions, _ = validator.run('crbm/biosimulations_copasi', 'properties.json',
-                                                        test_case_ids=['BIOMD0000000297.omex', ])
+                                                        test_case_ids=['BIOMD0000000734.omex', ])
         self.assertGreater(len(valid_cases), 0)
         self.assertEqual(case_exceptions, [])
 
