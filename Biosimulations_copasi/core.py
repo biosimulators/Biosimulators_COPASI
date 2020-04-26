@@ -79,7 +79,7 @@ def exec_combine_archive(archive_file, out_dir):
                 data_model = copasi.CRootContainer.getUndefinedFunction()
             data_model.importSEDML(sedml_path)
 
-            # report = create_time_course_report(data_model)
+            report = create_time_course_report(data_model)
             # Run all Tasks
             task_name_index = 0
             for task_index in range(0, len(data_model.getTaskList())):
@@ -97,6 +97,10 @@ def exec_combine_archive(archive_file, out_dir):
                 if task_name == 'Time-Course':
                     task.setScheduled(True)
                     # task.getReport().setReportDefinition(report)
+                    report_def = task.getReport().compile('')
+                    if not report_def:
+                        print('No Report definition found in SEDML, setting to a default definition')
+                        task.getReport().setReportDefinition(report)
                     task.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name_list[task_name_index]}.csv'))
                     task_name_index = task_name_index + 1
                     # If file exists, don't append in it, overwrite it.

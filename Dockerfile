@@ -12,7 +12,7 @@
 #       -o /root/out
 
 # Base OS
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # Install requirements
 RUN apt-get update -y \
