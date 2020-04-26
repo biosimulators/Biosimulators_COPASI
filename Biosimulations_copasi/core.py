@@ -101,8 +101,11 @@ def exec_combine_archive(archive_file, out_dir):
                     if not report_def:
                         print('No Report definition found in SEDML, setting to a default definition')
                         task.getReport().setReportDefinition(report)
-                    task.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name_list[task_name_index]}.csv'))
+                    sedml_task_name = task_name_list[task_name_index]
+                    report_path = os.path.join(sedml_out_dir, f'{sedml_task_name}.csv')
+                    task.getReport().setTarget(report_path)
                     task_name_index = task_name_index + 1
+                    print(f'Generated report for Simulation "{sedml_task_name}": {report_path}')
                     # If file exists, don't append in it, overwrite it.
                     task.getReport().setAppend(False)
                     # Initialising the task with default values
