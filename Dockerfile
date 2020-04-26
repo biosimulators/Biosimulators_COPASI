@@ -1,5 +1,5 @@
 # Build image:
-#   docker build --tag crbm/biosimulations_copasi:4.27.214--tag crbm/biosimulations_copasi:latest .
+#   docker build --tag crbm/biosimulations_copasi:4.27.214 --tag crbm/biosimulations_copasi:latest .
 #
 # Run image:
 #   docker run \
