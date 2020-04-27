@@ -1,11 +1,12 @@
+Biosimulations_utils >= 0.1
+cement
 certifi
 chardet
 idna
 python_copasi
 python_dotenv
+python_libcombine
 python_libsedml
 requests
 urllib3
 xmltodict
-python_libcombine
-cement

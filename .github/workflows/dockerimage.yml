@@ -15,4 +15,11 @@ jobs:
     - name: Run the Docker image with test files
       run: |
         mkdir -p "$(pwd)"/tests/results
-        docker run  --tty  --rm  --mount type=bind,source="$(pwd)"/tests/fixtures,target=/root/in,readonly  --mount type=bind,source="$(pwd)"/tests/results,target=/root/out  crbm/biosimulations_copasi:latest -i /root/in/BIOMD0000000734.omex -o /root/out
+        docker run \
+          --tty \
+          --rm \
+          --mount type=bind,source="$(pwd)"/tests/fixtures,target=/root/in,readonly \
+          --mount type=bind,source="$(pwd)"/tests/results,target=/root/out \
+          crbm/biosimulations_copasi:latest \
+            -i /root/in/BIOMD0000000734.omex \
+            -o /root/out
