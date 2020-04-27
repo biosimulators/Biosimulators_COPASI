@@ -30,7 +30,7 @@ jobs:
         run: |
           pip install git+https://github.com/KarrLab/pkg_utils.git#egg=pkg_utils
           pip install git+https://github.com/KarrLab/wc_utils.git#egg=wc_utils
-          pip install git+https://github.com/reproducible-biomedical-modeling/Biosimulations_utils@include_omexfiles
+          pip install git+https://github.com/reproducible-biomedical-modeling/Biosimulations_utils.git#Biosimulations_utils
           pip install -r requirements.txt
           pip install .
           pip install -r tests/requirements.txt
