@@ -16,6 +16,7 @@ import libsedml
 import COPASI as copasi
 import sys
 from .utils import create_time_course_report
+import pandas as pd
 importlib.reload(libcombine)
 
 
@@ -114,6 +115,8 @@ def exec_combine_archive(archive_file, out_dir):
                     # @body: Create report generation methods for such tasks.
                     # Run the task
                     task.process(True)
+                    pd.read_csv(report_path).drop(" ", axis=1).to_csv(report_path, index=False)
+
 
     finally:
         shutil.rmtree(tmp_dir)

@@ -10,3 +10,4 @@ python_libsedml
 requests
 urllib3
 xmltodict
+pandas
