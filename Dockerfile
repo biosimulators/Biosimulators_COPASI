@@ -12,21 +12,23 @@
 #       -o /root/out
 
 # Base OS
-FROM ubuntu:18.04
+FROM python:3.7
 
 # Install requirements
-RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends \
-        python3 \
-        python3-pip \
-    && pip3 install -U pip \
-    && pip3 install -U setuptools \
-    && apt-get autoremove -y \
+#RUN apt-get update -y \
+#    && apt-get install -y --no-install-recommends \
+#    && apt install -y software-properties-common \
+#    && add-apt-repository -y ppa:deadsnakes/ppa \
+#    && apt install python3.7 \
+#        python3-pip -y\
+RUN pip install -U pip \
+    && pip install -U setuptools \
+#    && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy code for command-line interface into image and install it
 COPY . /root/Biosimulations_copasi
-RUN pip3 install /root/Biosimulations_copasi
+RUN pip install /root/Biosimulations_copasi
 
 # Entrypoint
 ENTRYPOINT ["copasi"]
