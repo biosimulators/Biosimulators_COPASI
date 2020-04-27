@@ -6,6 +6,7 @@ idna
 python_copasi
 python_dotenv
 python_libcombine
+python_libsedml
 requests
 urllib3
 xmltodict

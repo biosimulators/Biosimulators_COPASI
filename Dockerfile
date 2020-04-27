@@ -1,5 +1,5 @@
 # Build image:
-#   docker build --tag crbm/biosimulations_copasi:4.1.1--tag crbm/biosimulations_copasi:latest .
+#   docker build --tag crbm/biosimulations_copasi:4.27.214 --tag crbm/biosimulations_copasi:latest .
 #
 # Run image:
 #   docker run \
@@ -12,12 +12,12 @@
 #       -o /root/out
 
 # Base OS
-FROM ubuntu
+FROM ubuntu:18.04
 
 # Install requirements
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
-        python3.6 \
+        python3 \
         python3-pip \
     && pip3 install -U pip \
     && pip3 install -U setuptools \

@@ -12,6 +12,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+import libsedml
 import COPASI as copasi
 import sys
 from .utils import create_time_course_report
@@ -58,22 +59,29 @@ def exec_combine_archive(archive_file, out_dir):
             if content.isFormat('sedml'):
                 sedml_locations.append(content.getLocation())
 
+
         # run all sedml files
         for sedml_location in sedml_locations:
             sedml_path = os.path.join(tmp_dir, sedml_location)
             sedml_out_dir = os.path.join(out_dir, os.path.splitext(sedml_location)[0])
+
+            sedml_doc = libsedml.readSedMLFromFile(sedml_path)
+            tasks = sedml_doc.getListOfTasks()
+            task_name_list = [task.getId() for task in tasks]
+
             if not os.path.isdir(sedml_out_dir):
                 os.makedirs(sedml_out_dir)
 
             # Create a base Copasi container to hold all the Tasks
             try:
                 data_model = copasi.CRootContainer.addDatamodel()
-            except Exception:
+            except BaseException as ex:
                 data_model = copasi.CRootContainer.getUndefinedFunction()
             data_model.importSEDML(sedml_path)
 
             report = create_time_course_report(data_model)
             # Run all Tasks
+            task_name_index = 0
             for task_index in range(0, len(data_model.getTaskList())):
                 task = data_model.getTaskList().get(task_index)
                 # Get Name and Class of task as string
@@ -87,8 +95,17 @@ def exec_combine_archive(archive_file, out_dir):
                     task_name = task_name[:len(task_name) - 1]
                 # Set output file for the task
                 if task_name == 'Time-Course':
-                    task.getReport().setReportDefinition(report)
-                    task.getReport().setTarget(os.path.join(sedml_out_dir, f'{task_name}.csv'))
+                    task.setScheduled(True)
+                    # task.getReport().setReportDefinition(report)
+                    report_def = task.getReport().compile('')
+                    if not report_def:
+                        print('No Report definition found in SEDML, setting to a default definition')
+                        task.getReport().setReportDefinition(report)
+                    sedml_task_name = task_name_list[task_name_index]
+                    report_path = os.path.join(sedml_out_dir, f'{sedml_task_name}.csv')
+                    task.getReport().setTarget(report_path)
+                    task_name_index = task_name_index + 1
+                    print(f'Generated report for Simulation "{sedml_task_name}": {report_path}')
                     # If file exists, don't append in it, overwrite it.
                     task.getReport().setAppend(False)
                     # Initialising the task with default values
