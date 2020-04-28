@@ -121,6 +121,13 @@ def exec_combine_archive(archive_file, out_dir):
                         pd.read_csv(report_path).drop(" ", axis=1).to_csv(report_path, index=False)
                     except KeyError as k:
                         print(f"No trailing commas were found in {report_path}")
+                    df = pd.read_csv(report_path)
+                    cols = list(df.columns)
+                    new_cols = list()
+                    for col in cols:
+                        new_cols.append(col.split()[-1])
+                    df.columns = new_cols
+                    df.to_csv(report_path, index=False)
 
     finally:
         shutil.rmtree(tmp_dir)
