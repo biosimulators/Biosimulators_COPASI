@@ -41,6 +41,8 @@ def exec_combine_archive(archive_file, out_dir):
         raise IOError("File is not an OMEX Combine Archive in zip format: {}".format(archive_file))
 
     try:
+        archive_file = os.path.abspath(archive_file)
+        out_dir = os.path.abspath(out_dir)
         # Create temp directory
         tmp_dir = tempfile.mkdtemp()
 
@@ -115,8 +117,10 @@ def exec_combine_archive(archive_file, out_dir):
                     # @body: Create report generation methods for such tasks.
                     # Run the task
                     task.process(True)
-                    pd.read_csv(report_path).drop(" ", axis=1).to_csv(report_path, index=False)
-
+                    try:
+                        pd.read_csv(report_path).drop(" ", axis=1).to_csv(report_path, index=False)
+                    except KeyError as k:
+                        print(f"No trailing commas were found in {report_path}")
 
     finally:
         shutil.rmtree(tmp_dir)
