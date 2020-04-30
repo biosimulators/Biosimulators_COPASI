@@ -62,7 +62,6 @@ def exec_combine_archive(archive_file, out_dir):
             if content.isFormat('sedml'):
                 sedml_locations.append(content.getLocation())
 
-
         # run all sedml files
         for sedml_location in sedml_locations:
             sedml_path = os.path.join(tmp_dir, sedml_location)
@@ -78,7 +77,7 @@ def exec_combine_archive(archive_file, out_dir):
             # Create a base Copasi container to hold all the Tasks
             try:
                 data_model = copasi.CRootContainer.addDatamodel()
-            except BaseException as ex:
+            except BaseException:
                 data_model = copasi.CRootContainer.getUndefinedFunction()
             data_model.importSEDML(sedml_path)
 
@@ -119,7 +118,7 @@ def exec_combine_archive(archive_file, out_dir):
                     task.process(True)
                     try:
                         pd.read_csv(report_path).drop(" ", axis=1).to_csv(report_path, index=False)
-                    except KeyError as k:
+                    except KeyError:
                         print(f"No trailing commas were found in {report_path}")
                     df = pd.read_csv(report_path)
                     cols = list(df.columns)
