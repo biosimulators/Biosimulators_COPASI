@@ -33,4 +33,4 @@ jobs:
           pip install .
           pip install -r tests/requirements.txt
       - name: Test with pytest
-        run: sudo -E env "PATH=$PATH" pytest -v
+        run: sudo -E env "PATH=$PATH" pytest -r A
