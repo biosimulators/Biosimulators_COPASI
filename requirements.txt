@@ -3,6 +3,7 @@ cement
 certifi
 chardet
 idna
+pandas
 python_copasi
 python_dotenv
 python_libcombine
@@ -10,4 +11,3 @@ python_libsedml
 requests
 urllib3
 xmltodict
-pandas

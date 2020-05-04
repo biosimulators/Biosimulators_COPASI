@@ -1,3 +1,4 @@
 capturer
-pytest
 docker
+numpy
+pytest

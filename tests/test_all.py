@@ -20,6 +20,8 @@ try:
 except ModuleNotFoundError:
     pass
 import os
+import numpy
+import pandas
 import shutil
 import tempfile
 import unittest
@@ -122,17 +124,27 @@ class CliTestCase(unittest.TestCase):
 
         self.assert_outputs_created(out_dir)
 
-    def assert_outputs_created(self, dirname):
+    def assert_outputs_created(self, dirname, output_start_time=0., end_time=5100., num_time_points=300, model_var_ids=('FeDuo',)):
         self.assertEqual(set(os.listdir(dirname)), set(['Parmar2017_Deficient_Rich_tracer']))
         self.assertEqual(set(os.listdir(os.path.join(dirname, 'Parmar2017_Deficient_Rich_tracer'))), set(['simulation_1.csv']))
 
-        files = [
+        filenames = [
             os.path.join(dirname, 'Parmar2017_Deficient_Rich_tracer', 'simulation_1.csv'),
         ]
 
-        for file in files:
-            with open(file, newline='') as csv_file:
-                csv.reader(csv_file, delimiter=',')
+        for filename in filenames:
+            with open(filename, newline='') as file:
+                csv.reader(file, delimiter=',')
+
+            # check that results have expected rows and columns
+            results_data_frame = pandas.read_csv(filename)
+
+            numpy.testing.assert_array_almost_equal(
+                results_data_frame['time'],
+                numpy.linspace(output_start_time, end_time, num_time_points + 1),
+            )
+
+            assert set(results_data_frame.columns.to_list()) == set(list(model_var_ids) + ['time'])
 
     @unittest.skipIf(docker is None, 'Docker not available')
     def test_one_case_with_validator(self):
