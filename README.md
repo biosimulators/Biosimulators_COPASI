@@ -1,6 +1,6 @@
 # Biosimulations_COPASI 
 [![Docker image](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/workflows/Publish%20Docker%20To%20Hub/badge.svg)](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/actions?query=workflow%3A%22Publish+Docker+To+Hub%22)
-[![Docker image build](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/workflows/Build%20and%20test%20Docker%20image/badge.svg)](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/actions?query=workflow%3A%22Build+and+test+Docker+image%22)
+[![Docker image build](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/workflows/Build%20Docker%20image/badge.svg)](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/actions?query=workflow%3A%22Build+Docker+image%22)
 [![Unit tests](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/workflows/Unit%20tests/badge.svg)](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/actions?query=workflow%3A%22Unit+tests%22)
 [![Issues](https://img.shields.io/github/issues/reproducible-biomedical-modeling/Biosimulations_COPASI?logo=GitHub)](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/issues)
 [![License](https://img.shields.io/github/license/reproducible-biomedical-modeling/Biosimulations_COPASI?badges-awesome-green.svg&logo=GitHub)](https://github.com/reproducible-biomedical-modeling/Biosimulations_COPASI/blob/master/LICENSE)
