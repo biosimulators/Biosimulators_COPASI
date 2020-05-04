@@ -26,7 +26,7 @@ setuptools.setup(
     name=name,
     version=md.version,
     description=("BioSimulations-compliant command-line interface to "
-                 "the copasi simulation program <http://copasi.org>."),
+                 "the COPASI simulation program <http://copasi.org>."),
     long_description=md.long_description,
     url="https://github.com/reproducible-biomedical-modeling/" + name,
     download_url='https://github.com/reproducible-biomedical-modeling/' + name,

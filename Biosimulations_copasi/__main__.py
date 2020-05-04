@@ -1,4 +1,4 @@
-""" BioSimulations-compliant command-line interface to the `copasi <http://copasi.org/>`_ simulation program.
+""" BioSimulations-compliant command-line interface to the `COPASI <http://copasi.org/>`_ simulation program.
 
 :Author: Akhil Marupilla <akhilmteja@gmail.com>
 :Date: 2020-04-12
@@ -17,7 +17,7 @@ class BaseController(cement.Controller):
     class Meta:
         label = 'base'
         description = ("BioSimulations-compliant command-line interface to the "
-                       "copasi simulation program <http://copasi.org>.")
+                       "COPASI simulation program <http://copasi.org>.")
         help = "copasi"
         arguments = [
             (['-i', '--archive'], dict(type=str,

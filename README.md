@@ -31,7 +31,7 @@ docker pull crbm/biosimulations_copasi
 ```
 usage: copasi [-h] [-d] [-q] -i ARCHIVE [-o OUT_DIR] [-v]
 
-BioSimulations-compliant command-line interface to the copasi simulation program <http://copasi.org>.
+BioSimulations-compliant command-line interface to the COPASI simulation program <http://copasi.org>.
 
 optional arguments:
   -h, --help            show this help message and exit

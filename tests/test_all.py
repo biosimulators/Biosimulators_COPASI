@@ -1,4 +1,4 @@
-""" Tests of the copasi command-line interface
+""" Tests of the COPASI command-line interface
 
 :Author: Akhil Teja <akhilmteja@gmail.com>
 :Date: 2020-04-16
