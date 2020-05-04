@@ -1,8 +1,13 @@
-certifi==2019.11.28
-chardet==3.0.4
-idna==2.8
-python-copasi
-python-dotenv==0.10.5
-requests==2.22.0
-urllib3==1.25.7
-xmltodict==0.12.0
+Biosimulations_utils >= 0.1
+cement
+certifi
+chardet
+idna
+pandas
+python_copasi
+python_dotenv
+python_libcombine
+python_libsedml
+requests
+urllib3
+xmltodict

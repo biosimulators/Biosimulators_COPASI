@@ -1,0 +1,36 @@
+name: Unit tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        pythonVersion: [3.7]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python ${{ matrix.pythonVersion }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.pythonVersion }}
+      - name: Install pip
+        run: |
+          python -m pip install --upgrade pip
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. Skip checking for highly complex code.
+          flake8 . --count --exit-zero --ignore=C901 --max-line-length=140 --statistics
+      - name: Install package
+        run: |
+          pip install git+https://github.com/reproducible-biomedical-modeling/Biosimulations_utils.git#Biosimulations_utils
+          pip install -r requirements.txt
+          pip install .
+          pip install -r tests/requirements.txt
+      - name: Test with pytest
+        run: sudo -E env "PATH=$PATH" pytest -r A

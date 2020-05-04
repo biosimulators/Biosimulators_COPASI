@@ -1,14 +1,27 @@
-FROM ubuntu:latest
+# Build image:
+#   docker build --tag crbm/biosimulations_copasi:4.27.214 --tag crbm/biosimulations_copasi:latest .
+#
+# Run image:
+#   docker run \
+#     --tty \
+#     --rm \
+#     --mount type=bind,source="$(pwd)"/tests/fixtures,target=/root/in,readonly \
+#     --mount type=bind,source="$(pwd)"/tests/results,target=/root/out \
+#     crbm/biosimulations_copasi:latest \
+#       -i /root/in/BIOMD0000000297.omex \
+#       -o /root/out
 
+# Base OS
+FROM python:3.7
 
-RUN apt update && apt install python3 python3-pip python3-dev -y
-# RUN apt update && apt add --no-cache python3-dev
+# Install requirements
+RUN pip install -U pip \
+    && pip install -U setuptools
 
-# WORKDIR command is not persisted when converted to Singularity image, add --pwd in Singularity while running
-WORKDIR /usr/local/app/copasi/
-RUN mkdir simulation
-COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
-ADD src/ ./src
+# Copy code for command-line interface into image and install it
+COPY . /root/Biosimulations_copasi
+RUN pip install /root/Biosimulations_copasi
 
-ENTRYPOINT [ "python3",  "/usr/local/app/copasi/src/run.py"]
+# Entrypoint
+ENTRYPOINT ["copasi"]
+CMD []

@@ -1,0 +1,27 @@
+# Docker ignoring virtualenv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ignoring github workflows
+.git
+.github/
+
+# Editor Settings
+.vscode/
+.idea/
+.pytest_cache/
+
+# Distribution and packaging
+Biosimulations_copasi.egg-info/
+*.tmp
+*.egg-info
+build/
+dist/
+
+# results from local
+tests/results/*
+tests/__pycache__
+tests/.DS_Store

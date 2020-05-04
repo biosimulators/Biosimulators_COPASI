@@ -1,4 +1,4 @@
-name: Publish Docker To Hub
+name: Publish Docker image
 
 on:
   release:
@@ -14,12 +14,12 @@ jobs:
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Get the version
         id: vars
-        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+        run: echo ::set-output name=tag::$(cat "$(pwd)"/Biosimulations_copasi/_version.py| grep __version__ | awk '{print $3}')
       - name: Build the tagged Docker image
-        run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+        run: docker build --file Dockerfile --tag crbm/biosimulations_copasi:${{steps.vars.outputs.tag}} .
       - name: Push the tagged Docker image
-        run: docker push crbm/biosimulations_copasi_api:${{steps.vars.outputs.tag}}
+        run: docker push crbm/biosimulations_copasi:${{steps.vars.outputs.tag}}
       - name: Build the latest Docker image
-        run: docker build . --file Dockerfile --tag crbm/biosimulations_copasi_api:latest
+        run: docker build --file Dockerfile --tag crbm/biosimulations_copasi:latest .
       - name: Push the latest Docker image
-        run: docker push crbm/biosimulations_copasi_api:latest
+        run: docker push crbm/biosimulations_copasi:latest

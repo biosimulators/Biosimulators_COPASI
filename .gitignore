@@ -109,6 +109,12 @@ venv.bak/
 .mypy_cache/
 
 # Mac related ignores
-.DS_Store/
+.DS_Store
 
 /sample_model/out/
+
+# Temp directory
+temp/
+tests/results/
+
+*.tmp

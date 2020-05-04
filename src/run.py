@@ -1,1 +1,0 @@
-import copasi.copasi_simulator
