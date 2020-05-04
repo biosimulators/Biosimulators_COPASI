@@ -15,16 +15,8 @@
 FROM python:3.7
 
 # Install requirements
-#RUN apt-get update -y \
-#    && apt-get install -y --no-install-recommends \
-#    && apt install -y software-properties-common \
-#    && add-apt-repository -y ppa:deadsnakes/ppa \
-#    && apt install python3.7 \
-#        python3-pip -y\
 RUN pip install -U pip \
-    && pip install -U setuptools \
-#    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
+    && pip install -U setuptools
 
 # Copy code for command-line interface into image and install it
 COPY . /root/Biosimulations_copasi
