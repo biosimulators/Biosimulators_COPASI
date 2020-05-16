@@ -10,7 +10,7 @@ BioSimulations-compliant command-line interface to the [COPASI](http://copasi.or
 
 ## Contents
 * [Installation](#installation)
-* [Usage](#usage)
+* [Usage](#local-usage)
 * [License](#license)
 * [Development team](#development-team)
 * [Questions and comments](#questions-and-comments)
