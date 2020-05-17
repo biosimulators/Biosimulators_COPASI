@@ -7,7 +7,7 @@ pandas
 python_copasi
 python_dotenv
 python_libcombine
-python_libsedml
+python_libsedml < 2.0.10
 requests
 urllib3
 xmltodict
