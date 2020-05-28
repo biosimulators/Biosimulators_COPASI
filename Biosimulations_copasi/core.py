@@ -7,18 +7,20 @@
 """
 
 import importlib
-import libcombine
 import os
 import shutil
+import sys
 import tempfile
 import zipfile
-import libsedml
-import COPASI as copasi
-import sys
-from .utils import create_time_course_report
-import pandas as pd
-importlib.reload(libcombine)
 
+import COPASI as copasi
+import libcombine
+import libsedml
+import pandas as pd
+
+from .utils import create_time_course_report
+
+importlib.reload(libcombine)
 
 __all__ = ['exec_combine_archive']
 
@@ -68,8 +70,21 @@ def exec_combine_archive(archive_file, out_dir):
             sedml_out_dir = os.path.join(out_dir, os.path.splitext(sedml_location)[0])
 
             sedml_doc = libsedml.readSedMLFromFile(sedml_path)
+
             tasks = sedml_doc.getListOfTasks()
             task_name_list = [task.getId() for task in tasks]
+
+            for i in range(0, sedml_doc.getNumSimulations()):
+                current_doc = sedml_doc.getSimulation(i)
+                if current_doc.getTypeCode() == libsedml.SEDML_SIMULATION_UNIFORMTIMECOURSE:
+                    tc = current_doc
+                    if current_doc.isSetAlgorithm():
+                        kisao_id = current_doc.getAlgorithm().getKisaoID()
+                        print("timeCourseID={}, outputStartTime={}, outputEndTime={}, numberOfPoints={}, kisaoID={} " \
+                              .format(tc.getId(), tc.getOutputStartTime(), tc.getOutputEndTime(),
+                                      tc.getNumberOfPoints(), kisao_id))
+                else:
+                    print(f"Encountered unknown simulation {current_doc.getId()}")
 
             if not os.path.isdir(sedml_out_dir):
                 os.makedirs(sedml_out_dir)
@@ -112,14 +127,11 @@ def exec_combine_archive(archive_file, out_dir):
                     task.getReport().setAppend(False)
                     # Initialising the task with default values
                     task.initialize(119)
-                    # TODO: Few tasks run but no Report is generated (Like Time Course)
-                    # @body: Create report generation methods for such tasks.
-                    # Run the task
                     task.process(True)
                     try:
                         pd.read_csv(report_path).drop(" ", axis=1).to_csv(report_path, index=False)
                     except KeyError:
-                        print(f"No trailing commas were found in {report_path}")
+                        print(f"No trailing commas were found in {report_path}\n")
                     df = pd.read_csv(report_path)
                     cols = list(df.columns)
                     new_cols = list()
