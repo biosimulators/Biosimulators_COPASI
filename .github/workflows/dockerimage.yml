@@ -21,5 +21,5 @@ jobs:
           --mount type=bind,source="$(pwd)"/tests/fixtures,target=/root/in,readonly \
           --mount type=bind,source="$(pwd)"/tests/results,target=/root/out \
           crbm/biosimulations_copasi:latest \
-            -i /root/in/BIOMD0000000734.omex \
+            -i /root/in/BIOMD0000000823.omex \
             -o /root/out

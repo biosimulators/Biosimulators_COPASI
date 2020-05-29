@@ -74,8 +74,8 @@ def exec_combine_archive(archive_file, out_dir):
             tasks = sedml_doc.getListOfTasks()
             task_name_list = [task.getId() for task in tasks]
 
-            for i in range(0, sedml_doc.getNumSimulations()):
-                current_doc = sedml_doc.getSimulation(i)
+            for sim in range(0, sedml_doc.getNumSimulations()):
+                current_doc = sedml_doc.getSimulation(sim)
                 if current_doc.getTypeCode() == libsedml.SEDML_SIMULATION_UNIFORMTIMECOURSE:
                     tc = current_doc
                     if current_doc.isSetAlgorithm():
