@@ -1,8 +1,8 @@
 {
   "id": "copasi",
-  "name": "COmplex PAthway Simulator",
+  "name": "COmplex PAthway SImulator",
   "version": "4.27.214",
-  "description": "COPASI is C++-based software application for simulation and analysis of biochemical networks and their dynamics.",
+  "description": "COPASI is a C++-based software application for the simulation and analysis of biochemical networks and their dynamics.",
   "url": "http://copasi.org/",
   "dockerHubImageId": "crbm/biosimulations_copasi:4.27.214",
   "format": {
@@ -37,7 +37,7 @@
     },
     {
       "firstName": "Sven",
-      "lastName": "Shale"
+      "lastName": "Sahle"
     },
     {
       "firstName": "Hasan",
@@ -232,7 +232,7 @@
     {
       "title": "Simulation of biochemical networks using COPASI—a complex pathway simulator",
       "author": "Sven Sahle, Ralph Gauges, Jürgen Pahle, Natalia Simus, Ursula Kummer, Stefan Hoops, Christine Lee, Mudita Singhal, Liang Xu & Pedro Mendes",
-      "journal": "Proceedings of the 2006 Winter Simulation Conference",
+      "journal": "Proceedings of the 2006 Winter Simulation Conference, Monterey, CA, USA",
       "pages": "1698-1706",
       "year": 2006,
       "doi": "10.5555/1218112.1218421"
