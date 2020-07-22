@@ -14,7 +14,14 @@ def create_time_course_report(dataModel):
     # time.
     reports = dataModel.getReportDefinitionList()
     # create a report definition object
-    report = reports.createReportDefinition("Time-Course", "Output for timecourse")
+    report = reports.createReportDefinition("Time-Course", "Output for timecourse") 
+    
+    count = 1
+    while report is None: 
+        # this is expected, if there is already a report present with that name
+        report = reports.createReportDefinition(f'Time-Course_{count}', "Output for timecourse")
+        count += 1
+
     # set the task type for the report definition to timecourse
     report.setTaskType(copasi.CTaskEnum.Task_timeCourse)
     # we don't want a table
