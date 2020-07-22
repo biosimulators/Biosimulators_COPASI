@@ -10,7 +10,11 @@ try:
     from Biosimulations_utils.simulator.testing import SimulatorValidator
 except ModuleNotFoundError:
     pass
-import capturer
+try:
+    import capturer # not available on all platforms
+except ModuleNotFoundError:
+    capturer = None
+    pass
 
 import Biosimulations_copasi
 from Biosimulations_copasi import __main__
@@ -18,6 +22,7 @@ from Biosimulations_copasi import __main__
 try:
     import docker
 except ModuleNotFoundError:
+    docker = None
     pass
 import os
 import numpy
@@ -40,6 +45,7 @@ class CliTestCase(unittest.TestCase):
             with __main__.App(argv=['--help']) as app:
                 app.run()
 
+    @unittest.skipIf(capturer is None, 'capturer not available')
     def test_version(self):
         with __main__.App(argv=['-v']) as app:
             with capturer.CaptureOutput(merged=False, relay=False) as captured:
