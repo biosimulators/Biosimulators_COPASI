@@ -93,23 +93,19 @@ def exec_combine_archive(archive_file, out_dir):
             try:
                 data_model = copasi.CRootContainer.addDatamodel()
             except BaseException:
-                data_model = copasi.CRootContainer.getUndefinedFunction()
+                data_model = copasi.CRootContainer.getUndefinedFunction() # TODO: this makes no sense whatsoever, the undefined kinetic law will not let you import sed-ml, better to bail here
+
+            # the sedml_importer will only import one time course task
             data_model.importSEDML(sedml_path)
 
             report = create_time_course_report(data_model)
-            # Run all Tasks
+
+            # Run all Tasks - TODO: this code only runs the time course task
             task_name_index = 0
             for task_index in range(0, len(data_model.getTaskList())):
-                task = data_model.getTaskList().get(task_index)
+                task = data_model.getTaskList().get(task_index) # TODO: since this code does only run the time course task, it would be better to just retrieve it directly using data_model.getTask('Time-Course')
                 # Get Name and Class of task as string
-                task_str = str(task)
-                try:
-                    # Get name of Task
-                    task_name = task_str.split('"')[1]
-                except IndexError:
-                    # Get Class name if Task name is not present
-                    task_name = task_str.split("'")[1].split("*")[0]
-                    task_name = task_name[:len(task_name) - 1]
+                task_name = task.getObjectName()
                 # Set output file for the task
                 if task_name == 'Time-Course':
                     task.setScheduled(True)
