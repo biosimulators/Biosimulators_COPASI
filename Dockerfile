@@ -14,6 +14,19 @@
 # Base OS
 FROM python:3.7
 
+# metadata
+LABEL base_image="python:3.7"
+LABEL version="4.28.226"
+LABEL software="COPASI"
+LABEL software.version="4.28.226"
+LABEL about.summary="Open-source software package for the simulation and analysis of biochemical networks and their dynamics."
+LABEL about.home="http://copasi.org/"
+LABEL about.documentation="http://copasi.org/"
+LABEL about.license_file="https://github.com/copasi/COPASI/blob/develop/license.txt"
+LABEL about.license="SPDX:Artistic License 2.0"
+LABEL about.tags="kinetic modeling,dynamical simulation,systems biology,BNGL,SED-ML,COMBINE,OMEX,XPP,Berkeley Madonna"
+LABEL maintainer="Gnaneswara Marupilla <marupilla@uchc.edu>"
+
 # Install requirements
 RUN pip install -U pip \
     && pip install -U setuptools
