@@ -16,8 +16,8 @@ except ModuleNotFoundError:
     capturer = None
     pass
 
-import Biosimulations_copasi
-from Biosimulations_copasi import __main__
+import Biosimulators_copasi
+from Biosimulators_copasi import __main__
 
 try:
     import docker
@@ -51,14 +51,14 @@ class CliTestCase(unittest.TestCase):
             with capturer.CaptureOutput(merged=False, relay=False) as captured:
                 with self.assertRaises(SystemExit):
                     app.run()
-                self.assertIn(Biosimulations_copasi.__version__, captured.stdout.get_text())
+                self.assertIn(Biosimulators_copasi.__version__, captured.stdout.get_text())
                 self.assertEqual(captured.stderr.get_text(), '')
 
         with __main__.App(argv=['--version']) as app:
             with capturer.CaptureOutput(merged=False, relay=False) as captured:
                 with self.assertRaises(SystemExit):
                     app.run()
-                self.assertIn(Biosimulations_copasi.__version__, captured.stdout.get_text())
+                self.assertIn(Biosimulators_copasi.__version__, captured.stdout.get_text())
                 self.assertEqual(captured.stderr.get_text(), '')
 
     def test_sim_short_arg_names(self):
@@ -78,8 +78,8 @@ class CliTestCase(unittest.TestCase):
         docker_client = docker.from_env()
 
         # build image
-        image_repo = 'crbm/biosimulations_copasi'
-        image_tag = Biosimulations_copasi.__version__
+        image_repo = 'biosimulators/copasi'
+        image_tag = Biosimulators_copasi.__version__
         image, _ = docker_client.images.build(
             path='.',
             dockerfile='Dockerfile',
@@ -94,8 +94,8 @@ class CliTestCase(unittest.TestCase):
         docker_client = docker.from_env()
 
         # image config
-        image_repo = 'crbm/biosimulations_copasi'
-        image_tag = Biosimulations_copasi.__version__
+        image_repo = 'biosimulators/copasi'
+        image_tag = Biosimulators_copasi.__version__
 
         # setup input and output directories
         in_dir = os.path.join(self.dirname, 'in')
@@ -155,7 +155,7 @@ class CliTestCase(unittest.TestCase):
     @unittest.skipIf(docker is None, 'Docker not available')
     def test_one_case_with_validator(self):
         validator = SimulatorValidator()
-        valid_cases, case_exceptions, _ = validator.run('crbm/biosimulations_copasi', 'properties.json',
+        valid_cases, case_exceptions, _ = validator.run('biosimulators/copasi', 'properties.json',
                                                         test_case_ids=['BIOMD0000000734.omex', ])
         self.assertGreater(len(valid_cases), 0)
         self.assertEqual(case_exceptions, [])
@@ -163,6 +163,6 @@ class CliTestCase(unittest.TestCase):
     @unittest.skipIf(docker is None or os.getenv('CI', '0') in ['1', 'true'], 'Test too long for continuous integration')
     def test_with_validator(self):
         validator = SimulatorValidator()
-        valid_cases, case_exceptions, _ = validator.run('crbm/biosimulations_copasi', 'properties.json')
+        valid_cases, case_exceptions, _ = validator.run('biosimulators/copasi', 'properties.json')
         self.assertGreater(len(valid_cases), 0)
         self.assertEqual(case_exceptions, [])

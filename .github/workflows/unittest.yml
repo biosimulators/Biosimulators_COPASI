@@ -28,7 +28,7 @@ jobs:
           flake8 . --count --exit-zero --ignore=C901 --max-line-length=140 --statistics
       - name: Install package
         run: |
-          pip install git+https://github.com/reproducible-biomedical-modeling/Biosimulations_utils.git#Biosimulations_utils
+          pip install git+https://github.com/biosimulations/Biosimulations_utils.git#Biosimulations_utils
           pip install -r requirements.txt
           pip install .
           pip install -r tests/requirements.txt

@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
-      run: docker build --file Dockerfile --tag crbm/biosimulations_copasi:latest .
+      run: docker build --file Dockerfile --tag biosimulators/copasi:latest .
     - name: Run the Docker image with test files
       run: |
         mkdir -p "$(pwd)"/tests/results
@@ -20,6 +20,6 @@ jobs:
           --rm \
           --mount type=bind,source="$(pwd)"/tests/fixtures,target=/root/in,readonly \
           --mount type=bind,source="$(pwd)"/tests/results,target=/root/out \
-          crbm/biosimulations_copasi:latest \
+          biosimulators/copasi:latest \
             -i /root/in/BIOMD0000000823.omex \
             -o /root/out

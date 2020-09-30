@@ -1,4 +1,4 @@
-""" BioSimulations-compliant command-line interface to the `COPASI <http://copasi.org/>`_ simulation program.
+""" BioSimulators-compliant command-line interface to the `COPASI <http://copasi.org/>`_ simulation program.
 
 :Author: Akhil Marupilla <akhilmteja@gmail.com>
 :Date: 2020-04-12
@@ -7,7 +7,7 @@
 """
 
 from .core import exec_combine_archive
-import Biosimulations_copasi
+import Biosimulators_copasi
 import cement
 
 
@@ -16,7 +16,7 @@ class BaseController(cement.Controller):
 
     class Meta:
         label = 'base'
-        description = ("BioSimulations-compliant command-line interface to the "
+        description = ("BioSimulators-compliant command-line interface to the "
                        "COPASI simulation program <http://copasi.org>.")
         help = "copasi"
         arguments = [
@@ -27,7 +27,7 @@ class BaseController(cement.Controller):
                                        default='.',
                                        help='Directory to save outputs')),
             (['-v', '--version'], dict(action='version',
-                                       version=Biosimulations_copasi.__version__)),
+                                       version=Biosimulators_copasi.__version__)),
         ]
 
     @cement.ex(hide=True)
