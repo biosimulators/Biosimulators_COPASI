@@ -209,7 +209,7 @@
         "volume": 261,
         "pages": "215-220",
         "year": 2017,
-        "doi": "10.1016/j.jbiotec.2017.06.1200"
+        "identifiers": [{"namespace": "doi", "id": "10.1016/j.jbiotec.2017.06.1200"}]
       },
       {
         "title": "Computational modeling of biochemical networks using COPASI",
@@ -218,7 +218,7 @@
         "volume": 500,
         "pages": "17-59",
         "year": 2009,
-        "doi": "10.1007/978-1-59745-525-1_2"
+        "identifiers": [{"namespace": "doi", "id": "10.1007/978-1-59745-525-1_2"}]
       },
       {
         "title": "COPASI—a complex pathway simulator",
@@ -228,7 +228,7 @@
         "issue": 24,
         "pages": "3067-3074",
         "year": 2006,
-        "doi": "10.1093/bioinformatics/btl485"
+        "identifiers": [{"namespace": "doi", "id": "10.1093/bioinformatics/btl485"}]
       },
       {
         "title": "Simulation of biochemical networks using COPASI—a complex pathway simulator",
@@ -236,7 +236,7 @@
         "journal": "Proceedings of the 2006 Winter Simulation Conference, Monterey, CA, USA",
         "pages": "1698-1706",
         "year": 2006,
-        "doi": "10.5555/1218112.1218421"
+        "identifiers": [{"namespace": "doi", "id": "10.5555/1218112.1218421"}]
       }
     ]
   },
@@ -263,7 +263,8 @@
         {
           "title": "LSODAR, Ordinary Differential Equation Solver for Stiff or Non-Stiff System with root-finding",
           "authors": "AC Hindmarsh & LR Petzold",
-          "year": 2005
+          "year": 2005,
+          "identifiers": [{"namespace": "inis", "id": "RN:41086669", "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086669"}]
         }
       ],
       "parameters": [
@@ -375,7 +376,7 @@
           "issue": 8,
           "pages": "1394-1404",
           "year": 2009,
-          "doi": "10.1080/00207160701870878"
+          "identifiers": [{"namespace": "doi", "id": "10.1080/00207160701870878"}]
         }
       ],
       "parameters": []
@@ -406,7 +407,7 @@
           "issue": 9,
           "pages": "1876-1889",
           "year": 2000,
-          "doi": "10.1021/jp993732q"
+          "identifiers": [{"namespace": "doi", "id": "10.1021/jp993732q"}]
         }
       ],
       "parameters": [
@@ -489,7 +490,7 @@
           "issue": 1,
           "pages": "39-49",
           "year": 2006,
-          "doi": "10.1016/j.compbiolchem.2005.10.007"
+          "identifiers": [{"namespace": "doi", "id": "10.1016/j.compbiolchem.2005.10.007"}]
         }
       ],
       "parameters": [
@@ -547,7 +548,7 @@
           "volume": 58,
           "pages": "35--55",
           "year": 2007,
-          "doi": "10.1063/1.1378322"
+          "identifiers": [{"namespace": "doi", "id": "10.1063/1.1378322"}]
         }
       ],
       "parameters": [
@@ -624,7 +625,7 @@
           "issue": 22,
           "pages": "224101",
           "year": 2007,
-          "doi": "10.1063/1.2745299"
+          "identifiers": [{"namespace": "doi", "id": "10.1063/1.2745299"}]
         }
       ],
       "parameters": [
@@ -696,7 +697,8 @@
         {
           "title": "LSODA, Ordinary Differential Equation Solver for Stiff or Non-Stiff System",
           "authors": "AC Hindmarsh & LR Petzold",
-          "year": 2005
+          "year": 2005,
+          "identifiers": [{"namespace": "inis", "id": "RN:41086668", "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086668"}]
         }
       ],
       "parameters": [
@@ -772,7 +774,7 @@
           "volume": 6,
           "pages": "61-71",
           "year": 1970,
-          "doi": "10.1007/BF02241732"
+          "identifiers": [{"namespace": "doi", "id": "10.1007/BF02241732"}]
         }
       ],
       "parameters": [
@@ -844,7 +846,8 @@
         {
           "title": "A First Course in the Numerical Analysis of Differential Equations",
           "authors": "Arieh Iserles",
-          "year": 1996
+          "year": 2008,
+          "identifiers": [{"namespace": "isbn", "id": "9780511995569"}]
         }
       ],
       "parameters": [
