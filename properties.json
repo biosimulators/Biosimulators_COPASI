@@ -467,7 +467,7 @@
       "namespaceTerms": [
         {
           "namespace": "KISAO",
-          "id": "0000241",
+          "id": "KISAO_0000241",
           "name": "Gillespie-like method"
         }
       ],
