@@ -200,7 +200,7 @@
     }
   ],
   "references": {
-    "identifers": [],
+    "identifers": [{"namespace": "biotools", "id": "copasi"}],
     "citations": [
       {
         "title": "COPASI and its applications in biotechnology",
