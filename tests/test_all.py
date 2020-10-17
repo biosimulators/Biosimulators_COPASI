@@ -108,8 +108,8 @@ class CliTestCase(unittest.TestCase):
         os.makedirs(os.path.join(out_dir, 'Parmar2017_Deficient_Rich_tracer'))
 
         # copy model and simulation to temporary directory which will be mounted into container
-        shutil.copyfile('tests/fixtures/BIOMD0000000734.omex',
-                        os.path.join(in_dir, 'BIOMD0000000734.omex'))
+        shutil.copyfile('tests/fixtures/BIOMD0000000297.omex',
+                        os.path.join(in_dir, 'BIOMD0000000297.omex'))
 
         # run image
         docker_client.containers.run(
@@ -124,18 +124,18 @@ class CliTestCase(unittest.TestCase):
                     'mode': 'rw',
                 }
             },
-            command=['-i', '/root/in/BIOMD0000000734.omex', '-o', '/root/out'],
+            command=['-i', '/root/in/BIOMD0000000297.omex', '-o', '/root/out'],
             tty=True,
             remove=True)
 
         self.assert_outputs_created(out_dir)
 
     def assert_outputs_created(self, dirname, output_start_time=0., end_time=5100., num_time_points=300, model_var_ids=('FeDuo',)):
-        self.assertEqual(set(os.listdir(dirname)), set(['Parmar2017_Deficient_Rich_tracer']))
-        self.assertEqual(set(os.listdir(os.path.join(dirname, 'Parmar2017_Deficient_Rich_tracer'))), set(['simulation_1.csv']))
+        self.assertEqual(set(os.listdir(dirname)), set(['simulation_1']))
+        self.assertEqual(set(os.listdir(os.path.join(dirname, 'simulation_1'))), set(['simulation_1.csv']))
 
         filenames = [
-            os.path.join(dirname, 'Parmar2017_Deficient_Rich_tracer', 'simulation_1.csv'),
+            os.path.join(dirname, 'simulation_1', 'simulation_1.csv'),
         ]
 
         for filename in filenames:
@@ -156,7 +156,7 @@ class CliTestCase(unittest.TestCase):
     def test_one_case_with_validator(self):
         validator = SimulatorValidator()
         valid_cases, case_exceptions, _ = validator.run('biosimulators/copasi', 'properties.json',
-                                                        test_case_ids=['BIOMD0000000734.omex', ])
+                                                        test_case_ids=['BIOMD0000000297.omex', ])
         self.assertGreater(len(valid_cases), 0)
         self.assertEqual(case_exceptions, [])
 
