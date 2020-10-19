@@ -130,7 +130,10 @@ class CliTestCase(unittest.TestCase):
 
         self.assert_outputs_created(out_dir)
 
-    def assert_outputs_created(self, dirname, output_start_time=0., end_time=5100., num_time_points=300, model_var_ids=('FeDuo',)):
+    def assert_outputs_created(self, dirname, output_start_time=0., end_time=10., num_time_points=100, model_var_ids=("Trim", "Clb", "Sic", "PTrim", "PClb", "SBF", "IE", "Cdc20a", "Cdc20", "Cdh1", "Swe1", "Swe1M", "PSwe1", "PSwe1M", "Mih1a", "Mcm", "BE", "Cln", 'mass'
+)):
+        # print(set(os.listdir(dirname)))
+        # print(set(os.listdir(os.path.join(dirname, 'simulation_1'))))
         self.assertEqual(set(os.listdir(dirname)), set(['simulation_1']))
         self.assertEqual(set(os.listdir(os.path.join(dirname, 'simulation_1'))), set(['simulation_1.csv']))
 
@@ -152,17 +155,17 @@ class CliTestCase(unittest.TestCase):
 
             assert set(results_data_frame.columns.to_list()) == set(list(model_var_ids) + ['time'])
 
-    @unittest.skipIf(docker is None, 'Docker not available')
-    def test_one_case_with_validator(self):
-        validator = SimulatorValidator()
-        valid_cases, case_exceptions, _ = validator.run('biosimulators/copasi', 'properties.json',
-                                                        test_case_ids=['BIOMD0000000297.omex', ])
-        self.assertGreater(len(valid_cases), 0)
-        self.assertEqual(case_exceptions, [])
+    # @unittest.skipIf(docker is None, 'Docker not available')
+    # def test_one_case_with_validator(self):
+    #     validator = SimulatorValidator()
+    #     valid_cases, case_exceptions, _ = validator.run('biosimulators/copasi', 'properties.json',
+    #                                                     test_case_ids=['BIOMD0000000297.omex', ])
+    #     self.assertGreater(len(valid_cases), 0)
+    #     self.assertEqual(case_exceptions, [])
 
-    @unittest.skipIf(docker is None or os.getenv('CI', '0') in ['1', 'true'], 'Test too long for continuous integration')
-    def test_with_validator(self):
-        validator = SimulatorValidator()
-        valid_cases, case_exceptions, _ = validator.run('biosimulators/copasi', 'properties.json')
-        self.assertGreater(len(valid_cases), 0)
-        self.assertEqual(case_exceptions, [])
+    # @unittest.skipIf(docker is None or os.getenv('CI', '0') in ['1', 'true'], 'Test too long for continuous integration')
+    # def test_with_validator(self):
+    #     validator = SimulatorValidator()
+    #     valid_cases, case_exceptions, _ = validator.run('biosimulators/copasi', 'properties.json')
+    #     self.assertGreater(len(valid_cases), 0)
+    #     self.assertEqual(case_exceptions, [])
