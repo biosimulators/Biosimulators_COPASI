@@ -12,6 +12,7 @@
   "authors": [
     {
       "firstName": "Frank",
+      "middleName": "T.",
       "lastName": "Bergmann"
     },
     {
@@ -204,7 +205,7 @@
     "citations": [
       {
         "title": "COPASI and its applications in biotechnology",
-        "authors": "Frank T Bergmann, Stefan Hoops, Brian Klahn, Ursula Kummer, Pedro Mendes Jürgen Pahle & Sven Sahle",
+        "authors": "Frank T. Bergmann, Stefan Hoops, Brian Klahn, Ursula Kummer, Pedro Mendes Jürgen Pahle & Sven Sahle",
         "journal": "Journal of Biotechnology",
         "volume": 261,
         "pages": "215-220",
@@ -262,7 +263,7 @@
       "citations": [
         {
           "title": "LSODAR, ordinary differential equation solver for stiff or non-stiff system with root-finding",
-          "authors": "AC Hindmarsh & LR Petzold",
+          "authors": "Alan C. Hindmarsh & Linda R. Petzold",
           "year": 2005,
           "identifiers": [{"namespace": "inis", "id": "RN:41086669", "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086669"}]
         }
@@ -401,7 +402,7 @@
       "citations": [
         {
           "title": "Efficient exact stochastic simulation of chemical systems with many species and many channels",
-          "authors": "Michael A Gibson & Jehoshua Bruck",
+          "authors": "Michael A. Gibson & Jehoshua Bruck",
           "journal": "Journal of Physical Chemistry A",
           "volume": 104,
           "issue": 9,
@@ -484,7 +485,7 @@
       "citations": [
         {
           "title": "The sorting direct method for stochastic simulation of biochemical systems with varying reaction execution behavior",
-          "authors": "James M McCollum, Gregory D Peterson, Chris D Cox, Michael L Simpson & Nagiza F Samatova",
+          "authors": "James M. McCollum, Gregory D. Peterson, Chris D. Cox, Michael L. Simpson & Nagiza F. Samatova",
           "journal": "Computational Biology and Chemistry",
           "volume": 30,
           "issue": 1,
@@ -543,8 +544,8 @@
       "citations": [
         {
           "title": "Approximate accelerated stochastic simulation of chemically reacting systems",
-          "authors": "Daniel T Gillespie",
-          "journal": "The Journal of Chemical Physics",
+          "authors": "Daniel T. Gillespie",
+          "journal": "Journal of Chemical Physics",
           "volume": 115,
           "issue": 4,
           "pages": "1716–1733",
@@ -624,7 +625,7 @@
       "citations": [
         {
           "title": "Adaptive explicit-implicit tau-leaping method with automatic tau selection",
-          "authors": "Yang Cao, Daniel T Gillespie & Linda R Petzold",
+          "authors": "Yang Cao, Daniel T. Gillespie & Linda R. Petzold",
           "journal": "Journal of Chemical Physics",
           "volume": 126,
           "issue": 22,
@@ -701,7 +702,7 @@
       "citations": [
         {
           "title": "LSODA, ordinary differential equation solver for stiff or non-stiff system",
-          "authors": "AC Hindmarsh & LR Petzold",
+          "authors": "Alan C. Hindmarsh & Linda R. Petzold",
           "year": 2005,
           "identifiers": [{"namespace": "inis", "id": "RN:41086668", "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086668"}]
         }
