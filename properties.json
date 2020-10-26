@@ -209,7 +209,7 @@
         "volume": 261,
         "pages": "215-220",
         "year": 2017,
-        "identifiers": [{"namespace": "doi", "id": "10.1016/j.jbiotec.2017.06.1200"}]
+        "identifiers": [{"namespace": "doi", "id": "10.1016/j.jbiotec.2017.06.1200", "url": "https://doi.org/10.1016/j.jbiotec.2017.06.1200"}]
       },
       {
         "title": "Computational modeling of biochemical networks using COPASI",
@@ -218,7 +218,7 @@
         "volume": 500,
         "pages": "17-59",
         "year": 2009,
-        "identifiers": [{"namespace": "doi", "id": "10.1007/978-1-59745-525-1_2"}]
+        "identifiers": [{"namespace": "doi", "id": "10.1007/978-1-59745-525-1_2", "url": "https://doi.org/10.1007/978-1-59745-525-1_2"}]
       },
       {
         "title": "COPASI—a complex pathway simulator",
@@ -228,7 +228,7 @@
         "issue": 24,
         "pages": "3067-3074",
         "year": 2006,
-        "identifiers": [{"namespace": "doi", "id": "10.1093/bioinformatics/btl485"}]
+        "identifiers": [{"namespace": "doi", "id": "10.1093/bioinformatics/btl485", "url": "https://doi.org/10.1093/bioinformatics/btl485"}]
       },
       {
         "title": "Simulation of biochemical networks using COPASI—a complex pathway simulator",
@@ -236,7 +236,7 @@
         "journal": "Proceedings of the 2006 Winter Simulation Conference, Monterey, CA, USA",
         "pages": "1698-1706",
         "year": 2006,
-        "identifiers": [{"namespace": "doi", "id": "10.5555/1218112.1218421"}]
+        "identifiers": [{"namespace": "doi", "id": "10.5555/1218112.1218421", "url": "https://doi.org/10.5555/1218112.1218421"}]
       }
     ]
   },
@@ -261,7 +261,7 @@
       "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
       "citations": [
         {
-          "title": "LSODAR, Ordinary Differential Equation Solver for Stiff or Non-Stiff System with root-finding",
+          "title": "LSODAR, ordinary differential equation solver for stiff or non-stiff system with root-finding",
           "authors": "AC Hindmarsh & LR Petzold",
           "year": 2005,
           "identifiers": [{"namespace": "inis", "id": "RN:41086669", "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086669"}]
@@ -376,7 +376,7 @@
           "issue": 8,
           "pages": "1394-1404",
           "year": 2009,
-          "identifiers": [{"namespace": "doi", "id": "10.1080/00207160701870878"}]
+          "identifiers": [{"namespace": "doi", "id": "10.1080/00207160701870878", "url": "https://doi.org/10.1080/00207160701870878"}]
         }
       ],
       "parameters": []
@@ -407,7 +407,7 @@
           "issue": 9,
           "pages": "1876-1889",
           "year": 2000,
-          "identifiers": [{"namespace": "doi", "id": "10.1021/jp993732q"}]
+          "identifiers": [{"namespace": "doi", "id": "10.1021/jp993732q", "url": "https://doi.org/10.1021/jp993732q"}]
         }
       ],
       "parameters": [
@@ -490,7 +490,7 @@
           "issue": 1,
           "pages": "39-49",
           "year": 2006,
-          "identifiers": [{"namespace": "doi", "id": "10.1016/j.compbiolchem.2005.10.007"}]
+          "identifiers": [{"namespace": "doi", "id": "10.1016/j.compbiolchem.2005.10.007", "url": "https://doi.org/10.1016/j.compbiolchem.2005.10.007"}]
         }
       ],
       "parameters": [
@@ -542,13 +542,18 @@
       "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
       "citations": [
         {
-          "title": "Stochastic simulation of chemical kinetics",
+          "title": "Approximate accelerated stochastic simulation of chemically reacting systems",
           "authors": "Daniel T Gillespie",
-          "journal": "Annual Review of Physical Chemistry",
-          "volume": 58,
-          "pages": "35--55",
-          "year": 2007,
-          "identifiers": [{"namespace": "doi", "id": "10.1063/1.1378322"}]
+          "journal": "The Journal of Chemical Physics",
+          "volume": 115,
+          "issue": 4,
+          "pages": "1716–1733",
+          "year": 2001,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1063/1.1378322",
+            "url": "https://doi.org/10.1063/1.1378322"
+          }]
         }
       ],
       "parameters": [
@@ -625,7 +630,7 @@
           "issue": 22,
           "pages": "224101",
           "year": 2007,
-          "identifiers": [{"namespace": "doi", "id": "10.1063/1.2745299"}]
+          "identifiers": [{"namespace": "doi", "id": "10.1063/1.2745299", "url": "https://doi.org/10.1063/1.2745299"}]
         }
       ],
       "parameters": [
@@ -695,7 +700,7 @@
       "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
       "citations": [
         {
-          "title": "LSODA, Ordinary Differential Equation Solver for Stiff or Non-Stiff System",
+          "title": "LSODA, ordinary differential equation solver for stiff or non-stiff system",
           "authors": "AC Hindmarsh & LR Petzold",
           "year": 2005,
           "identifiers": [{"namespace": "inis", "id": "RN:41086668", "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086668"}]
@@ -774,7 +779,7 @@
           "volume": 6,
           "pages": "61-71",
           "year": 1970,
-          "identifiers": [{"namespace": "doi", "id": "10.1007/BF02241732"}]
+          "identifiers": [{"namespace": "doi", "id": "10.1007/BF02241732", "url": "https://doi.org/10.1007/BF02241732"}]
         }
       ],
       "parameters": [
@@ -844,10 +849,10 @@
       "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
       "citations": [
         {
-          "title": "A First Course in the Numerical Analysis of Differential Equations",
+          "title": "A first course in the numerical analysis of differential equations",
           "authors": "Arieh Iserles",
           "year": 2008,
-          "identifiers": [{"namespace": "isbn", "id": "9780511995569"}]
+          "identifiers": [{"namespace": "isbn", "id": "9780511995569", "url": "https://isbndb.com/book/9780511995569"}]
         }
       ],
       "parameters": [
