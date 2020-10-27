@@ -9,8 +9,7 @@
     "namespace": "EDAM",
     "id": "format_3973"
   },
-  "authors": [
-    {
+  "authors": [{
       "firstName": "Frank",
       "middleName": "T.",
       "lastName": "Bergmann"
@@ -201,16 +200,22 @@
     }
   ],
   "references": {
-    "identifers": [{"namespace": "biotools", "id": "copasi"}],
-    "citations": [
-      {
+    "identifers": [{
+      "namespace": "biotools",
+      "id": "copasi"
+    }],
+    "citations": [{
         "title": "COPASI and its applications in biotechnology",
         "authors": "Frank T. Bergmann, Stefan Hoops, Brian Klahn, Ursula Kummer, Pedro Mendes Jürgen Pahle & Sven Sahle",
         "journal": "Journal of Biotechnology",
         "volume": 261,
         "pages": "215-220",
         "year": 2017,
-        "identifiers": [{"namespace": "doi", "id": "10.1016/j.jbiotec.2017.06.1200", "url": "https://doi.org/10.1016/j.jbiotec.2017.06.1200"}]
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.1016/j.jbiotec.2017.06.1200",
+          "url": "https://doi.org/10.1016/j.jbiotec.2017.06.1200"
+        }]
       },
       {
         "title": "Computational modeling of biochemical networks using COPASI",
@@ -219,7 +224,11 @@
         "volume": 500,
         "pages": "17-59",
         "year": 2009,
-        "identifiers": [{"namespace": "doi", "id": "10.1007/978-1-59745-525-1_2", "url": "https://doi.org/10.1007/978-1-59745-525-1_2"}]
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.1007/978-1-59745-525-1_2",
+          "url": "https://doi.org/10.1007/978-1-59745-525-1_2"
+        }]
       },
       {
         "title": "COPASI—a complex pathway simulator",
@@ -229,7 +238,11 @@
         "issue": 24,
         "pages": "3067-3074",
         "year": 2006,
-        "identifiers": [{"namespace": "doi", "id": "10.1093/bioinformatics/btl485", "url": "https://doi.org/10.1093/bioinformatics/btl485"}]
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.1093/bioinformatics/btl485",
+          "url": "https://doi.org/10.1093/bioinformatics/btl485"
+        }]
       },
       {
         "title": "Simulation of biochemical networks using COPASI—a complex pathway simulator",
@@ -237,38 +250,72 @@
         "journal": "Proceedings of the 2006 Winter Simulation Conference, Monterey, CA, USA",
         "pages": "1698-1706",
         "year": 2006,
-        "identifiers": [{"namespace": "doi", "id": "10.5555/1218112.1218421", "url": "https://doi.org/10.5555/1218112.1218421"}]
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.5555/1218112.1218421",
+          "url": "https://doi.org/10.5555/1218112.1218421"
+        }]
       }
     ]
   },
-  "license": { "namespace": "SPDX", "id": "Artistic-2.0" },
-  "algorithms": [
-    {
-      "id": "deterministic_lsodar",
-      "name": "Ordinary differential equation solver for stiff or non-stiff systems with root finding",
+  "license": {
+    "namespace": "SPDX",
+    "id": "Artistic-2.0"
+  },
+  "algorithms": [{
+      "id": "lsoda_or_lsodar",
+      "name": "Automatically use LSODA or LSODAR as apropriate for the given problem. Use LSODA if the problem has no roots. Use LSODAR if the problem has roots.",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000089"
+        "id": "KISAO_0000088"
       },
 
-      "modelingFrameworks": [
-        {
-          "namespace": "SBO",
-          "id": "SBO_0000293"
-        }
-      ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000293"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+          "title": "LSODA, ordinary differential equation solver for stiff or non-stiff system",
+          "authors": "Alan C. Hindmarsh & Linda R. Petzold",
+          "year": 2005,
+          "identifiers": [{
+            "namespace": "inis",
+            "id": "RN:41086668",
+            "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086668"
+          }]
+        },
         {
           "title": "LSODAR, ordinary differential equation solver for stiff or non-stiff system with root-finding",
           "authors": "Alan C. Hindmarsh & Linda R. Petzold",
           "year": 2005,
-          "identifiers": [{"namespace": "inis", "id": "RN:41086669", "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086669"}]
+          "identifiers": [{
+            "namespace": "inis",
+            "id": "RN:41086669",
+            "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086669"
+          }]
         }
       ],
-      "parameters": [
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000216"
+          },
+          "name": "integrate reduced model",
+          "type": "boolean",
+          "default": true
+        },
         {
           "kisaoId": {
             "namespace": "KISAO",
@@ -276,7 +323,7 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "default": 0.000001
+          "default": 1e-6
         },
         {
           "kisaoId": {
@@ -290,29 +337,11 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000220"
-          },
-          "name": "Maximum Backward Differentiation Formula (BDF) order",
-          "type": "integer",
-          "default": 5
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000219"
-          },
-          "name": "Maximum Adams order",
-          "type": "integer",
-          "default": 12
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
             "id": "KISAO_0000415"
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "default": 20000
+          "default": 10000
         },
         {
           "kisaoId": {
@@ -321,34 +350,7 @@
           },
           "name": "Maximum time step",
           "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000485"
-          },
-          "name": "Minimum time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000332"
-          },
-          "name": "Initial time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000107"
-          },
-          "name": "Adaptive time steps",
-          "type": "boolean",
-          "default": false
+          "default": null
         }
       ]
     },
@@ -359,142 +361,45 @@
         "namespace": "KISAO",
         "id": "KISAO_0000304"
       },
-      "modelingFrameworks": [
-        {
-          "namespace": "SBO",
-          "id": "SBO_0000293"
-        }
-      ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
-        {
-          "title": "Implicit Runge--Kutta methods based on Radau quadrature formula",
-          "authors": "Xiaohua Ding & Jiabo Tan",
-          "journal": "International Journal of Computer Mathematics",
-          "volume": 86,
-          "issue": 8,
-          "pages": "1394-1404",
-          "year": 2009,
-          "identifiers": [{"namespace": "doi", "id": "10.1080/00207160701870878", "url": "https://doi.org/10.1080/00207160701870878"}]
-        }
-      ],
-      "parameters": []
-    },
-    {
-      "id": "gibson_bruck",
-      "name": "Gibson-Bruck next reaction algorithm",
-      "kisaoId": {
-        "namespace": "KISAO",
-        "id": "KISAO_0000027"
-      },
-
-      "modelingFrameworks": [
-        {
-          "namespace": "SBO",
-          "id": "SBO_0000295"
-        }
-      ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
-        {
-          "title": "Efficient exact stochastic simulation of chemical systems with many species and many channels",
-          "authors": "Michael A. Gibson & Jehoshua Bruck",
-          "journal": "Journal of Physical Chemistry A",
-          "volume": 104,
-          "issue": 9,
-          "pages": "1876-1889",
-          "year": 2000,
-          "identifiers": [{"namespace": "doi", "id": "10.1021/jp993732q", "url": "https://doi.org/10.1021/jp993732q"}]
-        }
-      ],
-      "parameters": [
-        {
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000293"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+        "title": "Implicit Runge--Kutta methods based on Radau quadrature formula",
+        "authors": "Xiaohua Ding & Jiabo Tan",
+        "journal": "International Journal of Computer Mathematics",
+        "volume": 86,
+        "issue": 8,
+        "pages": "1394-1404",
+        "year": 2009,
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.1080/00207160701870878",
+          "url": "https://doi.org/10.1080/00207160701870878"
+        }]
+      }],
+      "parameters": [{
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000488"
+            "id": "KISAO_0000216"
           },
-          "name": "Random number generator seed",
-          "type": "integer",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000107"
-          },
-          "name": "Adaptive time steps",
+          "name": "integrate reduced model",
           "type": "boolean",
           "default": true
         },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000332"
-          },
-          "name": "Initial time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000485"
-          },
-          "name": "Minimum time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000467"
-          },
-          "name": "Maximum time step",
-          "type": "float",
-          "default": 0
-        }
-      ]
-    },
-    {
-      "id": "sorting_direct_method",
-      "name": "sorting stochastic simulation algorithm",
-      "kisaoId": {
-        "namespace": "KISAO",
-        "id": "KISAO_0000038"
-      },
-      "namespaceTerms": [
-        {
-          "namespace": "KISAO",
-          "id": "KISAO_0000241",
-          "name": "Gillespie-like method"
-        }
-      ],
-      "modelingFrameworks": [
-        {
-          "namespace": "SBO",
-          "id": "SBO_0000295"
-        }
-      ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
-        {
-          "title": "The sorting direct method for stochastic simulation of biochemical systems with varying reaction execution behavior",
-          "authors": "James M. McCollum, Gregory D. Peterson, Chris D. Cox, Michael L. Simpson & Nagiza F. Samatova",
-          "journal": "Computational Biology and Chemistry",
-          "volume": 30,
-          "issue": 1,
-          "pages": "39-49",
-          "year": 2006,
-          "identifiers": [{"namespace": "doi", "id": "10.1016/j.compbiolchem.2005.10.007", "url": "https://doi.org/10.1016/j.compbiolchem.2005.10.007"}]
-        }
-      ],
-      "parameters": [
         {
           "kisaoId": {
             "namespace": "KISAO",
@@ -502,25 +407,149 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "default": 1e-12
+          "default": 0.0001
         },
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000486"
+            "id": "KISAO_0000211"
           },
-          "name": "Maximum number of iterations",
-          "type": "integer",
-          "default": 100
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000487"
-          },
-          "name": "Minimum damping factor",
+          "name": "Absolute tolerance",
           "type": "float",
-          "default": 1e-29
+          "default": 1e-6
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000415"
+          },
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 1000000000
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000483"
+          },
+          "name": "Initial time step",
+          "type": "float",
+          "default": 0.001
+        }
+      ]
+    },
+    {
+      "id": "gibson_bruck",
+      "name": "Gibson-Bruck next reaction method",
+      "kisaoId": {
+        "namespace": "KISAO",
+        "id": "KISAO_0000027"
+      },
+
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000295"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+        "title": "Efficient exact stochastic simulation of chemical systems with many species and many channels",
+        "authors": "Michael A. Gibson & Jehoshua Bruck",
+        "journal": "Journal of Physical Chemistry A",
+        "volume": 104,
+        "issue": 9,
+        "pages": "1876-1889",
+        "year": 2000,
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.1021/jp993732q",
+          "url": "https://doi.org/10.1021/jp993732q"
+        }]
+      }],
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000415"
+          },
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 1000000
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000488"
+          },
+          "name": "Random number generator seed",
+          "type": "integer",
+          "default": 1
+        }
+      ]
+    },
+    {
+      "id": "ssa",
+      "name": "Gillespie's direct method",
+      "kisaoId": {
+        "namespace": "KISAO",
+        "id": "KISAO_0000029"
+      },
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000295"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+        "title": "Exact stochastic simulation of coupled chemical reactions",
+        "authors": "Daniel T. Gillespie",
+        "journal": "Journal of Physical Chemistry",
+        "volume": 81,
+        "issue": 25,
+        "pages": "2340-2361",
+        "year": 1977,
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.1021/j100540a008",
+          "url": "https://doi.org/10.1021/j100540a008"
+        }]
+      }],
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000415"
+          },
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 1000000
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000488"
+          },
+          "name": "Random number generator seed",
+          "type": "integer",
+          "default": 1
         }
       ]
     },
@@ -532,32 +561,54 @@
         "id": "KISAO_0000039"
       },
 
-      "modelingFrameworks": [
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000295"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+        "title": "Approximate accelerated stochastic simulation of chemically reacting systems",
+        "authors": "Daniel T. Gillespie",
+        "journal": "Journal of Chemical Physics",
+        "volume": 115,
+        "issue": 4,
+        "pages": "1716–1733",
+        "year": 2001,
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.1063/1.1378322",
+          "url": "https://doi.org/10.1063/1.1378322"
+        }]
+      }],
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000228"
+          },
+          "name": "epsilon",
+          "type": "float",
+          "default": 0.001
+        },
         {
-          "namespace": "SBO",
-          "id": "SBO_0000295"
-        }
-      ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
-        {
-          "title": "Approximate accelerated stochastic simulation of chemically reacting systems",
-          "authors": "Daniel T. Gillespie",
-          "journal": "Journal of Chemical Physics",
-          "volume": 115,
-          "issue": 4,
-          "pages": "1716–1733",
-          "year": 2001,
-          "identifiers": [{
-            "namespace": "doi",
-            "id": "10.1063/1.1378322",
-            "url": "https://doi.org/10.1063/1.1378322"
-          }]
-        }
-      ],
-      "parameters": [
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000415"
+          },
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 10000
+        },
         {
           "kisaoId": {
             "namespace": "KISAO",
@@ -565,43 +616,7 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000107"
-          },
-          "name": "Adaptive time steps",
-          "type": "boolean",
-          "default": true
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000332"
-          },
-          "name": "Initial time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000485"
-          },
-          "name": "Minimum time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000467"
-          },
-          "name": "Maximum time step",
-          "type": "float",
-          "default": 0
+          "default": 1
         }
       ]
     },
@@ -613,28 +628,54 @@
         "id": "KISAO_0000048"
       },
 
-      "modelingFrameworks": [
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000295"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+        "title": "Adaptive explicit-implicit tau-leaping method with automatic tau selection",
+        "authors": "Yang Cao, Daniel T. Gillespie & Linda R. Petzold",
+        "journal": "Journal of Chemical Physics",
+        "volume": 126,
+        "issue": 22,
+        "pages": "224101",
+        "year": 2007,
+        "identifiers": [{
+          "namespace": "doi",
+          "id": "10.1063/1.2745299",
+          "url": "https://doi.org/10.1063/1.2745299"
+        }]
+      }],
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000228"
+          },
+          "name": "epsilon",
+          "type": "float",
+          "default": 0.03
+        },
         {
-          "namespace": "SBO",
-          "id": "SBO_0000295"
-        }
-      ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
-        {
-          "title": "Adaptive explicit-implicit tau-leaping method with automatic tau selection",
-          "authors": "Yang Cao, Daniel T. Gillespie & Linda R. Petzold",
-          "journal": "Journal of Chemical Physics",
-          "volume": 126,
-          "issue": 22,
-          "pages": "224101",
-          "year": 2007,
-          "identifiers": [{"namespace": "doi", "id": "10.1063/1.2745299", "url": "https://doi.org/10.1063/1.2745299"}]
-        }
-      ],
-      "parameters": [
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000415"
+          },
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 1000000
+        },
         {
           "kisaoId": {
             "namespace": "KISAO",
@@ -642,72 +683,122 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000107"
-          },
-          "name": "Adaptive time steps",
-          "type": "boolean",
-          "default": true
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000332"
-          },
-          "name": "Initial time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000485"
-          },
-          "name": "Minimum time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000467"
-          },
-          "name": "Maximum time step",
-          "type": "float",
-          "default": 0
+          "default": 1
         }
       ]
     },
     {
-      "id": "lsoda",
-      "name": "Livermore solver systems for ordinary differential equations with automatic method switching",
+      "id": "hybrid-runge-kutta",
+      "name": "Hybrid discrete/continuous Runge-Kutta",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000088"
+        "id": "KISAO_00000XX"
       },
-
-      "modelingFrameworks": [
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000295"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+          "title": "COPASI and its applications in biotechnology",
+          "authors": "Frank T. Bergmann, Stefan Hoops, Brian Klahn, Ursula Kummer, Pedro Mendes Jürgen Pahle & Sven Sahle",
+          "journal": "Journal of Biotechnology",
+          "volume": 261,
+          "pages": "215-220",
+          "year": 2017,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1016/j.jbiotec.2017.06.1200",
+            "url": "https://doi.org/10.1016/j.jbiotec.2017.06.1200"
+          }]
+        },
         {
-          "namespace": "SBO",
-          "id": "SBO_0000293"
+          "title": "Computational modeling of biochemical networks using COPASI",
+          "authors": "Pedro Mendes, Stefan Hoops, Sven Sahle, Ralph Gauges, Joseph Dada & Ursula Kummer",
+          "journal": "Methods in Molecular Biology",
+          "volume": 500,
+          "pages": "17-59",
+          "year": 2009,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1007/978-1-59745-525-1_2",
+            "url": "https://doi.org/10.1007/978-1-59745-525-1_2"
+          }]
+        },
+        {
+          "title": "COPASI—a complex pathway simulator",
+          "authors": "Stefan Hoops, Sven Sahle, Ralph Gauges, Christine Lee, Jürgen Pahle, Natalia Simus, Mudita Singhal, Liang Xu, Pedro Mendes & Ursula Kummer",
+          "journal": "Bioinformatics",
+          "volume": 22,
+          "issue": 24,
+          "pages": "3067-3074",
+          "year": 2006,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1093/bioinformatics/btl485",
+            "url": "https://doi.org/10.1093/bioinformatics/btl485"
+          }]
+        },
+        {
+          "title": "Simulation of biochemical networks using COPASI—a complex pathway simulator",
+          "authors": "Sven Sahle, Ralph Gauges, Jürgen Pahle, Natalia Simus, Ursula Kummer, Stefan Hoops, Christine Lee, Mudita Singhal, Liang Xu & Pedro Mendes",
+          "journal": "Proceedings of the 2006 Winter Simulation Conference, Monterey, CA, USA",
+          "pages": "1698-1706",
+          "year": 2006,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.5555/1218112.1218421",
+            "url": "https://doi.org/10.5555/1218112.1218421"
+          }]
         }
       ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000415"
+          },
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 1000000
+        },
         {
-          "title": "LSODA, ordinary differential equation solver for stiff or non-stiff system",
-          "authors": "Alan C. Hindmarsh & Linda R. Petzold",
-          "year": 2005,
-          "identifiers": [{"namespace": "inis", "id": "RN:41086668", "url": "https://inis.iaea.org/search/search.aspx?orig_q=RN:41086668"}]
-        }
-      ],
-      "parameters": [
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000203"
+          },
+          "name": "Low-particle number upper limit",
+          "type": "integer",
+          "default": 800
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000204"
+          },
+          "name": "High-particle number lower limit",
+          "type": "integer",
+          "default": 1000
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000205"
+          },
+          "name": "Partitioning interval",
+          "type": "integer",
+          "default": 1
+        },
         {
           "kisaoId": {
             "namespace": "KISAO",
@@ -715,75 +806,131 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "default": 0
+          "default": 1
         },
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000107"
+            "id": "KISAO_0000483"
           },
-          "name": "Adaptive time steps",
-          "type": "boolean",
-          "default": true
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000332"
-          },
-          "name": "Initial time step",
+          "name": "Runge-Kutta step size",
           "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000485"
-          },
-          "name": "Minimum time step",
-          "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000467"
-          },
-          "name": "Maximum time step",
-          "type": "float",
-          "default": 0
+          "default": 0.001
         }
       ]
     },
     {
-      "id": "rk_45",
-      "name": "Fehlberg method",
+      "id": "hybrid-lsoda",
+      "name": "Hybrid discrete/continuous LSODA",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000086"
+        "id": "KISAO_00000XX"
       },
-
-      "modelingFrameworks": [
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000295"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+          "title": "COPASI and its applications in biotechnology",
+          "authors": "Frank T. Bergmann, Stefan Hoops, Brian Klahn, Ursula Kummer, Pedro Mendes Jürgen Pahle & Sven Sahle",
+          "journal": "Journal of Biotechnology",
+          "volume": 261,
+          "pages": "215-220",
+          "year": 2017,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1016/j.jbiotec.2017.06.1200",
+            "url": "https://doi.org/10.1016/j.jbiotec.2017.06.1200"
+          }]
+        },
         {
-          "namespace": "SBO",
-          "id": "SBO_0000293"
+          "title": "Computational modeling of biochemical networks using COPASI",
+          "authors": "Pedro Mendes, Stefan Hoops, Sven Sahle, Ralph Gauges, Joseph Dada & Ursula Kummer",
+          "journal": "Methods in Molecular Biology",
+          "volume": 500,
+          "pages": "17-59",
+          "year": 2009,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1007/978-1-59745-525-1_2",
+            "url": "https://doi.org/10.1007/978-1-59745-525-1_2"
+          }]
+        },
+        {
+          "title": "COPASI—a complex pathway simulator",
+          "authors": "Stefan Hoops, Sven Sahle, Ralph Gauges, Christine Lee, Jürgen Pahle, Natalia Simus, Mudita Singhal, Liang Xu, Pedro Mendes & Ursula Kummer",
+          "journal": "Bioinformatics",
+          "volume": 22,
+          "issue": 24,
+          "pages": "3067-3074",
+          "year": 2006,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1093/bioinformatics/btl485",
+            "url": "https://doi.org/10.1093/bioinformatics/btl485"
+          }]
+        },
+        {
+          "title": "Simulation of biochemical networks using COPASI—a complex pathway simulator",
+          "authors": "Sven Sahle, Ralph Gauges, Jürgen Pahle, Natalia Simus, Ursula Kummer, Stefan Hoops, Christine Lee, Mudita Singhal, Liang Xu & Pedro Mendes",
+          "journal": "Proceedings of the 2006 Winter Simulation Conference, Monterey, CA, USA",
+          "pages": "1698-1706",
+          "year": 2006,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.5555/1218112.1218421",
+            "url": "https://doi.org/10.5555/1218112.1218421"
+          }]
         }
       ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000415"
+          },
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 1000000
+        },
         {
-          "title": "Classical fourth- and lower order Runge-Kutta formulas with stepsize control and their application to heat transfer problems",
-          "authors": "Erwin Fehlberg",
-          "journal": "Computing",
-          "volume": 6,
-          "pages": "61-71",
-          "year": 1970,
-          "identifiers": [{"namespace": "doi", "id": "10.1007/BF02241732", "url": "https://doi.org/10.1007/BF02241732"}]
-        }
-      ],
-      "parameters": [
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000203"
+          },
+          "name": "Low-particle number upper limit",
+          "type": "integer",
+          "default": 800
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000204"
+          },
+          "name": "High-particle number lower limit",
+          "type": "integer",
+          "default": 1000
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000205"
+          },
+          "name": "Partitioning interval",
+          "type": "integer",
+          "default": 1
+        },
         {
           "kisaoId": {
             "namespace": "KISAO",
@@ -791,34 +938,34 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "default": 0
+          "default": 1
         },
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000107"
+            "id": "KISAO_0000216"
           },
-          "name": "Adaptive time steps",
+          "name": "integrate reduced model",
           "type": "boolean",
           "default": true
         },
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000332"
+            "id": "KISAO_0000209"
           },
-          "name": "Initial time step",
+          "name": "Relative tolerance",
           "type": "float",
-          "default": 0
+          "default": 1e-6
         },
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000485"
+            "id": "KISAO_0000211"
           },
-          "name": "Minimum time step",
+          "name": "Absolute tolerance",
           "type": "float",
-          "default": 0
+          "default": 1e-12
         },
         {
           "kisaoId": {
@@ -827,36 +974,122 @@
           },
           "name": "Maximum time step",
           "type": "float",
-          "default": 0
+          "default": null
         }
       ]
     },
     {
-      "id": "sde_solver_ri5",
-      "name": "Gauss-Legendre Runge-Kutta method",
+      "id": "hybrid-rk45",
+      "name": "Hybrid discrete/continuous Fehlberg method",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000318"
+        "id": "KISAO_00000XX"
       },
-
-      "modelingFrameworks": [
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000295"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [{
+          "title": "COPASI and its applications in biotechnology",
+          "authors": "Frank T. Bergmann, Stefan Hoops, Brian Klahn, Ursula Kummer, Pedro Mendes Jürgen Pahle & Sven Sahle",
+          "journal": "Journal of Biotechnology",
+          "volume": 261,
+          "pages": "215-220",
+          "year": 2017,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1016/j.jbiotec.2017.06.1200",
+            "url": "https://doi.org/10.1016/j.jbiotec.2017.06.1200"
+          }]
+        },
         {
-          "namespace": "SBO",
-          "id": "SBO_0000293"
+          "title": "Computational modeling of biochemical networks using COPASI",
+          "authors": "Pedro Mendes, Stefan Hoops, Sven Sahle, Ralph Gauges, Joseph Dada & Ursula Kummer",
+          "journal": "Methods in Molecular Biology",
+          "volume": 500,
+          "pages": "17-59",
+          "year": 2009,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1007/978-1-59745-525-1_2",
+            "url": "https://doi.org/10.1007/978-1-59745-525-1_2"
+          }]
+        },
+        {
+          "title": "COPASI—a complex pathway simulator",
+          "authors": "Stefan Hoops, Sven Sahle, Ralph Gauges, Christine Lee, Jürgen Pahle, Natalia Simus, Mudita Singhal, Liang Xu, Pedro Mendes & Ursula Kummer",
+          "journal": "Bioinformatics",
+          "volume": 22,
+          "issue": 24,
+          "pages": "3067-3074",
+          "year": 2006,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.1093/bioinformatics/btl485",
+            "url": "https://doi.org/10.1093/bioinformatics/btl485"
+          }]
+        },
+        {
+          "title": "Simulation of biochemical networks using COPASI—a complex pathway simulator",
+          "authors": "Sven Sahle, Ralph Gauges, Jürgen Pahle, Natalia Simus, Ursula Kummer, Stefan Hoops, Christine Lee, Mudita Singhal, Liang Xu & Pedro Mendes",
+          "journal": "Proceedings of the 2006 Winter Simulation Conference, Monterey, CA, USA",
+          "pages": "1698-1706",
+          "year": 2006,
+          "identifiers": [{
+            "namespace": "doi",
+            "id": "10.5555/1218112.1218421",
+            "url": "https://doi.org/10.5555/1218112.1218421"
+          }]
         }
       ],
-      "modelFormats": [{ "namespace": "EDAM", "id": "format_2585" }],
-      "simulationFormats": [{ "namespace": "EDAM", "id": "format_3685" }],
-      "archiveFormats": [{ "namespace": "EDAM", "id": "format_3686" }],
-      "citations": [
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000415"
+          },
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 100000
+        },
         {
-          "title": "A first course in the numerical analysis of differential equations",
-          "authors": "Arieh Iserles",
-          "year": 2008,
-          "identifiers": [{"namespace": "isbn", "id": "9780511995569", "url": "https://isbndb.com/book/9780511995569"}]
-        }
-      ],
-      "parameters": [
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000209"
+          },
+          "name": "Relative tolerance",
+          "type": "float",
+          "default": 1e-6
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000211"
+          },
+          "name": "Absolute tolerance",
+          "type": "float",
+          "default": 1e-9
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000534"
+          },
+          "name": "Comma-separated list of ids of deterministic reactions",
+          "type": "string",
+          "default": ""
+        },
         {
           "kisaoId": {
             "namespace": "KISAO",
@@ -864,43 +1097,79 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "default": 0
+          "default": 1
+        }
+      ]
+    },
+    {
+      "id": "ri5",
+      "name": "Stochastic Runge-Kutta Method",
+      "kisaoId": {
+        "namespace": "KISAO",
+        "id": "KISAO_0000XXX"
+      },
+
+      "modelingFrameworks": [{
+        "namespace": "SBO",
+        "id": "SBO_0000293"
+      }],
+      "modelFormats": [{
+        "namespace": "EDAM",
+        "id": "format_2585"
+      }],
+      "simulationFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3685"
+      }],
+      "archiveFormats": [{
+        "namespace": "EDAM",
+        "id": "format_3686"
+      }],
+      "citations": [],
+      "parameters": [{
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000483"
+          },
+          "name": "Step size",
+          "type": "float",
+          "default": 0.0001
         },
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000107"
+            "id": "KISAO_0000415"
           },
-          "name": "Adaptive time steps",
+          "name": "Maximum number of steps",
+          "type": "integer",
+          "default": 10000
+        },
+        {
+          "kisaoId": {
+            "namespace": "KISAO",
+            "id": "KISAO_0000XXX"
+          },
+          "name": "force physical correctness",
           "type": "boolean",
           "default": true
         },
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000332"
+            "id": "KISAO_0000211"
           },
-          "name": "Initial time step",
+          "name": "Absolute tolerance",
           "type": "float",
-          "default": 0
+          "default": 1e-6
         },
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000485"
+            "id": "KISAO_0000XXX"
           },
-          "name": "Minimum time step",
+          "name": "Absolute tolerance for root finding",
           "type": "float",
-          "default": 0
-        },
-        {
-          "kisaoId": {
-            "namespace": "KISAO",
-            "id": "KISAO_0000467"
-          },
-          "name": "Maximum time step",
-          "type": "float",
-          "default": 0
+          "default": 1e-6
         }
       ]
     }
