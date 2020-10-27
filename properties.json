@@ -692,7 +692,7 @@
       "name": "Hybrid discrete/continuous Runge-Kutta",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_00000XX"
+        "id": "KISAO_0000231"
       },
       "modelingFrameworks": [{
         "namespace": "SBO",
@@ -824,7 +824,7 @@
       "name": "Hybrid discrete/continuous LSODA",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_00000XX"
+        "id": "KISAO_0000231"
       },
       "modelingFrameworks": [{
         "namespace": "SBO",
@@ -983,7 +983,7 @@
       "name": "Hybrid discrete/continuous Fehlberg method",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_00000XX"
+        "id": "KISAO_0000231"
       },
       "modelingFrameworks": [{
         "namespace": "SBO",
@@ -1106,7 +1106,7 @@
       "name": "Stochastic Runge-Kutta Method",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000XXX"
+        "id": "KISAO_0000036"
       },
 
       "modelingFrameworks": [{
@@ -1147,7 +1147,7 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000XXX"
+            "id": "KISAO_0000243"
           },
           "name": "force physical correctness",
           "type": "boolean",
@@ -1165,7 +1165,7 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000XXX"
+            "id": "KISAO_0000242"
           },
           "name": "Absolute tolerance for root finding",
           "type": "float",
