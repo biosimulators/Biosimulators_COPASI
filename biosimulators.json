@@ -203,6 +203,11 @@
     "identifers": [{
       "namespace": "biotools",
       "id": "copasi"
+    },
+    {
+      "namespace": "pypi",
+      "id": "python-copasi",
+      "url": "https://pypi.org/project/python-copasi/"
     }],
     "citations": [{
         "title": "COPASI and its applications in biotechnology",
