@@ -1125,7 +1125,32 @@
         "namespace": "EDAM",
         "id": "format_3686"
       }],
-      "citations": [],
+      "citations": [{
+        "identifiers": [{
+            "title": "Second order Runge-Kutta methods for Itô stochastic differential equations",
+            "authors": "Andreas Rößler",
+            "journal": "SIAM Journal Numerical Analysis",
+            "volume": 47,
+            "issue": 3,
+            "pages": "1713-1738",
+            "year": 2009,
+            "namespace": "doi",
+            "id": "10.1137/060673308",
+            "url": "https://doi.org/10.1137/060673308"
+          },
+          {
+            "title": "The chemical Langevin equation",
+            "authors": "Daniel T. Gillespie",
+            "journal": "Journal Chemical Physics",
+            "volume": 113,
+            "pages": "297",
+            "year": 2000,
+            "namespace": "doi",
+            "id": "10.1063/1.481811",
+            "url": "https://doi.org/10.1063/1.481811"
+          }
+        ]
+      }],
       "parameters": [{
           "kisaoId": {
             "namespace": "KISAO",
