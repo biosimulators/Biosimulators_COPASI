@@ -1103,7 +1103,7 @@
     },
     {
       "id": "ri5",
-      "name": "Stochastic Runge-Kutta Method",
+      "name": "Stochastic second order Runge-Kutta method",
       "kisaoId": {
         "namespace": "KISAO",
         "id": "KISAO_0000036"
@@ -1126,31 +1126,33 @@
         "id": "format_3686"
       }],
       "citations": [{
-        "identifiers": [{
-            "title": "Second order Runge-Kutta methods for Itô stochastic differential equations",
-            "authors": "Andreas Rößler",
-            "journal": "SIAM Journal Numerical Analysis",
-            "volume": 47,
-            "issue": 3,
-            "pages": "1713-1738",
-            "year": 2009,
+          "title": "Second order Runge-Kutta methods for Itô stochastic differential equations",
+          "authors": "Andreas Rößler",
+          "journal": "SIAM Journal Numerical Analysis",
+          "volume": 47,
+          "issue": 3,
+          "pages": "1713-1738",
+          "year": 2009,
+          "identifiers": [{
             "namespace": "doi",
             "id": "10.1137/060673308",
             "url": "https://doi.org/10.1137/060673308"
-          },
-          {
-            "title": "The chemical Langevin equation",
-            "authors": "Daniel T. Gillespie",
-            "journal": "Journal Chemical Physics",
-            "volume": 113,
-            "pages": "297",
-            "year": 2000,
+          }]
+        },
+        {
+          "title": "The chemical Langevin equation",
+          "authors": "Daniel T. Gillespie",
+          "journal": "Journal Chemical Physics",
+          "volume": 113,
+          "pages": "297",
+          "year": 2000,
+          "identifiers": [{
             "namespace": "doi",
             "id": "10.1063/1.481811",
             "url": "https://doi.org/10.1063/1.481811"
-          }
-        ]
-      }],
+          }]
+        }
+      ],
       "parameters": [{
           "kisaoId": {
             "namespace": "KISAO",
