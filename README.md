@@ -23,7 +23,7 @@ pip install git+https://github.com/biosimulators/Biosimulators_COPASI
 
 ### Install Docker image
 ```
-docker pull biosimulators/copasi
+docker pull ghcr.io/biosimulators/copasi
 ```
 
 ## Local usage
