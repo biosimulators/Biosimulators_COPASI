@@ -25,7 +25,7 @@ LABEL about.documentation="http://copasi.org/"
 LABEL about.license_file="https://github.com/copasi/COPASI/blob/develop/license.txt"
 LABEL about.license="SPDX:Artistic License 2.0"
 LABEL about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,SBML,SED-ML,COMBINE,OMEX,XPP,Berkeley Madonna,BioSimulators"
-LABEL maintainer="Gnaneswara Marupilla <marupilla@uchc.edu>"
+LABEL maintainer="BioSimulators Team <info@biosimulators.org>"
 
 # Install requirements
 RUN pip install -U pip \
