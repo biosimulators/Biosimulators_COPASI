@@ -272,7 +272,7 @@
       "name": "Automatically use LSODA or LSODAR as apropriate for the given problem. Use LSODA if the problem has no roots. Use LSODAR if the problem has roots.",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000088"
+        "id": "KISAO_0000560"
       },
 
       "modelingFrameworks": [{
@@ -435,7 +435,7 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000483"
+            "id": "KISAO_0000559"
           },
           "name": "Initial time step",
           "type": "float",
@@ -697,7 +697,7 @@
       "name": "Hybrid discrete/continuous Runge-Kutta",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000231"
+        "id": "KISAO_0000561"
       },
       "modelingFrameworks": [{
         "namespace": "SBO",
@@ -816,7 +816,7 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000483"
+            "id": "KISAO_0000559"
           },
           "name": "Runge-Kutta step size",
           "type": "float",
@@ -829,7 +829,7 @@
       "name": "Hybrid discrete/continuous LSODA",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000231"
+        "id": "KISAO_0000562"
       },
       "modelingFrameworks": [{
         "namespace": "SBO",
@@ -988,7 +988,7 @@
       "name": "Hybrid discrete/continuous Fehlberg method",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000231"
+        "id": "KISAO_0000563"
       },
       "modelingFrameworks": [{
         "namespace": "SBO",
@@ -1111,7 +1111,7 @@
       "name": "Stochastic second order Runge-Kutta method",
       "kisaoId": {
         "namespace": "KISAO",
-        "id": "KISAO_0000036"
+        "id": "KISAO_0000566"
       },
 
       "modelingFrameworks": [{
@@ -1161,7 +1161,7 @@
       "parameters": [{
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000483"
+            "id": "KISAO_0000559"
           },
           "name": "Step size",
           "type": "float",
@@ -1179,7 +1179,7 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000243"
+            "id": "KISAO_0000567"
           },
           "name": "force physical correctness",
           "type": "boolean",
@@ -1197,7 +1197,7 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000242"
+            "id": "KISAO_0000565"
           },
           "name": "Absolute tolerance for root finding",
           "type": "float",
