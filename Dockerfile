@@ -16,7 +16,7 @@ FROM python:3.7
 
 # metadata
 LABEL base_image="python:3.7"
-LABEL version="4.28.226"
+LABEL version="0.0.1"
 LABEL software="COPASI"
 LABEL software.version="4.28.226"
 LABEL about.summary="Open-source software package for the simulation and analysis of biochemical networks and their dynamics."

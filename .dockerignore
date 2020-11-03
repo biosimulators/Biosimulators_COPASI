@@ -15,7 +15,6 @@ venv.bak/
 .pytest_cache/
 
 # Distribution and packaging
-Biosimulators_copasi.egg-info/
 *.tmp
 *.egg-info
 build/

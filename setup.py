@@ -15,7 +15,7 @@ except (subprocess.CalledProcessError, AssertionError):
 import os
 import pkg_utils
 
-name = 'Biosimulators_copasi'
+name = 'biosimulators_copasi'
 dirname = os.path.dirname(__file__)
 
 # get package metadata
@@ -47,7 +47,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'copasi = Biosimulators_copasi.__main__:main',
+            'copasi = biosimulators_copasi.__main__:main',
         ],
     },
 )

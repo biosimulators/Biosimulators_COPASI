@@ -17,8 +17,8 @@ except ModuleNotFoundError:
     capturer = None
     pass
 
-import Biosimulators_copasi
-from Biosimulators_copasi import __main__
+import biosimulators_copasi
+from biosimulators_copasi import __main__
 
 try:
     import docker
@@ -52,14 +52,14 @@ class CliTestCase(unittest.TestCase):
             with capturer.CaptureOutput(merged=False, relay=False) as captured:
                 with self.assertRaises(SystemExit):
                     app.run()
-                self.assertIn(Biosimulators_copasi.__version__, captured.stdout.get_text())
+                self.assertIn(biosimulators_copasi.__version__, captured.stdout.get_text())
                 self.assertEqual(captured.stderr.get_text(), '')
 
         with __main__.App(argv=['--version']) as app:
             with capturer.CaptureOutput(merged=False, relay=False) as captured:
                 with self.assertRaises(SystemExit):
                     app.run()
-                self.assertIn(Biosimulators_copasi.__version__, captured.stdout.get_text())
+                self.assertIn(biosimulators_copasi.__version__, captured.stdout.get_text())
                 self.assertEqual(captured.stderr.get_text(), '')
 
     def test_sim_short_arg_names(self):
@@ -80,7 +80,7 @@ class CliTestCase(unittest.TestCase):
 
         # build image
         image_repo = 'ghcr.io/biosimulators/copasi'
-        image_tag = Biosimulators_copasi.__version__
+        image_tag = biosimulators_copasi.__version__
         image, _ = docker_client.images.build(
             path='.',
             dockerfile='Dockerfile',
@@ -96,7 +96,7 @@ class CliTestCase(unittest.TestCase):
 
         # image config
         image_repo = 'ghcr.io/biosimulators/copasi'
-        image_tag = Biosimulators_copasi.__version__
+        image_tag = biosimulators_copasi.__version__
 
         # setup input and output directories
         in_dir = os.path.join(self.dirname, 'in')
