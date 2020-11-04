@@ -1,13 +1,5 @@
-Biosimulations_utils >= 0.1
 cement
-certifi
-chardet
-idna
 pandas
 python_copasi
-python_dotenv
 python_libcombine
-python_libsedml < 2.0.10
-requests
-urllib3
-xmltodict
+"python_libsedml < 2.0.10"
