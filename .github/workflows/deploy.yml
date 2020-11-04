@@ -11,15 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        run: echo ${{ secrets.PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: Get the version
         id: vars
         run: echo ::set-output name=tag::$(cat "$(pwd)"/biosimulators_copasi/_version.py| grep __version__ | awk '{print $3}')
       - name: Build the tagged Docker image
-        run: docker build --file Dockerfile --tag biosimulators/copasi:${{steps.vars.outputs.tag}} .
+        run: docker build --file Dockerfile --tag ghcr.io/biosimulators/copasi:${{steps.vars.outputs.tag}} .
       - name: Push the tagged Docker image
-        run: docker push biosimulators/copasi:${{steps.vars.outputs.tag}}
+        run: docker push ghcr.io/biosimulators/copasi:${{steps.vars.outputs.tag}}
       - name: Build the latest Docker image
-        run: docker build --file Dockerfile --tag biosimulators/copasi:latest .
+        run: docker build --file Dockerfile --tag ghcr.io/biosimulators/copasi:latest .
       - name: Push the latest Docker image
-        run: docker push biosimulators/copasi:latest
+        run: docker push ghcr.io/biosimulators/copasi:latest
