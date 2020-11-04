@@ -1,5 +1,5 @@
 # Build image:
-#   docker build --tag biosimulators/copasi:4.27.214 --tag biosimulators/copasi:latest .
+#   docker build --tag ghcr.io/biosimulators/copasi:4.27.214 --tag ghcr.io/biosimulators/copasi:latest .
 #
 # Run image:
 #   docker run \
@@ -7,15 +7,15 @@
 #     --rm \
 #     --mount type=bind,source="$(pwd)"/tests/fixtures,target=/root/in,readonly \
 #     --mount type=bind,source="$(pwd)"/tests/results,target=/root/out \
-#     biosimulators/copasi:latest \
+#     ghcr.io/biosimulators/copasi:latest \
 #       -i /root/in/BIOMD0000000297.omex \
 #       -o /root/out
 
 # Base OS
-FROM python:3.7
+FROM python:3.7.9-slim-buster
 
 # metadata
-LABEL base_image="python:3.7"
+LABEL base_image="python:3.7.9-slim-buster"
 LABEL version="0.0.1"
 LABEL software="COPASI"
 LABEL software.version="4.28.226"
@@ -26,10 +26,6 @@ LABEL about.license_file="https://github.com/copasi/COPASI/blob/develop/license.
 LABEL about.license="SPDX:Artistic License 2.0"
 LABEL about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,SBML,SED-ML,COMBINE,OMEX,XPP,Berkeley Madonna,BioSimulators"
 LABEL maintainer="BioSimulators Team <info@biosimulators.org>"
-
-# Install requirements
-RUN pip install -U pip \
-    && pip install -U setuptools
 
 # Copy code for command-line interface into image and install it
 COPY . /root/Biosimulators_copasi
