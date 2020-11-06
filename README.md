@@ -7,6 +7,12 @@ BioSimulators-compliant command-line interface and Docker image for the [COPASI]
 [![Issues](https://img.shields.io/github/issues/biosimulators/Biosimulators_COPASI?logo=GitHub)](https://github.com/biosimulators/Biosimulators_COPASI/issues)
 [![License](https://img.shields.io/github/license/biosimulators/Biosimulators_COPASI?badges-awesome-green.svg&logo=GitHub)](https://github.com/biosimulators/Biosimulators_COPASI/blob/master/LICENSE)
 
+This command-line interface and Docker image enable users to use COPASI to execute [COMBINE/OMEX archives](https://combinearchive.org/) that describe one or more simulation experiments (in [SED-ML format](https://sed-ml.org)) of one or more models (in [SBML format](http://sbml.org])).
+
+A list of the algorithms and algorithm parameters supported by COPASI is available at [BioSimulators](https://biosimulators.org/simulators/copasi).
+
+A simple web application and web service for using COPASI to execute COMBINE/OMEX archives is also available at [runBioSimulations](https://run.biosimulations.org).
+
 ## Contents
 * [Installation](#installation)
 * [Usage](#local-usage)
