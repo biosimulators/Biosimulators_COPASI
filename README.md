@@ -1,11 +1,15 @@
-# Biosimulators_COPASI 
-BioSimulators-compliant command-line interface and Docker image for the [COPASI](http://copasi.org/) simulation program.
-
+![Latest version](https://img.shields.io/github/v/tag/biosimulators/Biosimulators_COPASI)
+[![PyPI](https://img.shields.io/pypi/v/biosimulators_copasi)](https://pypi.org/project/biosimulators_copasi/)
 [![Docker image](https://github.com/biosimulators/Biosimulators_COPASI/workflows/Publish%20Docker%20To%20Hub/badge.svg)](https://github.com/biosimulators/Biosimulators_COPASI/actions?query=workflow%3A%22Publish+Docker+To+Hub%22)
 [![Docker image build](https://github.com/biosimulators/Biosimulators_COPASI/workflows/Build%20Docker%20image/badge.svg)](https://github.com/biosimulators/Biosimulators_COPASI/actions?query=workflow%3A%22Build+Docker+image%22)
 [![Unit tests](https://github.com/biosimulators/Biosimulators_COPASI/workflows/Unit%20tests/badge.svg)](https://github.com/biosimulators/Biosimulators_COPASI/actions?query=workflow%3A%22Unit+tests%22)
-[![Issues](https://img.shields.io/github/issues/biosimulators/Biosimulators_COPASI?logo=GitHub)](https://github.com/biosimulators/Biosimulators_COPASI/issues)
-[![License](https://img.shields.io/github/license/biosimulators/Biosimulators_COPASI?badges-awesome-green.svg&logo=GitHub)](https://github.com/biosimulators/Biosimulators_COPASI/blob/master/LICENSE)
+[![Documentation](https://img.shields.io/github/license/biosimulators/Biosimulators_COPASI?badges-awesome-green.svg)](https://biosimulators.github.io/Biosimulators_COPASI/)
+[![Issues](https://img.shields.io/github/issues/biosimulators/Biosimulators_COPASI)](https://github.com/biosimulators/Biosimulators_COPASI/issues)
+[![License](https://img.shields.io/github/license/biosimulators/Biosimulators_COPASI?badges-awesome-green.svg)](https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/LICENSE)
+
+
+# BioSimulators-COPASI 
+BioSimulators-compliant command-line interface and Docker image for the [COPASI](http://copasi.org/) simulation program.
 
 This command-line interface and Docker image enable users to use COPASI to execute [COMBINE/OMEX archives](https://combinearchive.org/) that describe one or more simulation experiments (in [SED-ML format](https://sed-ml.org)) of one or more models (in [SBML format](http://sbml.org])).
 
@@ -16,6 +20,7 @@ A simple web application and web service for using COPASI to execute COMBINE/OME
 ## Contents
 * [Installation](#installation)
 * [Usage](#local-usage)
+* [Documentation](#documentation)
 * [License](#license)
 * [Development team](#development-team)
 * [Questions and comments](#questions-and-comments)
@@ -32,7 +37,9 @@ pip install git+https://github.com/biosimulators/Biosimulators_COPASI
 docker pull ghcr.io/biosimulators/copasi
 ```
 
-## Local usage
+## Usage
+
+### Local usage
 ```
 usage: copasi [-h] [-d] [-q] -i ARCHIVE [-o OUT_DIR] [-v]
 
@@ -50,7 +57,7 @@ optional arguments:
   -v, --version         show program's version number and exit
 ```
 
-## Usage through Docker container
+### Usage through Docker container
 ```
 docker run \
   --tty \
@@ -61,6 +68,9 @@ docker run \
     -i /root/in/BIOMD0000000297.omex \
     -o /root/out
 ```
+
+## Documentation
+Documentation is available at https://biosimulators.github.io/Biosimulators_COPASI/.
 
 ## License
 This package is released under the [MIT license](LICENSE).
