@@ -200,14 +200,20 @@
     }
   ],
   "references": {
-    "identifers": [{
-      "namespace": "biotools",
-      "id": "copasi"
-    },
-    {
+    "identifiers": [{
       "namespace": "pypi",
       "id": "python-copasi",
       "url": "https://pypi.org/project/python-copasi/"
+    },
+    {
+      "namespace": "pypi",
+      "id": "biosimulators-copasi",
+      "url": "https://pypi.org/project/biosimulators-copasi/"
+    },
+    {
+      "namespace": "biotools",
+      "id": "copasi",
+      "url": "https://bio.tools/copasi"
     }],
     "citations": [{
         "title": "COPASI and its applications in biotechnology",
@@ -1208,6 +1214,7 @@
   ],
   "biosimulators": {
     "specificationsVersion": "1.0.0",
-    "imageVersion": "1.0.0"
+    "imageVersion": "1.0.0",
+    "validated": false
   }
 }
