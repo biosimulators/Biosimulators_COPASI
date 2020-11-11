@@ -4,7 +4,7 @@
   "version": "4.27.214",
   "description": "COPASI is a C++-based software application for the simulation and analysis of biochemical networks and their dynamics.",
   "url": "http://copasi.org/",
-  "image": "ghcr.io/biosimulators/copasi:4.27.214",
+  "image": "ghcr.io/biosimulators/biosimulators_copasi/copasi:4.27.214",
   "format": {
     "namespace": "EDAM",
     "id": "format_3973"

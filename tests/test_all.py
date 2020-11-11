@@ -79,7 +79,7 @@ class CliTestCase(unittest.TestCase):
         docker_client = docker.from_env()
 
         # build image
-        image_repo = 'ghcr.io/biosimulators/copasi'
+        image_repo = 'ghcr.io/biosimulators/biosimulators_copasi/copasi'
         image_tag = biosimulators_copasi.__version__
         image, _ = docker_client.images.build(
             path='.',
@@ -95,7 +95,7 @@ class CliTestCase(unittest.TestCase):
         docker_client = docker.from_env()
 
         # image config
-        image_repo = 'ghcr.io/biosimulators/copasi'
+        image_repo = 'ghcr.io/biosimulators/biosimulators_copasi/copasi'
         image_tag = biosimulators_copasi.__version__
 
         # setup input and output directories
@@ -159,7 +159,7 @@ class CliTestCase(unittest.TestCase):
     # @unittest.skipIf(docker is None, 'Docker not available')
     # def test_one_case_with_validator(self):
     #     validator = SimulatorValidator()
-    #     valid_cases, case_exceptions, _ = validator.run('ghcr.io/biosimulators/copasi', 'biosimulators.json',
+    #     valid_cases, case_exceptions, _ = validator.run('ghcr.io/biosimulators/biosimulators_copasi/copasi', 'biosimulators.json',
     #                                                     test_case_ids=['BIOMD0000000297.omex', ])
     #     self.assertGreater(len(valid_cases), 0)
     #     self.assertEqual(case_exceptions, [])
@@ -167,6 +167,6 @@ class CliTestCase(unittest.TestCase):
     # @unittest.skipIf(docker is None or os.getenv('CI', '0') in ['1', 'true'], 'Test too long for continuous integration')
     # def test_with_validator(self):
     #     validator = SimulatorValidator()
-    #     valid_cases, case_exceptions, _ = validator.run('ghcr.io/biosimulators/copasi', 'biosimulators.json')
+    #     valid_cases, case_exceptions, _ = validator.run('ghcr.io/biosimulators/biosimulators_copasi/copasi', 'biosimulators.json')
     #     self.assertGreater(len(valid_cases), 0)
     #     self.assertEqual(case_exceptions, [])
