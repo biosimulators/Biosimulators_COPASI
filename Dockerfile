@@ -15,17 +15,28 @@
 FROM python:3.7.9-slim-buster
 
 # metadata
-LABEL base_image="python:3.7.9-slim-buster"
-LABEL version="0.0.1"
-LABEL software="COPASI"
-LABEL software.version="4.28.226"
-LABEL about.summary="Open-source software package for the simulation and analysis of biochemical networks and their dynamics."
-LABEL about.home="http://copasi.org/"
-LABEL about.documentation="http://copasi.org/"
-LABEL about.license_file="https://github.com/copasi/COPASI/blob/develop/license.txt"
-LABEL about.license="SPDX:Artistic License 2.0"
-LABEL about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,SBML,SED-ML,COMBINE,OMEX,XPP,Berkeley Madonna,BioSimulators"
-LABEL maintainer="BioSimulators Team <info@biosimulators.org>"
+LABEL \
+    org.opencontainers.image.title="COPASI" \
+    org.opencontainers.image.version="4.28.226" \
+    org.opencontainers.image.description="Open-source software package for the simulation and analysis of biochemical networks and their dynamics." \
+    org.opencontainers.image.url="http://copasi.org/" \
+    org.opencontainers.image.documentation="http://copasi.org/Support/User_Manual/" \
+    org.opencontainers.image.source="https://github.com/biosimulators/Biosimulators_COPASI" \
+    org.opencontainers.image.authors="BioSimulators Team <info@biosimulators.org>" \
+    org.opencontainers.image.vendor="BioSimulators Team" \
+    org.opencontainers.image.licenses="Artistic-2.0" \
+    \
+    base_image="python:3.7.9-slim-buster" \
+    version="0.0.1" \
+    software="COPASI" \
+    software.version="4.28.226" \
+    about.summary="Open-source software package for the simulation and analysis of biochemical networks and their dynamics." \
+    about.home="http://copasi.org/" \
+    about.documentation="http://copasi.org/Support/User_Manual/" \
+    about.license_file="https://github.com/copasi/COPASI/blob/develop/license.txt" \
+    about.license="SPDX:Artistic-2.0" \
+    about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,SBML,SED-ML,COMBINE,OMEX,XPP,Berkeley Madonna,BioSimulators" \
+    maintainer="BioSimulators Team <info@biosimulators.org>"
 
 # Copy code for command-line interface into image and install it
 COPY . /root/Biosimulators_copasi
