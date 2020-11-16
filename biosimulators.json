@@ -325,7 +325,7 @@
           },
           "name": "integrate reduced model",
           "type": "boolean",
-          "value": true
+          "value": "true"
         },
         {
           "kisaoId": {
@@ -334,7 +334,7 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "value": 1e-6
+          "value": "1e-6"
         },
         {
           "kisaoId": {
@@ -343,7 +343,7 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": 1e-12
+          "value": "1e-12"
         },
         {
           "kisaoId": {
@@ -352,7 +352,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 10000
+          "value": "10000"
         },
         {
           "kisaoId": {
@@ -409,7 +409,7 @@
           },
           "name": "integrate reduced model",
           "type": "boolean",
-          "value": true
+          "value": "true"
         },
         {
           "kisaoId": {
@@ -418,7 +418,7 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "value": 0.0001
+          "value": "0.0001"
         },
         {
           "kisaoId": {
@@ -427,7 +427,7 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": 1e-6
+          "value": "1e-6"
         },
         {
           "kisaoId": {
@@ -436,7 +436,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 1000000000
+          "value": "1000000000"
         },
         {
           "kisaoId": {
@@ -445,7 +445,7 @@
           },
           "name": "Initial time step",
           "type": "float",
-          "value": 0.001
+          "value": "0.001"
         }
       ]
     },
@@ -494,7 +494,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 1000000
+          "value": "1000000"
         },
         {
           "kisaoId": {
@@ -503,7 +503,7 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": 1
+          "value": "1"
         }
       ]
     },
@@ -551,7 +551,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 1000000
+          "value": "1000000"
         },
         {
           "kisaoId": {
@@ -560,7 +560,7 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": 1
+          "value": "1"
         }
       ]
     },
@@ -609,7 +609,7 @@
           },
           "name": "epsilon",
           "type": "float",
-          "value": 0.001
+          "value": "0.001"
         },
         {
           "kisaoId": {
@@ -618,7 +618,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 10000
+          "value": "10000"
         },
         {
           "kisaoId": {
@@ -627,7 +627,7 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": 1
+          "value": "1"
         }
       ]
     },
@@ -676,7 +676,7 @@
           },
           "name": "epsilon",
           "type": "float",
-          "value": 0.03
+          "value": "0.03"
         },
         {
           "kisaoId": {
@@ -685,7 +685,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 1000000
+          "value": "1000000"
         },
         {
           "kisaoId": {
@@ -694,7 +694,7 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": 1
+          "value": "1"
         }
       ]
     },
@@ -781,7 +781,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 1000000
+          "value": "1000000"
         },
         {
           "kisaoId": {
@@ -790,7 +790,7 @@
           },
           "name": "Low-particle number upper limit",
           "type": "integer",
-          "value": 800
+          "value": "800"
         },
         {
           "kisaoId": {
@@ -799,7 +799,7 @@
           },
           "name": "High-particle number lower limit",
           "type": "integer",
-          "value": 1000
+          "value": "1000"
         },
         {
           "kisaoId": {
@@ -808,7 +808,7 @@
           },
           "name": "Partitioning interval",
           "type": "integer",
-          "value": 1
+          "value": "1"
         },
         {
           "kisaoId": {
@@ -817,7 +817,7 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": 1
+          "value": "1"
         },
         {
           "kisaoId": {
@@ -826,7 +826,7 @@
           },
           "name": "Runge-Kutta step size",
           "type": "float",
-          "value": 0.001
+          "value": "0.001"
         }
       ]
     },
@@ -913,7 +913,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 1000000
+          "value": "1000000"
         },
         {
           "kisaoId": {
@@ -922,7 +922,7 @@
           },
           "name": "Low-particle number upper limit",
           "type": "integer",
-          "value": 800
+          "value": "800"
         },
         {
           "kisaoId": {
@@ -931,7 +931,7 @@
           },
           "name": "High-particle number lower limit",
           "type": "integer",
-          "value": 1000
+          "value": "1000"
         },
         {
           "kisaoId": {
@@ -940,7 +940,7 @@
           },
           "name": "Partitioning interval",
           "type": "integer",
-          "value": 1
+          "value": "1"
         },
         {
           "kisaoId": {
@@ -949,7 +949,7 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": 1
+          "value": "1"
         },
         {
           "kisaoId": {
@@ -958,7 +958,7 @@
           },
           "name": "integrate reduced model",
           "type": "boolean",
-          "value": true
+          "value": "true"
         },
         {
           "kisaoId": {
@@ -967,7 +967,7 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "value": 1e-6
+          "value": "1e-6"
         },
         {
           "kisaoId": {
@@ -976,7 +976,7 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": 1e-12
+          "value": "1e-12"
         },
         {
           "kisaoId": {
@@ -985,7 +985,7 @@
           },
           "name": "Maximum time step",
           "type": "float",
-          "value": null
+          "value": "null"
         }
       ]
     },
@@ -1072,7 +1072,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 100000
+          "value": "100000"
         },
         {
           "kisaoId": {
@@ -1081,7 +1081,7 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "value": 1e-6
+          "value": "1e-6"
         },
         {
           "kisaoId": {
@@ -1090,7 +1090,7 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": 1e-9
+          "value": "1e-9"
         },
         {
           "kisaoId": {
@@ -1099,7 +1099,7 @@
           },
           "name": "Comma-separated list of ids of deterministic reactions",
           "type": "string",
-          "value": ""
+          "value": null
         },
         {
           "kisaoId": {
@@ -1108,7 +1108,7 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": 1
+          "value": "1"
         }
       ]
     },
@@ -1171,7 +1171,7 @@
           },
           "name": "Step size",
           "type": "float",
-          "value": 0.0001
+          "value": "0.0001"
         },
         {
           "kisaoId": {
@@ -1180,7 +1180,7 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": 10000
+          "value": "10000"
         },
         {
           "kisaoId": {
@@ -1189,7 +1189,7 @@
           },
           "name": "force physical correctness",
           "type": "boolean",
-          "value": true
+          "value": "true"
         },
         {
           "kisaoId": {
@@ -1198,7 +1198,7 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": 1e-6
+          "value": "1e-6"
         },
         {
           "kisaoId": {
@@ -1207,7 +1207,7 @@
           },
           "name": "Absolute tolerance for root finding",
           "type": "float",
-          "value": 1e-6
+          "value": "1e-6"
         }
       ]
     }
