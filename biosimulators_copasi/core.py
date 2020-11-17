@@ -213,7 +213,8 @@ def set_function_parameter(algorithm_kisao_id, algorithm_function, parameter_kis
     elif parameter_attrs['type'] == 'float':
         assert(parameter.setDblValue(float(value)))
     # elif parameter_attrs['type'] == 'string[]':
-        # TODO: handle Partitioning Strategy / Deterministic Reactions for hybrid RK-45
+        # TODO: handle Deterministic Reactions for hybrid RK-45
+        # parameter.setValue(json.loads(value))
     else:
         raise NotImplementedError("Parameter type '{}' is not supported".format(parameter_attrs['type']))
 
@@ -273,6 +274,11 @@ def exec_simulation(model_filename, model_sed_urn, simulation, working_dir, out_
     task = data_model.getTask('Time-Course')
     assert(task.setMethodType(algorithm_id))
     method = task.getMethod()
+
+    # TODO: set partitioning strategy for hybrid RK45
+    # if simulation.algorithm.kisao_term.id == 'KISAO_0000563':
+    #     parameter = method.getParameter('Partitioning Strategy')
+    #     parameter.setValue(PartitioningStrategyType.UserSpecified)
 
     # Apply the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     for parameter_change in simulation.algorithm_parameter_changes:
