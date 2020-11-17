@@ -10,6 +10,7 @@
 from Biosimulations_utils.simulation.data_model import TimecourseSimulation, SimulationResultsFormat
 from Biosimulations_utils.simulator.utils import exec_simulations_in_archive
 import COPASI
+import json
 import numpy
 import os
 import pandas
@@ -159,14 +160,9 @@ KISAO_PARAMETERS_MAP = {
         'type': 'bool',
         'algorithms': ['KISAO_0000566'],
     },
-    # 'KISAO_0000xxx': {
-    #     'name': 'Subtype',
-    #     'type': 'int',
-    #     'algorithms': ['KISAO_0000027'],
-    # },
     # 'KISAO_0000534': {
-    #    'name': 'reactions',
-    #    'type': 'str',
+    #    'name': 'Deterministic Reactions',
+    #    'type': 'string[]',
     #    'algorithms': ['KISAO_0000563'],
     # },
 }
@@ -216,6 +212,8 @@ def set_function_parameter(algorithm_kisao_id, algorithm_function, parameter_kis
         assert(parameter.setIntValue(int(value)))
     elif parameter_attrs['type'] == 'float':
         assert(parameter.setDblValue(float(value)))
+    # elif parameter_attrs['type'] == 'string[]':
+        # TODO: handle Partitioning Strategy / Deterministic Reactions for hybrid RK-45
     else:
         raise NotImplementedError("Parameter type '{}' is not supported".format(parameter_attrs['type']))
 
@@ -297,13 +295,18 @@ def exec_simulation(model_filename, model_sed_urn, simulation, working_dir, out_
     problem.setAutomaticStepSize(False)
     problem.setOutputEvent(False)
 
-    result = task.process(True)
+    try:
+        result = task.process(True)
+        assert(result)
+        time_series = task.getTimeSeries()
+        assert(time_series.getRecordedSteps() == simulation.num_time_points + 1)
+    except:
+        error_msg = 'Simulation failed.'
+        if COPASI.CCopasiMessage.size() > 0:
+            error_msg += '\n\n' + COPASI.CCopasiMessage.getAllMessageText(True)
+        raise ValueError(error_msg)
 
     # collect simulation predictions
-    time_series = task.getTimeSeries()
-    if not time_series.getRecordedSteps():
-        raise ValueError(todo)
-
     time = numpy.linspace(simulation.output_start_time, simulation.end_time,
                           simulation.num_time_points + 1).reshape((simulation.num_time_points + 1, 1))
     data = numpy.full((simulation.num_time_points + 1, len(simulation.model.variables)), numpy.nan)
@@ -326,7 +329,7 @@ def exec_simulation(model_filename, model_sed_urn, simulation, working_dir, out_
         for i_step in range(0, time_series.getRecordedSteps()):
             data[i_step, i_report_var] = get_data_function(i_step, i_var)
 
-    i_missing_vars = numpy.where(!numpy.any(numpy.isnan(data), axis=0))[0].tolist()
+    i_missing_vars = numpy.where(numpy.any(numpy.isnan(data), axis=0))[0].tolist()
     if i_missing_vars:
         raise ValueError('Some targets could not be recorded:\n  - {}'.format(
             '\n  - '.join(vars[i_missing_var].target for i_missing_var in i_missing_vars)))
