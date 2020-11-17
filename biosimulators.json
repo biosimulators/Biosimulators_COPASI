@@ -822,7 +822,7 @@
         {
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000559"
+            "id": "KISAO_0000483"
           },
           "name": "Runge-Kutta step size",
           "type": "float",
@@ -1167,7 +1167,7 @@
       "parameters": [{
           "kisaoId": {
             "namespace": "KISAO",
-            "id": "KISAO_0000559"
+            "id": "KISAO_0000483"
           },
           "name": "Step size",
           "type": "float",
