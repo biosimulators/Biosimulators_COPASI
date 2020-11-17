@@ -1,5 +1,6 @@
 """ BioSimulators-compliant command-line interface to the `COPASI <http://copasi.org/>`_ simulation program.
 
+:Author: Jonathan Karr <karr@mssm.edu>
 :Author: Akhil Marupilla <akhilmteja@gmail.com>
 :Date: 2020-04-12
 :Copyright: 2020, Center for Reproducible Biomedical Modeling
@@ -32,7 +33,7 @@ class BaseController(cement.Controller):
 
     @cement.ex(hide=True)
     def _default(self):
-        args = self.app.pargs        
+        args = self.app.pargs
         try:
             exec_combine_archive(args.archive, args.out_dir)
         except Exception as exception:

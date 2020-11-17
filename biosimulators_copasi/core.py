@@ -1,140 +1,336 @@
 """ Methods for executing SED tasks in COMBINE archives and saving their outputs
 
+:Author: Jonathan Karr <karr@mssm.edu>
 :Author: Akhil Marupilla <akhilmteja@gmail.com>
-:Date: 2020-04-12
+:Date: 2020-11-17
 :Copyright: 2020, Center for Reproducible Biomedical Modeling
 :License: MIT
 """
 
-import importlib
+from Biosimulations_utils.simulation.data_model import TimecourseSimulation, SimulationResultsFormat
+from Biosimulations_utils.simulator.utils import exec_simulations_in_archive
+import COPASI
+import numpy
 import os
-import shutil
-import sys
-import tempfile
-import zipfile
+import pandas
+import re
+import types
 
-import COPASI as copasi
-import libcombine
-import libsedml
-import pandas as pd
 
-from .utils import create_time_course_report
+__all__ = ['exec_combine_archive', 'exec_simulation']
 
-importlib.reload(libcombine)
+KISAO_ALGORITHMS_MAP = {
+    'KISAO_0000027': {
+        'name': 'Gibson + Bruck',
+        'id': COPASI.CTaskEnum.Method_stochastic,
+        'get_data_function': 'getData',
+    },
+    'KISAO_0000029': {
+        'name': 'direct method',
+        'id': COPASI.CTaskEnum.Method_directMethod,
+        'get_data_function': 'getData',
+    },
+    'KISAO_0000039': {
+        'name': 'tau leap method',
+        'id': COPASI.CTaskEnum.Method_tauLeap,
+        'get_data_function': 'getData',
+    },
+    'KISAO_0000048': {
+        'name': 'adaptive SSA + tau leap',
+        'id': COPASI.CTaskEnum.Method_adaptiveSA,
+        'get_data_function': 'getData',
+    },
+    'KISAO_0000560': {
+        'name': 'LSODA/LSODAR',
+        'id': COPASI.CTaskEnum.Method_deterministic,
+        'get_data_function': 'getConcentrationData',
+    },
+    'KISAO_0000088': {
+        'name': 'LSODA',
+        'id': COPASI.CTaskEnum.Method_deterministic,
+        'get_data_function': 'getConcentrationData',
+    },
+    'KISAO_0000089': {
+        'name': 'LSODAR',
+        'id': COPASI.CTaskEnum.Method_deterministic,
+        'get_data_function': 'getConcentrationData',
+    },
+    'KISAO_0000304': {
+        'name': 'RADAU5',
+        'id': COPASI.CTaskEnum.Method_RADAU5,
+        'get_data_function': 'getConcentrationData',
+    },
+    'KISAO_0000561': {
+        'name': 'hybrid (runge kutta)',
+        'id': COPASI.CTaskEnum.Method_hybrid,
+        'get_data_function': 'getData',
+    },
+    'KISAO_0000562': {
+        'name': 'hybrid (lsoda)',
+        'id': COPASI.CTaskEnum.Method_hybridLSODA,
+        'get_data_function': 'getData',
+    },
+    'KISAO_0000563': {
+        'name': 'hybrid (RK-45)',
+        'id': COPASI.CTaskEnum.Method_hybridODE45,
+        'get_data_function': 'getData',
+    },
+    'KISAO_0000566': {
+        'name': 'SDE Solve (RI5)',
+        'id': COPASI.CTaskEnum.Method_stochasticRunkeKuttaRI5,
+        'get_data_function': 'getConcentrationData',
+    },
+}
 
-__all__ = ['exec_combine_archive']
+KISAO_PARAMETERS_MAP = {
+    'KISAO_0000209': {
+        'name': 'Relative Tolerance',
+        'type': 'float',
+        'algorithms': ['KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000562', 'KISAO_0000563', 'KISAO_0000304'],
+    },
+    'KISAO_0000211': {
+        'name': 'Absolute Tolerance',
+        'type': 'float',
+        'algorithms': ['KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000562', 'KISAO_0000563', 'KISAO_0000304',
+                       'KISAO_0000566'],
+    },
+    'KISAO_0000216': {
+        'name': 'Integrate Reduced Model',
+        'type': 'bool',
+        'algorithms': ['KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000562', 'KISAO_0000304'],
+    },
+    'KISAO_0000415': {
+        'name': 'Max Internal Steps',
+        'type': 'int',
+        'algorithms': ['KISAO_0000048', 'KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000027', 'KISAO_0000029',
+                       'KISAO_0000562', 'KISAO_0000563', 'KISAO_0000561', 'KISAO_0000304', 'KISAO_0000566', 'KISAO_0000039'],
+    },
+    'KISAO_0000467': {
+        'name': 'Max Internal Step Size',
+        'type': 'float',
+        'algorithms': ['KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000562'],
+    },
+    'KISAO_0000488': {
+        'name': 'Random Seed',
+        'type': 'int',
+        'algorithms': ['KISAO_0000048', 'KISAO_0000027', 'KISAO_0000029', 'KISAO_0000562', 'KISAO_0000563', 'KISAO_0000561',
+                       'KISAO_0000039'],
+    },
+    'KISAO_0000228': {
+        'name': 'Epsilon',
+        'type': 'float',
+        'algorithms': ['KISAO_0000048', 'KISAO_0000039'],
+    },
+    'KISAO_0000203': {
+        'name': 'Lower Limit',
+        'type': 'int',
+        'algorithms': ['KISAO_0000562', 'KISAO_0000561'],
+    },
+    'KISAO_0000204': {
+        'name': 'Upper Limit',
+        'type': 'int',
+        'algorithms': ['KISAO_0000562', 'KISAO_0000561'],
+    },
+    'KISAO_0000205': {
+        'name': 'Partitioning Interval',
+        'type': 'int',
+        'algorithms': ['KISAO_0000562', 'KISAO_0000561'],
+    },
+    'KISAO_0000559': {
+        'name': 'Initial Step Size',
+        'type': 'float',
+        'algorithms': ['KISAO_0000304'],
+    },
+    'KISAO_0000483': {
+        'name': {
+            'KISAO_0000561': 'Runge Kutta Stepsize',
+            'KISAO_0000566': 'Internal Steps Size',
+        },
+        'type': 'float',
+        'algorithms': ['KISAO_0000561', 'KISAO_0000566'],
+    },
+    'KISAO_0000565': {
+        'name': 'Tolerance for Root Finder',
+        'type': 'float',
+        'algorithms': ['KISAO_0000566'],
+    },
+    'KISAO_0000567': {
+        'name': 'Force Physical Correctness',
+        'type': 'bool',
+        'algorithms': ['KISAO_0000566'],
+    },
+    # 'KISAO_0000xxx': {
+    #     'name': 'Subtype',
+    #     'type': 'int',
+    #     'algorithms': ['KISAO_0000027'],
+    # },
+    # 'KISAO_0000534': {
+    #    'name': 'reactions',
+    #    'type': 'str',
+    #    'algorithms': ['KISAO_0000563'],
+    # },
+}
+
+
+def get_algorithm_id(kisao_id):
+    """ Get the COPASI id for an algorithm
+
+    Args:
+        kisao_id (:obj:`str`): KiSAO algorithm id
+
+    Returns:
+        :obj:`int`: COPASI id for algorithm
+    """
+    alg = KISAO_ALGORITHMS_MAP.get(kisao_id, None)
+    if alg is None:
+        raise NotImplementedError(
+            "Algorithm with KiSAO id '{}' is not supported".format(kisao_id))
+    return alg['id']
+
+
+def set_function_parameter(algorithm_kisao_id, algorithm_function, parameter_kisao_id, value):
+    """ Set a parameter of a COPASI simulation function
+
+    Args:
+        algorithm_kisao_id (:obj:`str`): KiSAO algorithm id
+        algorithm_function (:obj:`types.FunctionType`): algorithm function
+        parameter_kisao_id (:obj:`str`): KiSAO parameter id
+        value (:obj:`string`): parameter value
+    """
+    parameter_attrs = KISAO_PARAMETERS_MAP.get(parameter_kisao_id, None)
+    if parameter_attrs is None:
+        NotImplementedError("Parameter '{}' is not supported".format(parameter_kisao_id))
+
+    if isinstance(parameter_attrs['name'], str):
+        parameter_name = parameter_attrs['name']
+    else:
+        parameter_name = parameter_attrs['name']['algorithm_kisao_id']
+    parameter = algorithm_function.getParameter(parameter_name)
+    if not isinstance(parameter, COPASI.CCopasiParameter):
+        NotImplementedError("Parameter '{}' is not supported for algorithm '{}'".format(
+            parameter_kisao_id, algorithm_kisao_id))
+
+    if parameter_attrs['type'] == 'bool':
+        assert(parameter.setBoolValue(value.lower() == 'true' or value.lower() == '1'))
+    elif parameter_attrs['type'] == 'int':
+        assert(parameter.setIntValue(int(value)))
+    elif parameter_attrs['type'] == 'float':
+        assert(parameter.setDblValue(float(value)))
+    else:
+        raise NotImplementedError("Parameter type '{}' is not supported".format(parameter_attrs['type']))
+
+    # if the parameter is the random number generator seed (KISAO_0000488), turn on the flag to use it
+    if parameter_kisao_id == 'KISAO_0000488':
+        use_rand_seed_parameter = algorithm_function.getParameter('Use Random Seed')
+        if not isinstance(use_rand_seed_parameter, COPASI.CCopasiParameter):
+            raise NotImplementedError("Random seed could not be turned on for algorithm '{}'".format(algorithm_kisao_id))
+        use_rand_seed_parameter.setBoolValue(True)
 
 
 def exec_combine_archive(archive_file, out_dir):
-    """Execute the SED tasks defined in a COMBINE archive and save the outputs
+    """ Execute the SED tasks defined in a COMBINE archive and save the outputs
 
-    :param archive_file: path to COMBINE archive
-    :type archive_file: str
-    :param out_dir: directory to store the outputs of the tasks
-    :type out_dir: str
-    :raises FileNotFoundError: When the combine archive is not found
-    :raises IOError: When file is not an OMEX combine archive
+    Args:
+        archive_file (:obj:`str`): path to COMBINE archive
+        out_dir (:obj:`str`): directory to store the outputs of the tasks
     """
-    # check that archive exists and is in zip format
-    if not os.path.isfile(archive_file):
-        raise FileNotFoundError("File does not exist: {}".format(archive_file))
+    exec_simulations_in_archive(archive_file, exec_simulation, out_dir, apply_model_changes=True)
 
-    if not zipfile.is_zipfile(archive_file):
-        raise IOError("File is not an OMEX Combine Archive in zip format: {}".format(archive_file))
 
-    try:
-        archive_file = os.path.abspath(archive_file)
-        out_dir = os.path.abspath(out_dir)
-        # Create temp directory
-        tmp_dir = tempfile.mkdtemp()
+def exec_simulation(model_filename, model_sed_urn, simulation, working_dir, out_filename, out_format):
+    ''' Execute a simulation and save its results
 
-        # Get list of contents from Combine Archive
-        archive = libcombine.CombineArchive()
-        is_initialised = archive.initializeFromArchive(archive_file)
-        is_extracted = archive.extractTo(tmp_dir)
-        manifest = archive.getManifest()
-        contents = manifest.getListOfContents()
+    Args:
+       model_filename (:obj:`str`): path to the model
+       model_sed_urn (:obj:`str`): SED URN for the format of the model (e.g., `urn:sedml:language:sbml`)
+       simulation (:obj:`TimecourseSimulation`): simulation
+       working_dir (:obj:`str`): directory of the SED-ML file
+       out_filename (:obj:`str`): path to save the results of the simulation
+       out_format (:obj:`SimulationResultsFormat`): format to save the results of the simulation (e.g., `HDF5`)
+    '''
+    # check that model is encoded in SBML
+    if model_sed_urn != "urn:sedml:language:sbml":
+        raise NotImplementedError("Model language with URN '{}' is not supported".format(model_sed_urn))
 
-        if not is_initialised or not is_extracted:
-            sys.exit("Problem while initialising/extract combine archive")
+    # check that simulation is a time course simulation
+    if not isinstance(simulation, TimecourseSimulation):
+        raise NotImplementedError('{} is not supported'.format(simulation.__class__.__name__))
 
-        # Get location of all SEDML files
-        sedml_locations = list()
-        for content in contents:
-            if content.isFormat('sedml'):
-                sedml_locations.append(content.getLocation())
+    # check that model parameter changes have already been applied (because handled by :obj:`exec_simulations_in_archive`)
+    if simulation.model_parameter_changes:
+        raise NotImplementedError('Model parameter changes are not supported')
 
-        # run all sedml files
-        for sedml_location in sedml_locations:
-            sedml_path = os.path.join(tmp_dir, sedml_location)
-            sedml_out_dir = os.path.join(out_dir, os.path.splitext(sedml_location)[0])
+    # check that the desired output format is supported
+    if out_format != SimulationResultsFormat.HDF5:
+        raise NotImplementedError("Simulation results format '{}' is not supported".format(out_format))
 
-            sedml_doc = libsedml.readSedMLFromFile(sedml_path)
+    # Read the model located at `os.path.join(working_dir, model_filename)` in the format
+    # with the SED URN `model_sed_urn`.
+    data_model = COPASI.CRootContainer.addDatamodel()
+    if not data_model.importSBML(model_filename):
+        raise ValueError("'{}' could not be imported".format(model_filename))
 
-            tasks = sedml_doc.getListOfTasks()
-            task_name_list = [task.getId() for task in tasks]
+    # Load the algorithm specified by `simulation.algorithm`
+    algorithm_id = get_algorithm_id(simulation.algorithm.kisao_term.id)
+    task = data_model.getTask('Time-Course')
+    assert(task.setMethodType(algorithm_id))
+    method = task.getMethod()
 
-            for sim in range(0, sedml_doc.getNumSimulations()):
-                current_doc = sedml_doc.getSimulation(sim)
-                if current_doc.getTypeCode() == libsedml.SEDML_SIMULATION_UNIFORMTIMECOURSE:
-                    tc = current_doc
-                    if current_doc.isSetAlgorithm():
-                        kisao_id = current_doc.getAlgorithm().getKisaoID()
-                        print("timeCourseID={}, outputStartTime={}, outputEndTime={}, numberOfPoints={}, kisaoID={} " \
-                              .format(tc.getId(), tc.getOutputStartTime(), tc.getOutputEndTime(),
-                                      tc.getNumberOfPoints(), kisao_id))
-                else:
-                    print(f"Encountered unknown simulation {current_doc.getId()}")
+    # Apply the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
+    for parameter_change in simulation.algorithm_parameter_changes:
+        set_function_parameter(simulation.algorithm.kisao_term.id, method,
+                               parameter_change.parameter.kisao_term.id, parameter_change.value)
 
-            if not os.path.isdir(sedml_out_dir):
-                os.makedirs(sedml_out_dir)
+    # Execute simulation
+    task.setScheduled(True)
 
-            # Create a base Copasi container to hold all the Tasks
-            try:
-                data_model = copasi.CRootContainer.addDatamodel()
-            except BaseException:
-                data_model = copasi.CRootContainer.getUndefinedFunction() # TODO: this makes no sense whatsoever, the undefined kinetic law will not let you import sed-ml, better to bail here
+    model = data_model.getModel()
 
-            # the sedml_importer will only import one time course task
-            data_model.importSEDML(sedml_path)
+    problem = task.getProblem()
+    model.setInitialTime(simulation.start_time)
+    problem.setOutputStartTime(simulation.output_start_time)
+    problem.setDuration(simulation.end_time - simulation.start_time)
+    problem.setStepNumber(int(simulation.num_time_points *
+                              (simulation.end_time - simulation.start_time) /
+                              (simulation.end_time - simulation.output_start_time)))
+    problem.setTimeSeriesRequested(True)
+    problem.setAutomaticStepSize(False)
+    problem.setOutputEvent(False)
 
-            report = create_time_course_report(data_model)
+    result = task.process(True)
 
-            # Run all Tasks - TODO: this code only runs the time course task
-            task_name_index = 0
-            for task_index in range(0, len(data_model.getTaskList())):
-                task = data_model.getTaskList().get(task_index) # TODO: since this code does only run the time course task, it would be better to just retrieve it directly using data_model.getTask('Time-Course')
-                # Get Name and Class of task as string
-                task_name = task.getObjectName()
-                # Set output file for the task
-                if task_name == 'Time-Course':
-                    task.setScheduled(True)
-                    # task.getReport().setReportDefinition(report)
-                    report_def = task.getReport().compile('')
-                    if not report_def:
-                        print('No Report definition found in SEDML, setting to a default definition')
-                        task.getReport().setReportDefinition(report)
-                    sedml_task_name = task_name_list[task_name_index]
-                    report_path = os.path.join(sedml_out_dir, f'{sedml_task_name}.csv')
-                    task.getReport().setTarget(report_path)
-                    task_name_index = task_name_index + 1
-                    print(f'Generated report for Simulation "{sedml_task_name}": {report_path}')
-                    # If file exists, don't append in it, overwrite it.
-                    task.getReport().setAppend(False)
-                    # Initialising the task with default values
-                    task.initialize(119)
-                    task.process(True)
-                    try:
-                        pd.read_csv(report_path).drop(" ", axis=1).to_csv(report_path, index=False)
-                    except KeyError:
-                        print(f"No trailing commas were found in {report_path}\n")
-                    df = pd.read_csv(report_path)
-                    cols = list(df.columns)
-                    new_cols = list()
-                    for col in cols:
-                        new_cols.append(col.split()[-1])
-                    df.columns = new_cols
-                    df.to_csv(report_path, index=False)
+    # collect simulation predictions
+    time_series = task.getTimeSeries()
+    if not time_series.getRecordedSteps():
+        raise ValueError(todo)
 
-    finally:
-        shutil.rmtree(tmp_dir)
+    time = numpy.linspace(simulation.output_start_time, simulation.end_time,
+                          simulation.num_time_points + 1).reshape((simulation.num_time_points + 1, 1))
+    data = numpy.full((simulation.num_time_points + 1, len(simulation.model.variables)), numpy.nan)
+
+    vars = sorted(simulation.model.variables, key=lambda var: var.target)
+    var_id_to_idx = {}
+    for i_var, var in enumerate(vars):
+        match = re.match(r"^/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species\[@id='(.*?)'\]$", var.target)
+        if not match:
+            raise ValueError("Unable to parse SED-ML target '{}'".format(var.target))
+        var_id_to_idx[match.group(1)] = i_var
+
+    get_data_function = getattr(time_series, 'getConcentrationData')
+    for i_var in range(0, time_series.getNumVariables()):
+        var_id = time_series.getTitle(i_var)
+        i_report_var = var_id_to_idx.get(var_id, None)
+        if i_report_var is None:
+            continue
+
+        for i_step in range(0, time_series.getRecordedSteps()):
+            data[i_step, i_report_var] = get_data_function(i_step, i_var)
+
+    i_missing_vars = numpy.where(!numpy.any(numpy.isnan(data), axis=0))[0].tolist()
+    if i_missing_vars:
+        raise ValueError('Some targets could not be recorded:\n  - {}'.format(
+            '\n  - '.join(vars[i_missing_var].target for i_missing_var in i_missing_vars)))
+
+    # save results to file
+    results_df = pandas.DataFrame(numpy.concatenate((time, data), 1), columns=['time'] + [var.id for var in vars])
+    results_df.to_csv(out_filename, index=False)
