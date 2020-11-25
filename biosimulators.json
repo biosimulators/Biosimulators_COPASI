@@ -3,200 +3,249 @@
   "name": "COmplex PAthway SImulator",
   "version": "4.27.214",
   "description": "COPASI is a C++-based software application for the simulation and analysis of biochemical networks and their dynamics.",
-  "url": "http://copasi.org/",
-  "image": "ghcr.io/biosimulators/biosimulators_copasi/copasi:4.27.214",
-  "format": {
-    "namespace": "EDAM",
-    "id": "format_3973"
+  "urls": [{"type": "Home page", "url": "http://copasi.org/"}],
+  "image": {
+    "url": "ghcr.io/biosimulators/biosimulators_copasi/copasi:4.27.214",
+    "format": {
+      "namespace": "EDAM",
+      "id": "format_3973", "version": null
+    }
   },
   "authors": [{
       "firstName": "Frank",
       "middleName": "T.",
-      "lastName": "Bergmann"
+      "lastName": "Bergmann",
+            "identifiers": []
     },
     {
       "firstName": "Stefan",
-      "lastName": "Hoops"
+      "lastName": "Hoops",
+            "identifiers": []
     },
     {
       "firstName": "Brian",
-      "lastName": "Klahn"
+      "lastName": "Klahn",
+            "identifiers": []
     },
     {
       "firstName": "Ursula",
-      "lastName": "Kummer"
+      "lastName": "Kummer",
+            "identifiers": []
     },
     {
       "firstName": "Pedro",
-      "lastName": "Mendes"
+      "lastName": "Mendes",
+            "identifiers": []
     },
     {
       "firstName": "Jürgen",
-      "lastName": "Pahle"
+      "lastName": "Pahle",
+            "identifiers": []
     },
     {
       "firstName": "Sven",
-      "lastName": "Sahle"
+      "lastName": "Sahle",
+            "identifiers": []
     },
     {
       "firstName": "Hasan",
-      "lastName": "Baig"
+      "lastName": "Baig",
+            "identifiers": []
     },
     {
       "firstName": "Lauren",
-      "lastName": "Marazzi"
+      "lastName": "Marazzi",
+            "identifiers": []
     },
     {
       "firstName": "Diogo",
-      "lastName": "Camacho"
+      "lastName": "Camacho",
+            "identifiers": []
     },
     {
       "firstName": "Joseph",
-      "lastName": "Dada"
+      "lastName": "Dada",
+            "identifiers": []
     },
     {
       "firstName": "Ralph",
-      "lastName": "Gauges"
+      "lastName": "Gauges",
+            "identifiers": []
     },
     {
       "firstName": "Abhishekh",
-      "lastName": "Gupta"
+      "lastName": "Gupta",
+            "identifiers": []
     },
     {
       "firstName": "Ankur",
-      "lastName": "Gupta"
+      "lastName": "Gupta",
+            "identifiers": []
     },
     {
       "firstName": "Yongqun",
-      "lastName": "He"
+      "lastName": "He",
+            "identifiers": []
     },
     {
       "firstName": "David",
-      "lastName": "Heilman"
+      "lastName": "Heilman",
+            "identifiers": []
     },
     {
       "firstName": "Wenjun",
-      "lastName": "Hu"
+      "lastName": "Hu",
+            "identifiers": []
     },
     {
       "firstName": "Tim",
-      "lastName": "Johann"
+      "lastName": "Johann",
+            "identifiers": []
     },
     {
       "firstName": "Aejaaz",
-      "lastName": "Kamal"
+      "lastName": "Kamal",
+            "identifiers": []
     },
     {
       "firstName": "Michalina",
-      "lastName": "Kaszuba"
+      "lastName": "Kaszuba",
+            "identifiers": []
     },
     {
       "firstName": "Ed",
-      "lastName": "Kent"
+      "lastName": "Kent",
+            "identifiers": []
     },
     {
       "firstName": "Artjom",
-      "lastName": "König"
+      "lastName": "König",
+            "identifiers": []
     },
     {
       "firstName": "Mrinmyee",
-      "lastName": "Kulkarni"
+      "lastName": "Kulkarni",
+            "identifiers": []
     },
     {
       "firstName": "Christine",
-      "lastName": "Lee"
+      "lastName": "Lee",
+            "identifiers": []
     },
     {
       "firstName": "Sarah",
-      "lastName": "Lilienthal"
+      "lastName": "Lilienthal",
+            "identifiers": []
     },
     {
       "firstName": "Rohan",
-      "lastName": "Luktuke"
+      "lastName": "Luktuke",
+            "identifiers": []
     },
     {
       "firstName": "Ettore",
-      "lastName": "Murabito"
+      "lastName": "Murabito",
+            "identifiers": []
     },
     {
       "firstName": "Olusegun",
-      "lastName": "Oshota"
+      "lastName": "Oshota",
+            "identifiers": []
     },
     {
       "firstName": "Norman",
-      "lastName": "Paton"
+      "lastName": "Paton",
+            "identifiers": []
     },
     {
       "firstName": "Jignesh",
-      "lastName": "Parmar"
+      "lastName": "Parmar",
+            "identifiers": []
     },
     {
       "firstName": "Robert",
-      "lastName": "Platt"
+      "lastName": "Platt",
+            "identifiers": []
     },
     {
       "firstName": "Ursula",
-      "lastName": "Rost"
+      "lastName": "Rost",
+            "identifiers": []
     },
     {
       "firstName": "Anton",
-      "lastName": "Ruff"
+      "lastName": "Ruff",
+            "identifiers": []
     },
     {
       "firstName": "Natalia",
-      "lastName": "Simus"
+      "lastName": "Simus",
+            "identifiers": []
     },
     {
       "firstName": "Gaurav",
-      "lastName": "Singh"
+      "lastName": "Singh",
+            "identifiers": []
     },
     {
       "firstName": "Mudita",
-      "lastName": "Singhal"
+      "lastName": "Singhal",
+            "identifiers": []
     },
     {
       "firstName": "Kieran",
-      "lastName": "Smallbone"
+      "lastName": "Smallbone",
+            "identifiers": []
     },
     {
       "firstName": "Anurag",
-      "lastName": "Srivastava"
+      "lastName": "Srivastava",
+            "identifiers": []
     },
     {
       "firstName": "Natalie",
-      "lastName": "Stanford"
+      "lastName": "Stanford",
+            "identifiers": []
     },
     {
       "firstName": "Irina",
-      "lastName": "Surovtsova"
+      "lastName": "Surovtsova",
+            "identifiers": []
     },
     {
       "firstName": "Wei",
-      "lastName": "Sun"
+      "lastName": "Sun",
+            "identifiers": []
     },
     {
       "firstName": "Sameer",
-      "lastName": "Tupe"
+      "lastName": "Tupe",
+            "identifiers": []
     },
     {
       "firstName": "Carel",
-      "lastName": "van Gend"
+      "lastName": "van Gend",
+            "identifiers": []
     },
     {
       "firstName": "Katja",
-      "lastName": "Wegner"
+      "lastName": "Wegner",
+            "identifiers": []
     },
     {
       "firstName": "Paul",
-      "lastName": "Willy"
+      "lastName": "Willy",
+            "identifiers": []
     },
     {
       "firstName": "Liang",
-      "lastName": "Xu"
+      "lastName": "Xu",
+            "identifiers": []
     },
     {
       "firstName": "Jürgen",
-      "lastName": "Zobeley"
+      "lastName": "Zobeley",
+            "identifiers": []
     }
   ],
   "references": {
@@ -287,15 +336,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
           "title": "LSODA, ordinary differential equation solver for stiff or non-stiff system",
@@ -325,7 +374,9 @@
           },
           "name": "integrate reduced model",
           "type": "boolean",
-          "value": "true"
+          "value": "true",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -334,7 +385,9 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "value": "1e-6"
+          "value": "1e-6",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -343,7 +396,9 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": "1e-12"
+          "value": "1e-12",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -352,7 +407,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "10000"
+          "value": "10000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -361,9 +418,12 @@
           },
           "name": "Maximum time step",
           "type": "float",
-          "value": null
+          "value": null,
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "radau5",
@@ -378,15 +438,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
         "title": "Implicit Runge--Kutta methods based on Radau quadrature formula",
@@ -409,7 +469,9 @@
           },
           "name": "integrate reduced model",
           "type": "boolean",
-          "value": "true"
+          "value": "true",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -418,7 +480,9 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "value": "0.0001"
+          "value": "0.0001",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -427,7 +491,9 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": "1e-6"
+          "value": "1e-6",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -436,7 +502,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "1000000000"
+          "value": "1000000000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -445,9 +513,12 @@
           },
           "name": "Initial time step",
           "type": "float",
-          "value": "0.001"
+          "value": "0.001",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "gibson_bruck",
@@ -463,15 +534,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
         "title": "Efficient exact stochastic simulation of chemical systems with many species and many channels",
@@ -494,7 +565,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "1000000"
+          "value": "1000000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -503,9 +576,12 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "ssa",
@@ -520,15 +596,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
         "title": "Exact stochastic simulation of coupled chemical reactions",
@@ -551,7 +627,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "1000000"
+          "value": "1000000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -560,9 +638,12 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "tau_leap",
@@ -578,15 +659,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
         "title": "Approximate accelerated stochastic simulation of chemically reacting systems",
@@ -609,7 +690,9 @@
           },
           "name": "epsilon",
           "type": "float",
-          "value": "0.001"
+          "value": "0.001",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -618,7 +701,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "10000"
+          "value": "10000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -627,9 +712,12 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "adaptive_ssa_tau_leap",
@@ -645,15 +733,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
         "title": "Adaptive explicit-implicit tau-leaping method with automatic tau selection",
@@ -676,7 +764,9 @@
           },
           "name": "epsilon",
           "type": "float",
-          "value": "0.03"
+          "value": "0.03",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -685,7 +775,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "1000000"
+          "value": "1000000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -694,9 +786,12 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "hybrid-runge-kutta",
@@ -711,15 +806,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
           "title": "COPASI and its applications in biotechnology",
@@ -781,7 +876,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "1000000"
+          "value": "1000000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -790,7 +887,9 @@
           },
           "name": "Low-particle number upper limit",
           "type": "integer",
-          "value": "800"
+          "value": "800",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -799,7 +898,9 @@
           },
           "name": "High-particle number lower limit",
           "type": "integer",
-          "value": "1000"
+          "value": "1000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -808,7 +909,9 @@
           },
           "name": "Partitioning interval",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -817,7 +920,9 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -826,9 +931,12 @@
           },
           "name": "Runge-Kutta step size",
           "type": "float",
-          "value": "0.001"
+          "value": "0.001",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "hybrid-lsoda",
@@ -843,15 +951,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
           "title": "COPASI and its applications in biotechnology",
@@ -913,7 +1021,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "1000000"
+          "value": "1000000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -922,7 +1032,9 @@
           },
           "name": "Low-particle number upper limit",
           "type": "integer",
-          "value": "800"
+          "value": "800",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -931,7 +1043,9 @@
           },
           "name": "High-particle number lower limit",
           "type": "integer",
-          "value": "1000"
+          "value": "1000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -940,7 +1054,9 @@
           },
           "name": "Partitioning interval",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -949,7 +1065,9 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -958,7 +1076,9 @@
           },
           "name": "integrate reduced model",
           "type": "boolean",
-          "value": "true"
+          "value": "true",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -967,7 +1087,9 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "value": "1e-6"
+          "value": "1e-6",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -976,7 +1098,9 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": "1e-12"
+          "value": "1e-12",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -985,9 +1109,12 @@
           },
           "name": "Maximum time step",
           "type": "float",
-          "value": "null"
+          "value": null,
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "hybrid-rk45",
@@ -1002,15 +1129,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
           "title": "COPASI and its applications in biotechnology",
@@ -1072,7 +1199,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "100000"
+          "value": "100000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -1081,7 +1210,9 @@
           },
           "name": "Relative tolerance",
           "type": "float",
-          "value": "1e-6"
+          "value": "1e-6",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -1090,7 +1221,9 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": "1e-9"
+          "value": "1e-9",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -1099,7 +1232,9 @@
           },
           "name": "Comma-separated list of ids of deterministic reactions",
           "type": "string",
-          "value": null
+          "value": null,
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -1108,9 +1243,12 @@
           },
           "name": "Random number generator seed",
           "type": "integer",
-          "value": "1"
+          "value": "1",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     },
     {
       "id": "ri5",
@@ -1126,15 +1264,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585"
+        "id": "format_2585", "version": null
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685"
+        "id": "format_3685", "version": null
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686"
+        "id": "format_3686", "version": null
       }],
       "citations": [{
           "title": "Second order Runge-Kutta methods for Itô stochastic differential equations",
@@ -1171,7 +1309,9 @@
           },
           "name": "Step size",
           "type": "float",
-          "value": "0.0001"
+          "value": "0.0001",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -1180,7 +1320,9 @@
           },
           "name": "Maximum number of steps",
           "type": "integer",
-          "value": "10000"
+          "value": "10000",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -1189,7 +1331,9 @@
           },
           "name": "force physical correctness",
           "type": "boolean",
-          "value": "true"
+          "value": "true",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -1198,7 +1342,9 @@
           },
           "name": "Absolute tolerance",
           "type": "float",
-          "value": "1e-6"
+          "value": "1e-6",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         },
         {
           "kisaoId": {
@@ -1207,13 +1353,18 @@
           },
           "name": "Absolute tolerance for root finding",
           "type": "float",
-          "value": "1e-6"
+          "value": "1e-6",
+          "recommendedRange": null,
+                    "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
-      ]
+      ],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
     }
   ],
+  "interfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+  "supportedProgrammingLanguages": ["Python", "C#", "Java"],
   "biosimulators": {
-    "specificationsVersion": "1.0.0",
+    "specificationVersion": "1.0.0",
     "imageVersion": "1.0.0",
     "validated": false
   }
