@@ -8,8 +8,9 @@
     "url": "ghcr.io/biosimulators/biosimulators_copasi/copasi:4.27.214",
     "format": {
       "namespace": "EDAM",
-      "id": "format_3973", "version": null
-    }
+      "id": "format_3973", "version": null, "supportedFeatures": []
+    },
+    "operatingSystemType": "Linux"
   },
   "authors": [{
       "firstName": "Frank",
@@ -336,15 +337,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
           "title": "LSODA, ordinary differential equation solver for stiff or non-stiff system",
@@ -423,7 +424,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "radau5",
@@ -438,15 +440,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
         "title": "Implicit Runge--Kutta methods based on Radau quadrature formula",
@@ -518,7 +520,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "gibson_bruck",
@@ -534,15 +537,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
         "title": "Efficient exact stochastic simulation of chemical systems with many species and many channels",
@@ -581,7 +584,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "ssa",
@@ -596,15 +600,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
         "title": "Exact stochastic simulation of coupled chemical reactions",
@@ -643,7 +647,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "tau_leap",
@@ -659,15 +664,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
         "title": "Approximate accelerated stochastic simulation of chemically reacting systems",
@@ -717,7 +722,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "adaptive_ssa_tau_leap",
@@ -733,15 +739,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
         "title": "Adaptive explicit-implicit tau-leaping method with automatic tau selection",
@@ -791,7 +797,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "hybrid-runge-kutta",
@@ -806,15 +813,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
           "title": "COPASI and its applications in biotechnology",
@@ -936,7 +943,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "hybrid-lsoda",
@@ -951,15 +959,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
           "title": "COPASI and its applications in biotechnology",
@@ -1114,7 +1122,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "hybrid-rk45",
@@ -1129,15 +1138,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
           "title": "COPASI and its applications in biotechnology",
@@ -1248,7 +1257,8 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     },
     {
       "id": "ri5",
@@ -1264,15 +1274,15 @@
       }],
       "modelFormats": [{
         "namespace": "EDAM",
-        "id": "format_2585", "version": null
+        "id": "format_2585", "version": null, "supportedFeatures": []
       }],
       "simulationFormats": [{
         "namespace": "EDAM",
-        "id": "format_3685", "version": null
+        "id": "format_3685", "version": null, "supportedFeatures": []
       }],
       "archiveFormats": [{
         "namespace": "EDAM",
-        "id": "format_3686", "version": null
+        "id": "format_3686", "version": null, "supportedFeatures": []
       }],
       "citations": [{
           "title": "Second order Runge-Kutta methods for Itô stochastic differential equations",
@@ -1358,11 +1368,18 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "dependencies": null
     }
   ],
   "interfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
-  "supportedProgrammingLanguages": ["Python", "C#", "Java"],
+  "supportedOperatingSystemTypes": ["Linux", "Mac OS", "Windows"],
+  "supportedProgrammingLanguages": [
+    {"namespace": "Linguist", "id": "Python"}, 
+    {"namespace": "Linguist", "id": "C#"}, 
+    {"namespace": "Linguist", "id": "Java"}
+  ],
+  "funding": [],
   "biosimulators": {
     "specificationVersion": "1.0.0",
     "imageVersion": "1.0.0",
