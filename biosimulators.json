@@ -893,7 +893,7 @@
             "id": "KISAO_0000203"
           },
           "name": "Low-particle number upper limit",
-          "type": "integer",
+          "type": "float",
           "value": "800",
           "recommendedRange": null,
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
@@ -904,7 +904,7 @@
             "id": "KISAO_0000204"
           },
           "name": "High-particle number lower limit",
-          "type": "integer",
+          "type": "float",
           "value": "1000",
           "recommendedRange": null,
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
@@ -1039,7 +1039,7 @@
             "id": "KISAO_0000203"
           },
           "name": "Low-particle number upper limit",
-          "type": "integer",
+          "type": "float",
           "value": "800",
           "recommendedRange": null,
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
@@ -1050,7 +1050,7 @@
             "id": "KISAO_0000204"
           },
           "name": "High-particle number lower limit",
-          "type": "integer",
+          "type": "float",
           "value": "1000",
           "recommendedRange": null,
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
@@ -1239,8 +1239,8 @@
             "namespace": "KISAO",
             "id": "KISAO_0000534"
           },
-          "name": "Comma-separated list of ids of deterministic reactions",
-          "type": "string",
+          "name": "List of ids of deterministic reactions",
+          "type": "list",
           "value": null,
           "recommendedRange": null,
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]

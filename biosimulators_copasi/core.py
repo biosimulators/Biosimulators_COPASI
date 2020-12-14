@@ -7,339 +7,190 @@
 :License: MIT
 """
 
-from Biosimulations_utils.simulation.data_model import TimecourseSimulation, SimulationResultsFormat
-from Biosimulations_utils.simulator.utils import exec_simulations_in_archive
+from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
+from biosimulators_utils.plot.data_model import PlotFormat
+from biosimulators_utils.report.data_model import ReportFormat, DataGeneratorVariableResults
+from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, UniformTimeCourseSimulation,
+                                                  DataGeneratorVariable, DataGeneratorVariableSymbol)
+from biosimulators_utils.sedml import validation
+from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP
+from .utils import get_algorithm_id, set_algorithm_parameter_value
 import COPASI
-import json
+import math
 import numpy
 import os
-import pandas
 import re
-import types
 
 
-__all__ = ['exec_combine_archive', 'exec_simulation']
-
-KISAO_ALGORITHMS_MAP = {
-    'KISAO_0000027': {
-        'name': 'Gibson + Bruck',
-        'id': COPASI.CTaskEnum.Method_stochastic,
-        'get_data_function': 'getData',
-    },
-    'KISAO_0000029': {
-        'name': 'direct method',
-        'id': COPASI.CTaskEnum.Method_directMethod,
-        'get_data_function': 'getData',
-    },
-    'KISAO_0000039': {
-        'name': 'tau leap method',
-        'id': COPASI.CTaskEnum.Method_tauLeap,
-        'get_data_function': 'getData',
-    },
-    'KISAO_0000048': {
-        'name': 'adaptive SSA + tau leap',
-        'id': COPASI.CTaskEnum.Method_adaptiveSA,
-        'get_data_function': 'getData',
-    },
-    'KISAO_0000560': {
-        'name': 'LSODA/LSODAR',
-        'id': COPASI.CTaskEnum.Method_deterministic,
-        'get_data_function': 'getConcentrationData',
-    },
-    'KISAO_0000088': {
-        'name': 'LSODA',
-        'id': COPASI.CTaskEnum.Method_deterministic,
-        'get_data_function': 'getConcentrationData',
-    },
-    'KISAO_0000089': {
-        'name': 'LSODAR',
-        'id': COPASI.CTaskEnum.Method_deterministic,
-        'get_data_function': 'getConcentrationData',
-    },
-    'KISAO_0000304': {
-        'name': 'RADAU5',
-        'id': COPASI.CTaskEnum.Method_RADAU5,
-        'get_data_function': 'getConcentrationData',
-    },
-    'KISAO_0000561': {
-        'name': 'hybrid (runge kutta)',
-        'id': COPASI.CTaskEnum.Method_hybrid,
-        'get_data_function': 'getData',
-    },
-    'KISAO_0000562': {
-        'name': 'hybrid (lsoda)',
-        'id': COPASI.CTaskEnum.Method_hybridLSODA,
-        'get_data_function': 'getData',
-    },
-    'KISAO_0000563': {
-        'name': 'hybrid (RK-45)',
-        'id': COPASI.CTaskEnum.Method_hybridODE45,
-        'get_data_function': 'getData',
-    },
-    'KISAO_0000566': {
-        'name': 'SDE Solve (RI5)',
-        'id': COPASI.CTaskEnum.Method_stochasticRunkeKuttaRI5,
-        'get_data_function': 'getConcentrationData',
-    },
-}
-
-KISAO_PARAMETERS_MAP = {
-    'KISAO_0000209': {
-        'name': 'Relative Tolerance',
-        'type': 'float',
-        'algorithms': ['KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000562', 'KISAO_0000563', 'KISAO_0000304'],
-    },
-    'KISAO_0000211': {
-        'name': 'Absolute Tolerance',
-        'type': 'float',
-        'algorithms': ['KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000562', 'KISAO_0000563', 'KISAO_0000304',
-                       'KISAO_0000566'],
-    },
-    'KISAO_0000216': {
-        'name': 'Integrate Reduced Model',
-        'type': 'bool',
-        'algorithms': ['KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000562', 'KISAO_0000304'],
-    },
-    'KISAO_0000415': {
-        'name': 'Max Internal Steps',
-        'type': 'int',
-        'algorithms': ['KISAO_0000048', 'KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000027', 'KISAO_0000029',
-                       'KISAO_0000562', 'KISAO_0000563', 'KISAO_0000561', 'KISAO_0000304', 'KISAO_0000566', 'KISAO_0000039'],
-    },
-    'KISAO_0000467': {
-        'name': 'Max Internal Step Size',
-        'type': 'float',
-        'algorithms': ['KISAO_0000560', 'KISAO_0000088', 'KISAO_0000089', 'KISAO_0000562'],
-    },
-    'KISAO_0000488': {
-        'name': 'Random Seed',
-        'type': 'int',
-        'algorithms': ['KISAO_0000048', 'KISAO_0000027', 'KISAO_0000029', 'KISAO_0000562', 'KISAO_0000563', 'KISAO_0000561',
-                       'KISAO_0000039'],
-    },
-    'KISAO_0000228': {
-        'name': 'Epsilon',
-        'type': 'float',
-        'algorithms': ['KISAO_0000048', 'KISAO_0000039'],
-    },
-    'KISAO_0000203': {
-        'name': 'Lower Limit',
-        'type': 'int',
-        'algorithms': ['KISAO_0000562', 'KISAO_0000561'],
-    },
-    'KISAO_0000204': {
-        'name': 'Upper Limit',
-        'type': 'int',
-        'algorithms': ['KISAO_0000562', 'KISAO_0000561'],
-    },
-    'KISAO_0000205': {
-        'name': 'Partitioning Interval',
-        'type': 'int',
-        'algorithms': ['KISAO_0000562', 'KISAO_0000561'],
-    },
-    'KISAO_0000559': {
-        'name': 'Initial Step Size',
-        'type': 'float',
-        'algorithms': ['KISAO_0000304'],
-    },
-    'KISAO_0000483': {
-        'name': {
-            'KISAO_0000561': 'Runge Kutta Stepsize',
-            'KISAO_0000566': 'Internal Steps Size',
-        },
-        'type': 'float',
-        'algorithms': ['KISAO_0000561', 'KISAO_0000566'],
-    },
-    'KISAO_0000565': {
-        'name': 'Tolerance for Root Finder',
-        'type': 'float',
-        'algorithms': ['KISAO_0000566'],
-    },
-    'KISAO_0000567': {
-        'name': 'Force Physical Correctness',
-        'type': 'bool',
-        'algorithms': ['KISAO_0000566'],
-    },
-    # 'KISAO_0000534': {
-    #    'name': 'Deterministic Reactions',
-    #    'type': 'string[]',
-    #    'algorithms': ['KISAO_0000563'],
-    # },
-}
+__all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_task']
 
 
-def get_algorithm_id(kisao_id):
-    """ Get the COPASI id for an algorithm
+def exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                       report_formats=None, plot_formats=None,
+                                       bundle_outputs=None, keep_individual_outputs=None):
+    """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
 
     Args:
-        kisao_id (:obj:`str`): KiSAO algorithm id
+        archive_filename (:obj:`str`): path to COMBINE/OMEX archive
+        out_dir (:obj:`str`): path to store the outputs of the archive
+
+            * CSV: directory in which to save outputs to files
+              ``{ out_dir }/{ relative-path-to-SED-ML-file-within-archive }/{ report.id }.csv``
+            * HDF5: directory in which to save a single HDF5 file (``{ out_dir }/reports.h5``),
+              with reports at keys ``{ relative-path-to-SED-ML-file-within-archive }/{ report.id }`` within the HDF5 file
+
+        report_formats (:obj:`list` of :obj:`ReportFormat`, optional): report format (e.g., csv or h5)
+        plot_formats (:obj:`list` of :obj:`PlotFormat`, optional): report format (e.g., pdf)
+        bundle_outputs (:obj:`bool`, optional): if :obj:`True`, bundle outputs into archives for reports and plots
+        keep_individual_outputs (:obj:`bool`, optional): if :obj:`True`, keep individual output files
+    """
+    exec_sedml_docs_in_archive(archive_filename, exec_sed_task, out_dir,
+                               apply_xml_model_changes=True,
+                               report_formats=report_formats,
+                               plot_formats=plot_formats,
+                               bundle_outputs=bundle_outputs,
+                               keep_individual_outputs=keep_individual_outputs)
+
+
+def exec_sed_task(task, variables):
+    ''' Execute a task and save its results
+
+    Args:
+       task (:obj:`Task`): task
+       variables (:obj:`list` of :obj:`DataGeneratorVariable`): variables that should be recorded
 
     Returns:
-        :obj:`int`: COPASI id for algorithm
-    """
-    alg = KISAO_ALGORITHMS_MAP.get(kisao_id, None)
-    if alg is None:
-        raise NotImplementedError(
-            "Algorithm with KiSAO id '{}' is not supported".format(kisao_id))
-    return alg['id']
+        :obj:`DataGeneratorVariableResults`: results of variables
 
-
-def set_function_parameter(algorithm_kisao_id, algorithm_function, parameter_kisao_id, value):
-    """ Set a parameter of a COPASI simulation function
-
-    Args:
-        algorithm_kisao_id (:obj:`str`): KiSAO algorithm id
-        algorithm_function (:obj:`types.FunctionType`): algorithm function
-        parameter_kisao_id (:obj:`str`): KiSAO parameter id
-        value (:obj:`string`): parameter value
-    """
-    parameter_attrs = KISAO_PARAMETERS_MAP.get(parameter_kisao_id, None)
-    if parameter_attrs is None:
-        NotImplementedError("Parameter '{}' is not supported".format(parameter_kisao_id))
-
-    if isinstance(parameter_attrs['name'], str):
-        parameter_name = parameter_attrs['name']
-    else:
-        parameter_name = parameter_attrs['name']['algorithm_kisao_id']
-    parameter = algorithm_function.getParameter(parameter_name)
-    if not isinstance(parameter, COPASI.CCopasiParameter):
-        NotImplementedError("Parameter '{}' is not supported for algorithm '{}'".format(
-            parameter_kisao_id, algorithm_kisao_id))
-
-    if parameter_attrs['type'] == 'bool':
-        assert(parameter.setBoolValue(value.lower() == 'true' or value.lower() == '1'))
-    elif parameter_attrs['type'] == 'int':
-        assert(parameter.setIntValue(int(value)))
-    elif parameter_attrs['type'] == 'float':
-        assert(parameter.setDblValue(float(value)))
-    # elif parameter_attrs['type'] == 'string[]':
-        # TODO: handle Deterministic Reactions for hybrid RK-45
-        # parameter.setValue(json.loads(value))
-    else:
-        raise NotImplementedError("Parameter type '{}' is not supported".format(parameter_attrs['type']))
-
-    # if the parameter is the random number generator seed (KISAO_0000488), turn on the flag to use it
-    if parameter_kisao_id == 'KISAO_0000488':
-        use_rand_seed_parameter = algorithm_function.getParameter('Use Random Seed')
-        if not isinstance(use_rand_seed_parameter, COPASI.CCopasiParameter):
-            raise NotImplementedError("Random seed could not be turned on for algorithm '{}'".format(algorithm_kisao_id))
-        use_rand_seed_parameter.setBoolValue(True)
-
-
-def exec_combine_archive(archive_file, out_dir):
-    """ Execute the SED tasks defined in a COMBINE archive and save the outputs
-
-    Args:
-        archive_file (:obj:`str`): path to COMBINE archive
-        out_dir (:obj:`str`): directory to store the outputs of the tasks
-    """
-    exec_simulations_in_archive(archive_file, exec_simulation, out_dir, apply_model_changes=True)
-
-
-def exec_simulation(model_filename, model_sed_urn, simulation, working_dir, out_filename, out_format):
-    ''' Execute a simulation and save its results
-
-    Args:
-       model_filename (:obj:`str`): path to the model
-       model_sed_urn (:obj:`str`): SED URN for the format of the model (e.g., `urn:sedml:language:sbml`)
-       simulation (:obj:`TimecourseSimulation`): simulation
-       working_dir (:obj:`str`): directory of the SED-ML file
-       out_filename (:obj:`str`): path to save the results of the simulation
-       out_format (:obj:`SimulationResultsFormat`): format to save the results of the simulation (e.g., `HDF5`)
+    Raises:
+        :obj:`ValueError`: if the task or an aspect of the task is not valid, or the requested output variables
+            could not be recorded
+        :obj:`NotImplementedError`: if the task is not of a supported type or involves an unsuported feature
     '''
-    # check that model is encoded in SBML
-    if model_sed_urn != "urn:sedml:language:sbml":
-        raise NotImplementedError("Model language with URN '{}' is not supported".format(model_sed_urn))
+    validation.validate_task(task)
 
-    # check that simulation is a time course simulation
-    if not isinstance(simulation, TimecourseSimulation):
-        raise NotImplementedError('{} is not supported'.format(simulation.__class__.__name__))
+    model = task.model
+    validation.validate_model_language(model.language, ModelLanguage.SBML)
+    validation.validate_model_change_types(model.changes, ())
 
-    # check that model parameter changes have already been applied (because handled by :obj:`exec_simulations_in_archive`)
-    if simulation.model_parameter_changes:
-        raise NotImplementedError('Model parameter changes are not supported')
+    sim = task.simulation
+    validation.validate_simulation_type(sim, (UniformTimeCourseSimulation, ))
+    validation.validate_uniform_time_course_simulation(sim)
+    validation.validate_data_generator_variables(variables)
+    target_x_paths_ids = validation.validate_data_generator_variable_xpaths(variables, model.source, attr='id')
 
-    # check that the desired output format is supported
-    if out_format != SimulationResultsFormat.HDF5:
-        raise NotImplementedError("Simulation results format '{}' is not supported".format(out_format))
-
-    # Read the model located at `os.path.join(working_dir, model_filename)` in the format
-    # with the SED URN `model_sed_urn`.
-    data_model = COPASI.CRootContainer.addDatamodel()
-    if not data_model.importSBML(model_filename):
-        raise ValueError("'{}' could not be imported".format(model_filename))
+    # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
+    copasi_data_model = COPASI.CRootContainer.addDatamodel()
+    if not copasi_data_model.importSBML(task.model.source):
+        raise ValueError("'{}' could not be imported:\n\n  {}".format(
+            task.model.source, get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
 
     # Load the algorithm specified by `simulation.algorithm`
-    algorithm_id = get_algorithm_id(simulation.algorithm.kisao_term.id)
-    task = data_model.getTask('Time-Course')
-    assert(task.setMethodType(algorithm_id))
-    method = task.getMethod()
-
-    # TODO: set partitioning strategy for hybrid RK45
-    # if simulation.algorithm.kisao_term.id == 'KISAO_0000563':
-    #     parameter = method.getParameter('Partitioning Strategy')
-    #     parameter.setValue(PartitioningStrategyType.UserSpecified)
+    alg_kisao_id = sim.algorithm.kisao_id
+    alg_copasi_id = get_algorithm_id(alg_kisao_id)
+    copasi_task = copasi_data_model.getTask('Time-Course')
+    if not copasi_task.setMethodType(alg_copasi_id):
+        raise RuntimeError('Unable to initialize function for {}'.format(alg_kisao_id)
+                           )  # pragma: no cover # unreachable because :obj:`get_algorithm_id` returns valid COPASI method ids
+    method = copasi_task.getMethod()
 
     # Apply the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
-    for parameter_change in simulation.algorithm_parameter_changes:
-        set_function_parameter(simulation.algorithm.kisao_term.id, method,
-                               parameter_change.parameter.kisao_term.id, parameter_change.value)
+    for change in sim.algorithm.changes:
+        set_algorithm_parameter_value(alg_kisao_id, method,
+                                      change.kisao_id, change.new_value)
 
     # Execute simulation
-    task.setScheduled(True)
+    copasi_task.setScheduled(True)
 
-    model = data_model.getModel()
+    model = copasi_data_model.getModel()
 
-    problem = task.getProblem()
-    model.setInitialTime(simulation.start_time)
-    problem.setOutputStartTime(simulation.output_start_time)
-    problem.setDuration(simulation.end_time - simulation.start_time)
-    problem.setStepNumber(int(simulation.num_time_points *
-                              (simulation.end_time - simulation.start_time) /
-                              (simulation.end_time - simulation.output_start_time)))
+    problem = copasi_task.getProblem()
+    model.setInitialTime(sim.initial_time)
+    problem.setOutputStartTime(sim.output_start_time)
+    problem.setDuration(sim.output_end_time)
+    step_number = sim.number_of_points * (sim.output_end_time - sim.initial_time) / (sim.output_end_time - sim.output_start_time) + 1
+    if step_number != math.floor(step_number):
+        raise NotImplementedError('Time course must specify an integer number of time points')
+    else:
+        step_number = int(step_number)
+    problem.setStepNumber(step_number)
     problem.setTimeSeriesRequested(True)
     problem.setAutomaticStepSize(False)
     problem.setOutputEvent(False)
 
-    try:
-        result = task.process(True)
-        assert(result)
-        time_series = task.getTimeSeries()
-        assert(time_series.getRecordedSteps() == simulation.num_time_points + 1)
-    except:
-        error_msg = 'Simulation failed.'
-        if COPASI.CCopasiMessage.size() > 0:
-            error_msg += '\n\n' + COPASI.CCopasiMessage.getAllMessageText(True)
-        raise ValueError(error_msg)
+    if not copasi_task.process(True):
+        raise RuntimeError(get_copasi_error_message(alg_kisao_id))
+
+    time_series = copasi_task.getTimeSeries()
+    number_of_recorded_points = time_series.getRecordedSteps()
+    if number_of_recorded_points != (sim.number_of_points + 1):
+        raise RuntimeError('Simulation produced {} rather than {} time points'.format(
+            number_of_recorded_points, sim.number_of_points)
+        )  # pragma: no cover # unreachable because COPASI produces the correct number of outputs
 
     # collect simulation predictions
-    time = numpy.linspace(simulation.output_start_time, simulation.end_time,
-                          simulation.num_time_points + 1).reshape((simulation.num_time_points + 1, 1))
-    data = numpy.full((simulation.num_time_points + 1, len(simulation.model.variables)), numpy.nan)
+    sbml_id_to_i_time_series = {}
+    for i_time_series in range(0, time_series.getNumVariables()):
+        time_series_sbml_id = time_series.getTitle(i_time_series)
+        sbml_id_to_i_time_series[time_series_sbml_id] = i_time_series
 
-    vars = sorted(simulation.model.variables, key=lambda var: var.target)
-    var_id_to_idx = {}
-    for i_var, var in enumerate(vars):
-        match = re.match(r"^/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species\[@id='(.*?)'\]$", var.target)
-        if not match:
-            raise ValueError("Unable to parse SED-ML target '{}'".format(var.target))
-        var_id_to_idx[match.group(1)] = i_var
+    get_data_function = getattr(time_series, KISAO_ALGORITHMS_MAP[alg_kisao_id]['get_data_function'].value)
+    variable_results = DataGeneratorVariableResults()
+    unpredicted_symbols = []
+    unpredicted_targets = []
+    for variable in variables:
+        if variable.symbol:
+            if variable.symbol == DataGeneratorVariableSymbol.time:
+                variable_result = numpy.linspace(sim.output_start_time, sim.output_end_time, sim.number_of_points + 1)
+            else:
+                unpredicted_symbols.append(variable.symbol)
+                variable_result = numpy.full((sim.number_of_points + 1,), numpy.nan)
 
-    get_data_function = getattr(time_series, 'getConcentrationData')
-    for i_var in range(0, time_series.getNumVariables()):
-        var_id = time_series.getTitle(i_var)
-        i_report_var = var_id_to_idx.get(var_id, None)
-        if i_report_var is None:
-            continue
+        else:
+            target_sbml_id = target_x_paths_ids[variable.target]
+            i_time_series = sbml_id_to_i_time_series.get(target_sbml_id, None)
+            variable_result = numpy.full((sim.number_of_points + 1,), numpy.nan)
+            if i_time_series is None:
+                unpredicted_targets.append(variable.target)
+            else:
+                for i_step in range(0, time_series.getRecordedSteps()):
+                    variable_result[i_step] = get_data_function(i_step, i_time_series)
 
-        for i_step in range(0, time_series.getRecordedSteps()):
-            data[i_step, i_report_var] = get_data_function(i_step, i_var)
+        variable_results[variable.id] = variable_result
 
-    i_missing_vars = numpy.where(numpy.any(numpy.isnan(data), axis=0))[0].tolist()
-    if i_missing_vars:
-        raise ValueError('Some targets could not be recorded:\n  - {}'.format(
-            '\n  - '.join(vars[i_missing_var].target for i_missing_var in i_missing_vars)))
+    if unpredicted_symbols:
+        raise NotImplementedError("".join([
+            "The following variable symbols are not supported:\n  - {}\n\n".format(
+                '\n  - '.join(sorted(unpredicted_symbols)),
+            ),
+            "Symbols must be one of the following:\n  - {}".format(DataGeneratorVariableSymbol.time),
+        ]))
 
-    # save results to file
-    results_df = pandas.DataFrame(numpy.concatenate((time, data), 1), columns=['time'] + [var.id for var in vars])
-    results_df.to_csv(out_filename, index=False)
+    if unpredicted_targets:
+        raise ValueError(''.join([
+            'The following variable targets could not be recorded:\n  - {}\n\n'.format(
+                '\n  - '.join(sorted(unpredicted_targets)),
+            ),
+            'Targets must have one of the following ids:\n  - {}'.format(
+                '\n  - '.join(sorted(sbml_id_to_i_time_series.keys())),
+            ),
+        ]))
+
+    # return results
+    return variable_results
+
+
+def get_copasi_error_message(algorithm_kisao_id):
+    """ Get an error message from COPASI
+
+    Args:
+        algorithm_kisao_id (:obj:`str`): KiSAO id of algorithm of failed simulation
+
+    Returns:
+        :obj:`str`: COPASI error message
+    """
+    error_msg = 'Simulation with algorithm {} ({}) failed'.format(
+        algorithm_kisao_id, KISAO_ALGORITHMS_MAP.get(algorithm_kisao_id, {}).get('name', 'N/A'))
+    if COPASI.CCopasiMessage.size() > 0:
+        error_msg += ':\n\n  ' + COPASI.CCopasiMessage.getAllMessageText(True).replace('\n', '\n  ')
+    return error_msg

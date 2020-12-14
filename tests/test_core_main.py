@@ -1,172 +1,403 @@
 """ Tests of the COPASI command-line interface
 
-:Author: Akhil Teja <akhilmteja@gmail.com>
 :Author: Jonathan Karr <karr@mssm.edu>
-:Date: 2020-04-16
+:Author: Akhil Teja <akhilmteja@gmail.com>
+:Date: 2020-12-14
 :Copyright: 2020, Center for Reproducible Biomedical Modeling
 :License: MIT
 """
 
-try:
-    from Biosimulations_utils.simulator.testing import SimulatorValidator
-except ModuleNotFoundError:
-    pass
-try:
-    import capturer # not available on all platforms
-except ModuleNotFoundError:
-    capturer = None
-    pass
-
-import biosimulators_copasi
 from biosimulators_copasi import __main__
-
-try:
-    import docker
-except ModuleNotFoundError:
-    docker = None
-    pass
-import os
+from biosimulators_copasi.core import exec_sed_task, exec_sedml_docs_in_combine_archive
+from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP
+from biosimulators_utils.archive.io import ArchiveReader
+from biosimulators_utils.combine import data_model as combine_data_model
+from biosimulators_utils.combine.io import CombineArchiveWriter
+from biosimulators_utils.report import data_model as report_data_model
+from biosimulators_utils.report.io import ReportReader
+from biosimulators_utils.simulator.exec import exec_sedml_docs_in_archive_with_containerized_simulator
+from biosimulators_utils.simulator.specs import gen_algorithms_from_specs
+from biosimulators_utils.sedml import data_model as sedml_data_model
+from biosimulators_utils.sedml.io import SedmlSimulationWriter
+from biosimulators_utils.sedml.utils import append_all_nested_children_to_doc
+from biosimulators_utils.utils.core import are_lists_equal
+from unittest import mock
+import datetime
+import dateutil.tz
 import numpy
-import pandas
+import numpy.testing
+import os
 import shutil
 import tempfile
 import unittest
-import csv
 
 
 class CliTestCase(unittest.TestCase):
+    DOCKER_IMAGE = 'ghcr.io/biosimulators/biosimulators_copasi/copasi:latest'
+
     def setUp(self):
         self.dirname = tempfile.mkdtemp()
 
     def tearDown(self):
         shutil.rmtree(self.dirname)
 
-    def test_help(self):
-        with self.assertRaises(SystemExit):
-            with __main__.App(argv=['--help']) as app:
-                app.run()
-
-    @unittest.skipIf(capturer is None, 'capturer not available')
-    def test_version(self):
-        with __main__.App(argv=['-v']) as app:
-            with capturer.CaptureOutput(merged=False, relay=False) as captured:
-                with self.assertRaises(SystemExit):
-                    app.run()
-                self.assertIn(biosimulators_copasi.__version__, captured.stdout.get_text())
-                self.assertEqual(captured.stderr.get_text(), '')
-
-        with __main__.App(argv=['--version']) as app:
-            with capturer.CaptureOutput(merged=False, relay=False) as captured:
-                with self.assertRaises(SystemExit):
-                    app.run()
-                self.assertIn(biosimulators_copasi.__version__, captured.stdout.get_text())
-                self.assertEqual(captured.stderr.get_text(), '')
-
-    def test_sim_short_arg_names(self):
-        archive_filename = 'tests/fixtures/BIOMD0000000297.omex'
-        with __main__.App(argv=['-i', archive_filename, '-o', self.dirname]) as app:
-            app.run()
-        self.assert_outputs_created(self.dirname)
-
-    def test_sim_long_arg_names(self):
-        archive_filename = 'tests/fixtures/BIOMD0000000297.omex'
-        with __main__.App(argv=['--archive', archive_filename, '--out-dir', self.dirname]) as app:
-            app.run()
-        self.assert_outputs_created(self.dirname)
-
-    @unittest.skipIf(docker is None, 'Docker not available')
-    def test_build_docker_image(self):
-        docker_client = docker.from_env()
-
-        # build image
-        image_repo = 'ghcr.io/biosimulators/biosimulators_copasi/copasi'
-        image_tag = biosimulators_copasi.__version__
-        image, _ = docker_client.images.build(
-            path='.',
-            dockerfile='Dockerfile',
-            pull=True,
-            rm=True,
+    def test_exec_sed_task(self):
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml'),
+                language=sedml_data_model.ModelLanguage.SBML.value,
+                changes=[],
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000560',
+                    changes=[
+                        sedml_data_model.AlgorithmParameterChange(
+                            kisao_id='KISAO_0000209',
+                            new_value='2e-6',
+                        ),
+                    ],
+                ),
+                initial_time=0.,
+                output_start_time=10.,
+                output_end_time=20.,
+                number_of_points=20,
+            ),
         )
-        image.tag(image_repo, tag='latest')
-        image.tag(image_repo, tag=image_tag)
 
-    @unittest.skipIf(docker is None, 'Docker not available')
-    def test_sim_with_docker_image(self):
-        docker_client = docker.from_env()
-
-        # image config
-        image_repo = 'ghcr.io/biosimulators/biosimulators_copasi/copasi'
-        image_tag = biosimulators_copasi.__version__
-
-        # setup input and output directories
-        in_dir = os.path.join(self.dirname, 'in')
-        out_dir = os.path.join(self.dirname, 'out')
-        os.makedirs(in_dir)
-        os.makedirs(out_dir)
-
-        # create intermediate directories so that the test runner will have permissions to cleanup the results generated by
-        # the docker image (running as root)
-        os.makedirs(os.path.join(out_dir, 'simulation_1'))
-
-        # copy model and simulation to temporary directory which will be mounted into container
-        shutil.copyfile('tests/fixtures/BIOMD0000000297.omex',
-                        os.path.join(in_dir, 'BIOMD0000000297.omex'))
-
-        # run image
-        docker_client.containers.run(
-            image_repo + ':' + image_tag,
-            volumes={
-                in_dir: {
-                    'bind': '/root/in',
-                    'mode': 'ro',
-                },
-                out_dir: {
-                    'bind': '/root/out',
-                    'mode': 'rw',
-                }
-            },
-            command=['-i', '/root/in/BIOMD0000000297.omex', '-o', '/root/out'],
-            tty=True,
-            remove=True)
-
-        self.assert_outputs_created(out_dir)
-
-    def assert_outputs_created(self, dirname, output_start_time=0., end_time=10., num_time_points=100, model_var_ids=("Trim", "Clb", "Sic", "PTrim", "PClb", "SBF", "IE", "Cdc20a", "Cdc20", "Cdh1", "Swe1", "Swe1M", "PSwe1", "PSwe1M", "Mih1a", "Mcm", "BE", "Cln", 'mass'
-)):
-        # print(set(os.listdir(dirname)))
-        # print(set(os.listdir(os.path.join(dirname, 'simulation_1'))))
-        self.assertEqual(set(os.listdir(dirname)), set(['simulation_1']))
-        self.assertEqual(set(os.listdir(os.path.join(dirname, 'simulation_1'))), set(['simulation_1.csv']))
-
-        filenames = [
-            os.path.join(dirname, 'simulation_1', 'simulation_1.csv'),
+        variables = [
+            sedml_data_model.DataGeneratorVariable(id='time', symbol=sedml_data_model.DataGeneratorVariableSymbol.time),
+            sedml_data_model.DataGeneratorVariable(id='A', target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='A']"),
+            sedml_data_model.DataGeneratorVariable(id='C', target='/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id="C"]'),
+            sedml_data_model.DataGeneratorVariable(id='DA', target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='DA']"),
         ]
 
-        for filename in filenames:
-            with open(filename, newline='') as file:
-                csv.reader(file, delimiter=',')
+        variable_results = exec_sed_task(task, variables)
 
-            # check that results have expected rows and columns
-            results_data_frame = pandas.read_csv(filename)
+        self.assertTrue(sorted(variable_results.keys()), sorted([var.id for var in variables]))
+        self.assertEqual(variable_results[variables[0].id].shape, (task.simulation.number_of_points + 1,))
+        numpy.testing.assert_almost_equal(
+            variable_results['time'],
+            numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
+        )
 
-            numpy.testing.assert_array_almost_equal(
-                results_data_frame['time'],
-                numpy.linspace(output_start_time, end_time, num_time_points + 1),
+        for results in variable_results.values():
+            self.assertFalse(numpy.any(numpy.isnan(results)))
+
+    def test_exec_sed_task_error_handling(self):
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=os.path.join(self.dirname, 'model.xml'),
+                language=sedml_data_model.ModelLanguage.SBML.value,
+                changes=[],
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000560',
+                    changes=[
+                        sedml_data_model.AlgorithmParameterChange(
+                            kisao_id='KISAO_0000209',
+                            new_value='2e-6',
+                        ),
+                    ],
+                ),
+                initial_time=0.,
+                output_start_time=10.,
+                output_end_time=20.,
+                number_of_points=20,
+            ),
+        )
+
+        variables = [
+        ]
+
+        with open(task.model.source, 'w') as file:
+            file.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
+            file.write('<sbml2 xmlns="http://www.sbml.org/sbml/level2/version4" level="2" version="4">')
+            file.write('  <model id="model">')
+            file.write('  </model>')
+            file.write('</sbml2>')
+
+        with self.assertRaisesRegex(ValueError, 'could not be imported'):
+            exec_sed_task(task, variables)
+
+        task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml')
+        task.simulation.output_end_time = 20.1
+        with self.assertRaisesRegex(NotImplementedError, 'integer number of time points'):
+            exec_sed_task(task, variables)
+
+        task.simulation.output_end_time = 20.
+        variables = [
+            sedml_data_model.DataGeneratorVariable(id='time', symbol='urn:sedml:symbol:undefined'),
+            sedml_data_model.DataGeneratorVariable(id='A', target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='A']"),
+        ]
+        with self.assertRaisesRegex(NotImplementedError, 'symbols are not supported'):
+            exec_sed_task(task, variables)
+
+        variables = [
+            sedml_data_model.DataGeneratorVariable(
+                id='A', target="/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='Reaction1']"),
+        ]
+        with self.assertRaisesRegex(ValueError, 'targets could not be recorded'):
+            exec_sed_task(task, variables)
+
+    def test_exec_sedml_docs_in_combine_archive(self):
+        doc, archive_filename = self._build_combine_archive()
+
+        out_dir = os.path.join(self.dirname, 'out')
+        exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                           report_formats=[
+                                               report_data_model.ReportFormat.h5,
+                                               report_data_model.ReportFormat.csv,
+                                           ],
+                                           bundle_outputs=True,
+                                           keep_individual_outputs=True)
+
+        self._assert_combine_archive_outputs(doc, out_dir)
+
+    def test_exec_sedml_docs_in_combine_archive_with_all_algorithms(self):
+        # continuous model
+        errored_algs = []
+        for alg in gen_algorithms_from_specs(os.path.join(os.path.dirname(__file__), '..', 'biosimulators.json')).values():
+            doc, archive_filename = self._build_combine_archive(algorithm=alg)
+
+            out_dir = os.path.join(self.dirname, alg.kisao_id)
+            try:
+                exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                                   report_formats=[
+                                                       report_data_model.ReportFormat.h5,
+                                                       report_data_model.ReportFormat.csv,
+                                                   ],
+                                                   bundle_outputs=True,
+                                                   keep_individual_outputs=True)
+                self._assert_combine_archive_outputs(doc, out_dir)
+            except RuntimeError:
+                errored_algs.append(alg.kisao_id)
+
+        self.assertEqual(sorted(errored_algs), sorted([
+            'KISAO_0000027',
+            'KISAO_0000029',
+            'KISAO_0000039',
+            'KISAO_0000048',
+            'KISAO_0000561',
+            'KISAO_0000562',
+            'KISAO_0000563',
+        ]))
+
+    def test_exec_sedml_docs_in_combine_archive_with_all_algorithms_2(self):
+        # discrete/continuous model
+        errored_algs = []
+        for alg in gen_algorithms_from_specs(os.path.join(os.path.dirname(__file__), '..', 'biosimulators.json')).values():
+            doc, archive_filename = self._build_combine_archive(algorithm=alg,
+                                                                orig_model_filename='BIOMD0000000297_url.xml',
+                                                                var_targets=[None, 'Swe1', 'BE', 'Cdc20'])
+
+            out_dir = os.path.join(self.dirname, alg.kisao_id)
+            try:
+                exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                                   report_formats=[
+                                                       report_data_model.ReportFormat.h5,
+                                                       report_data_model.ReportFormat.csv,
+                                                   ],
+                                                   bundle_outputs=True,
+                                                   keep_individual_outputs=True)
+                self._assert_combine_archive_outputs(doc, out_dir)
+            except RuntimeError:
+                errored_algs.append(alg.kisao_id)
+
+        self.assertEqual(sorted(errored_algs), sorted([
+            'KISAO_0000039', 'KISAO_0000304', 'KISAO_0000561', 'KISAO_0000562'
+        ]))
+
+    def _build_combine_archive(self, algorithm=None, orig_model_filename='model.xml', var_targets=[None, 'A', 'C', 'DA']):
+        doc = self._build_sed_doc(algorithm=algorithm)
+
+        for data_gen, target in zip(doc.data_generators, var_targets):
+            if target is not None:
+                data_gen.variables[0].target = "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']".format(target)
+
+        archive_dirname = os.path.join(self.dirname, 'archive')
+        if not os.path.isdir(archive_dirname):
+            os.mkdir(archive_dirname)
+
+        model_filename = os.path.join(archive_dirname, 'model_1.xml')
+        shutil.copyfile(
+            os.path.join(os.path.dirname(__file__), 'fixtures', orig_model_filename),
+            model_filename)
+
+        sim_filename = os.path.join(archive_dirname, 'sim_1.sedml')
+        SedmlSimulationWriter().run(doc, sim_filename)
+
+        updated = datetime.datetime(2020, 1, 2, 1, 2, 3, tzinfo=dateutil.tz.tzutc())
+        archive = combine_data_model.CombineArchive(
+            contents=[
+                combine_data_model.CombineArchiveContent(
+                    'model_1.xml', combine_data_model.CombineArchiveContentFormat.SBML.value, updated=updated),
+                combine_data_model.CombineArchiveContent(
+                    'sim_1.sedml', combine_data_model.CombineArchiveContentFormat.SED_ML.value, updated=updated),
+            ],
+            updated=updated,
+        )
+        archive_filename = os.path.join(self.dirname,
+                                        'archive.omex' if algorithm is None else 'archive-{}.omex'.format(algorithm.kisao_id))
+        CombineArchiveWriter().run(archive, archive_dirname, archive_filename)
+
+        return (doc, archive_filename)
+
+    def _build_sed_doc(self, algorithm=None):
+        if algorithm is None:
+            algorithm = sedml_data_model.Algorithm(
+                kisao_id='KISAO_0000304',
+                changes=[
+                    sedml_data_model.AlgorithmParameterChange(
+                        kisao_id='KISAO_0000209',
+                        new_value='0.0002',
+                    ),
+                ],
             )
 
-            assert set(results_data_frame.columns.to_list()) == set(list(model_var_ids) + ['time'])
+        doc = sedml_data_model.SedDocument()
+        doc.models.append(sedml_data_model.Model(
+            id='model_1',
+            source='model_1.xml',
+            language=sedml_data_model.ModelLanguage.SBML.value,
+            changes=[],
+        ))
+        doc.simulations.append(sedml_data_model.UniformTimeCourseSimulation(
+            id='sim_1_time_course',
+            algorithm=algorithm,
+            initial_time=0.,
+            output_start_time=0.1,
+            output_end_time=0.2,
+            number_of_points=20,
+        ))
+        doc.tasks.append(sedml_data_model.Task(
+            id='task_1',
+            model=doc.models[0],
+            simulation=doc.simulations[0],
+        ))
+        doc.data_generators.append(sedml_data_model.DataGenerator(
+            id='data_gen_time',
+            variables=[
+                sedml_data_model.DataGeneratorVariable(
+                    id='var_time',
+                    symbol=sedml_data_model.DataGeneratorVariableSymbol.time,
+                    task=doc.tasks[0],
+                    model=doc.models[0],
+                ),
+            ],
+            math='var_time',
+        ))
+        doc.data_generators.append(sedml_data_model.DataGenerator(
+            id='data_gen_A',
+            variables=[
+                sedml_data_model.DataGeneratorVariable(
+                    id='var_A',
+                    target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@name='A']",
+                    task=doc.tasks[0],
+                    model=doc.models[0],
+                ),
+            ],
+            math='var_A',
+        ))
+        doc.data_generators.append(sedml_data_model.DataGenerator(
+            id='data_gen_C',
+            variables=[
+                sedml_data_model.DataGeneratorVariable(
+                    id='var_C',
+                    target='/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@name="C"]',
+                    task=doc.tasks[0],
+                    model=doc.models[0],
+                ),
+            ],
+            math='var_C',
+        ))
+        doc.data_generators.append(sedml_data_model.DataGenerator(
+            id='data_gen_DA',
+            variables=[
+                sedml_data_model.DataGeneratorVariable(
+                    id='var_DA',
+                    target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='DA']",
+                    task=doc.tasks[0],
+                    model=doc.models[0],
+                ),
+            ],
+            math='var_DA',
+        ))
+        doc.outputs.append(sedml_data_model.Report(
+            id='report_1',
+            data_sets=[
+                sedml_data_model.DataSet(id='data_set_time', label='Time', data_generator=doc.data_generators[0]),
+                sedml_data_model.DataSet(id='data_set_A', label='A', data_generator=doc.data_generators[1]),
+                sedml_data_model.DataSet(id='data_set_C', label='C', data_generator=doc.data_generators[2]),
+                sedml_data_model.DataSet(id='data_set_DA', label='DA', data_generator=doc.data_generators[3]),
+            ],
+        ))
 
-    # @unittest.skipIf(docker is None, 'Docker not available')
-    # def test_one_case_with_validator(self):
-    #     validator = SimulatorValidator()
-    #     valid_cases, case_exceptions, _ = validator.run('ghcr.io/biosimulators/biosimulators_copasi/copasi', 'biosimulators.json',
-    #                                                     test_case_ids=['BIOMD0000000297.omex', ])
-    #     self.assertGreater(len(valid_cases), 0)
-    #     self.assertEqual(case_exceptions, [])
+        append_all_nested_children_to_doc(doc)
 
-    # @unittest.skipIf(docker is None or os.getenv('CI', '0') in ['1', 'true'], 'Test too long for continuous integration')
-    # def test_with_validator(self):
-    #     validator = SimulatorValidator()
-    #     valid_cases, case_exceptions, _ = validator.run('ghcr.io/biosimulators/biosimulators_copasi/copasi', 'biosimulators.json')
-    #     self.assertGreater(len(valid_cases), 0)
-    #     self.assertEqual(case_exceptions, [])
+        return doc
+
+    def _assert_combine_archive_outputs(self, doc, out_dir):
+        self.assertEqual(set(os.listdir(out_dir)), set(['reports.h5', 'reports.zip', 'sim_1.sedml']))
+
+        # check HDF report
+        report = ReportReader().run(out_dir, 'sim_1.sedml/report_1', format=report_data_model.ReportFormat.h5)
+
+        self.assertEqual(sorted(report.index), sorted([d.id for d in doc.outputs[0].data_sets]))
+
+        sim = doc.tasks[0].simulation
+        self.assertEqual(report.shape, (len(doc.outputs[0].data_sets), sim.number_of_points + 1))
+        numpy.testing.assert_almost_equal(
+            report.loc['data_set_time', :].to_numpy(),
+            numpy.linspace(sim.output_start_time, sim.output_end_time, sim.number_of_points + 1),
+        )
+
+        self.assertFalse(numpy.any(numpy.isnan(report)))
+
+        # check CSV report
+        report = ReportReader().run(out_dir, 'sim_1.sedml/report_1', format=report_data_model.ReportFormat.csv)
+
+        self.assertEqual(sorted(report.index), sorted([d.id for d in doc.outputs[0].data_sets]))
+
+        sim = doc.tasks[0].simulation
+        self.assertEqual(report.shape, (len(doc.outputs[0].data_sets), sim.number_of_points + 1))
+        numpy.testing.assert_almost_equal(
+            report.loc['data_set_time', :].to_numpy(),
+            numpy.linspace(sim.output_start_time, sim.output_end_time, sim.number_of_points + 1),
+        )
+
+        self.assertFalse(numpy.any(numpy.isnan(report)))
+
+    def test_raw_cli(self):
+        with mock.patch('sys.argv', ['', '--help']):
+            with self.assertRaises(SystemExit) as context:
+                __main__.main()
+                self.assertRegex(context.Exception, 'usage: ')
+
+    def test_exec_sedml_docs_in_combine_archive_with_cli(self):
+        doc, archive_filename = self._build_combine_archive()
+        out_dir = os.path.join(self.dirname, 'out')
+        env = self._get_combine_archive_exec_env()
+
+        with mock.patch.dict(os.environ, env):
+            with __main__.App(argv=['-i', archive_filename, '-o', out_dir]) as app:
+                app.run()
+
+        self._assert_combine_archive_outputs(doc, out_dir)
+
+    def _get_combine_archive_exec_env(self):
+        return {
+            'REPORT_FORMATS': 'h5,csv'
+        }
+
+    def test_exec_sedml_docs_in_combine_archive_with_docker_image(self):
+        doc, archive_filename = self._build_combine_archive()
+        out_dir = os.path.join(self.dirname, 'out')
+        docker_image = self.DOCKER_IMAGE
+        env = self._get_combine_archive_exec_env()
+
+        exec_sedml_docs_in_archive_with_containerized_simulator(
+            archive_filename, out_dir, docker_image, environment=env, pull_docker_image=False)
+
+        self._assert_combine_archive_outputs(doc, out_dir)

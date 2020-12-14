@@ -2,52 +2,19 @@
 
 :Author: Jonathan Karr <karr@mssm.edu>
 :Author: Akhil Marupilla <akhilmteja@gmail.com>
-:Date: 2020-04-12
-:Copyright: 2020, Center for Reproducible Biomedical Modeling
+:Date: 2020-12-13
+:Copyright: 2020, BioSimulators Team
 :License: MIT
 """
 
-from .core import exec_combine_archive
-import biosimulators_copasi
-import cement
+from ._version import __version__
+from .core import exec_sedml_docs_in_combine_archive
+from biosimulators_utils.simulator.cli import build_cli
+import COPASI
 
-
-class BaseController(cement.Controller):
-    """ Base controller for command line application """
-
-    class Meta:
-        label = 'base'
-        description = ("BioSimulators-compliant command-line interface to the "
-                       "COPASI simulation program <http://copasi.org>.")
-        help = "copasi"
-        arguments = [
-            (['-i', '--archive'], dict(type=str,
-                                       required=True,
-                                       help='Path to OMEX file which contains one or more SED-ML-encoded simulation experiments')),
-            (['-o', '--out-dir'], dict(type=str,
-                                       default='.',
-                                       help='Directory to save outputs')),
-            (['-v', '--version'], dict(action='version',
-                                       version=biosimulators_copasi.__version__)),
-        ]
-
-    @cement.ex(hide=True)
-    def _default(self):
-        args = self.app.pargs
-        try:
-            exec_combine_archive(args.archive, args.out_dir)
-        except Exception as exception:
-            raise SystemExit(str(exception)) from exception
-
-
-class App(cement.App):
-    """ Command line application """
-    class Meta:
-        label = 'copasi'
-        base_controller = 'base'
-        handlers = [
-            BaseController,
-        ]
+App = build_cli('copasi', __version__,
+                'COPASI', COPASI.__version__, 'http://copasi.org',
+                exec_sedml_docs_in_combine_archive)
 
 
 def main():
