@@ -14,10 +14,13 @@
 # Base OS
 FROM python:3.7.9-slim-buster
 
+ARG VERSION="0.0.1"
+ARG SIMULATOR_VERSION=4.28.226
+
 # metadata
 LABEL \
     org.opencontainers.image.title="COPASI" \
-    org.opencontainers.image.version="4.28.226" \
+    org.opencontainers.image.version="${SIMULATOR_VERSION}" \
     org.opencontainers.image.description="Open-source software package for the simulation and analysis of biochemical networks and their dynamics." \
     org.opencontainers.image.url="http://copasi.org/" \
     org.opencontainers.image.documentation="http://copasi.org/Support/User_Manual/" \
@@ -27,9 +30,9 @@ LABEL \
     org.opencontainers.image.licenses="Artistic-2.0" \
     \
     base_image="python:3.7.9-slim-buster" \
-    version="0.0.1" \
+    version="${VERSION}" \
     software="COPASI" \
-    software.version="4.28.226" \
+    software.version="${SIMULATOR_VERSION}" \
     about.summary="Open-source software package for the simulation and analysis of biochemical networks and their dynamics." \
     about.home="http://copasi.org/" \
     about.documentation="http://copasi.org/Support/User_Manual/" \
@@ -41,6 +44,7 @@ LABEL \
 # Copy code for command-line interface into image and install it
 COPY . /root/Biosimulators_copasi
 RUN pip install /root/Biosimulators_copasi
+RUN pip install "python_copasi==${SIMULATOR_VERSION}"
 
 # Entrypoint
 ENTRYPOINT ["copasi"]
