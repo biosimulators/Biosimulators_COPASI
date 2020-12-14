@@ -1257,7 +1257,7 @@
                     "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"]
         }
       ],
-      "availableSoftwareInterfaceTypes": ["web service", "desktop application", "library", "command-line application", "BioSimulators Docker image"],
+      "availableSoftwareInterfaceTypes": ["web service", "desktop application"],
       "dependencies": null
     },
     {
