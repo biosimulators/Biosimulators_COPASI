@@ -176,7 +176,6 @@ jobs:
           mkdir -p docs-src/_static
           sphinx-build docs-src docs
 
-
       #############################################
       ## Commit and push new version of simulator
       #############################################
