@@ -1,11 +1,7 @@
-![Latest version](https://img.shields.io/github/v/tag/biosimulators/Biosimulators_COPASI)
+[![Latest release](https://img.shields.io/github/v/tag/biosimulators/Biosimulators_COPASI)](https://github.com/biosimulations/Biosimulators_COPASI/releases)
 [![PyPI](https://img.shields.io/pypi/v/biosimulators_copasi)](https://pypi.org/project/biosimulators_copasi/)
-[![Docker image](https://github.com/biosimulators/Biosimulators_COPASI/workflows/Publish%20Docker%20To%20Hub/badge.svg)](https://github.com/biosimulators/Biosimulators_COPASI/actions?query=workflow%3A%22Publish+Docker+To+Hub%22)
-[![Docker image build](https://github.com/biosimulators/Biosimulators_COPASI/workflows/Build%20Docker%20image/badge.svg)](https://github.com/biosimulators/Biosimulators_COPASI/actions?query=workflow%3A%22Build+Docker+image%22)
-[![Unit tests](https://github.com/biosimulators/Biosimulators_COPASI/workflows/Unit%20tests/badge.svg)](https://github.com/biosimulators/Biosimulators_COPASI/actions?query=workflow%3A%22Unit+tests%22)
-[![Documentation](https://img.shields.io/github/license/biosimulators/Biosimulators_COPASI?badges-awesome-green.svg)](https://biosimulators.github.io/Biosimulators_COPASI/)
-[![Issues](https://img.shields.io/github/issues/biosimulators/Biosimulators_COPASI)](https://github.com/biosimulators/Biosimulators_COPASI/issues)
-[![License](https://img.shields.io/github/license/biosimulators/Biosimulators_COPASI?badges-awesome-green.svg)](https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/LICENSE)
+[![CI status](https://github.com/biosimulators/Biosimulators_COPASI/workflows/Continuous%20integration/badge.svg)](https://github.com/biosimulators/Biosimulators_COPASI/actions?query=workflow%3A%22Continuous+integration%22)
+[![Test coverage](https://codecov.io/gh/biosimulators/Biosimulators_COPASI/branch/dev/graph/badge.svg)](https://codecov.io/gh/biosimulators/Biosimulators_COPASI)
 
 
 # BioSimulators-COPASI 
@@ -58,14 +54,18 @@ optional arguments:
 ```
 
 ### Usage through Docker container
+The entrypoint to the Docker image supports the same command-line interface described above. 
+
+For example, the following command could be used to use the Docker image to execute the COMBINE/OMEX archive `./modeling-study.omex` and save its outputs to `./`.
+
 ```
 docker run \
   --tty \
   --rm \
-  --mount type=bind,source="$(pwd)"/tests/fixtures,target=/root/in,readonly \
-  --mount type=bind,source="$(pwd)"/tests/results,target=/root/out \
+  --mount type=bind,source="$(pwd)",target=/root/in,readonly \
+  --mount type=bind,source="$(pwd)",target=/root/out \
   ghcr.io/biosimulators/copasi:latest \
-    -i /root/in/BIOMD0000000297.omex \
+    -i /root/in/modeling-study.omex \
     -o /root/out
 ```
 
@@ -73,11 +73,11 @@ docker run \
 Documentation is available at https://biosimulators.github.io/Biosimulators_COPASI/.
 
 ## License
-This package is released under the [MIT license](LICENSE).
+This package is released under the [MIT license](LICENSE). COPASI is released under the [Artistic 2.0 License](http://copasi.org/Download/License/).
 
 ## Development team
-This package was developed by the [Center for Reproducible Biomedical Modeling](http://reproduciblebiomodels.org).
+This package was developed by the [Center for Reproducible Biomedical Modeling](http://reproduciblebiomodels.org). COPASI was developed by a [team](http://copasi.org/About/Team/) at the University of Connecticut, the University of Heidelberg, and the University of Virginia.
 
 ## Questions and comments
 Please contact the [BioSimulators Team](mailto:info@biosimulators.org) with any questions or comments.
-  
+
