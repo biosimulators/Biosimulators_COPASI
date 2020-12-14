@@ -8,18 +8,16 @@
 """
 
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
-from biosimulators_utils.plot.data_model import PlotFormat
-from biosimulators_utils.report.data_model import ReportFormat, DataGeneratorVariableResults
-from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, UniformTimeCourseSimulation,
+from biosimulators_utils.plot.data_model import PlotFormat  # noqa: F401
+from biosimulators_utils.report.data_model import ReportFormat, DataGeneratorVariableResults  # noqa: F401
+from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, UniformTimeCourseSimulation,  # noqa: F401
                                                   DataGeneratorVariable, DataGeneratorVariableSymbol)
 from biosimulators_utils.sedml import validation
-from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP
+from .data_model import KISAO_ALGORITHMS_MAP
 from .utils import get_algorithm_id, set_algorithm_parameter_value
 import COPASI
 import math
 import numpy
-import os
-import re
 
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_task']
