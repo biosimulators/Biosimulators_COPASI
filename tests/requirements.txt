@@ -1,4 +1,2 @@
-capturer
-docker
-numpy
-pytest
+biosimulators_utils[docker]
+python_dateutil
