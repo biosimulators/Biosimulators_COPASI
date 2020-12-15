@@ -132,22 +132,22 @@ class CliTestCase(unittest.TestCase):
         task.simulation.output_end_time = 20.
         task.simulation.number_of_points = 10
         second_half_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
-        numpy.testing.assert_almost_equal(second_half_variable_results['A'], full_variable_results['A'][10:])
+        numpy.testing.assert_almost_equal(second_half_variable_results['A'], full_variable_results['A'][10:], decimal=5)
 
         task.simulation.initial_time = 5.
         task.simulation.output_start_time = 5.
         task.simulation.output_end_time = 25.
         task.simulation.number_of_points = 20
         offset_full_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
-        numpy.testing.assert_almost_equal(offset_full_variable_results['A'], full_variable_results['A'])
+        numpy.testing.assert_almost_equal(offset_full_variable_results['A'], full_variable_results['A'], decimal=5)
 
         task.simulation.initial_time = 5.
         task.simulation.output_start_time = 15.
         task.simulation.output_end_time = 25.
         task.simulation.number_of_points = 10
         offset_second_half_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
-        numpy.testing.assert_almost_equal(offset_second_half_variable_results['A'], offset_full_variable_results['A'][10:])
-        numpy.testing.assert_almost_equal(offset_second_half_variable_results['A'], second_half_variable_results['A'])
+        numpy.testing.assert_almost_equal(offset_second_half_variable_results['A'], offset_full_variable_results['A'][10:], decimal=5)
+        numpy.testing.assert_almost_equal(offset_second_half_variable_results['A'], second_half_variable_results['A'], decimal=5)
 
     def test_exec_sed_task_error_handling(self):
         task = sedml_data_model.Task(
