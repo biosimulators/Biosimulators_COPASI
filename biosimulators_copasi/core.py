@@ -104,9 +104,9 @@ def exec_sed_task(task, variables):
 
     problem = copasi_task.getProblem()
     model.setInitialTime(sim.initial_time)
-    problem.setOutputStartTime(sim.output_start_time)
-    problem.setDuration(sim.output_end_time)
-    step_number = sim.number_of_points * (sim.output_end_time - sim.initial_time) / (sim.output_end_time - sim.output_start_time) + 1
+    problem.setOutputStartTime(sim.output_start_time - sim.initial_time)
+    problem.setDuration(sim.output_end_time - sim.initial_time)
+    step_number = sim.number_of_points * (sim.output_end_time - sim.initial_time) / (sim.output_end_time - sim.output_start_time)
     if step_number != math.floor(step_number):
         raise NotImplementedError('Time course must specify an integer number of time points')
     else:
@@ -139,15 +139,15 @@ def exec_sed_task(task, variables):
     for variable in variables:
         if variable.symbol:
             if variable.symbol == DataGeneratorVariableSymbol.time:
-                variable_result = numpy.linspace(sim.output_start_time, sim.output_end_time, sim.number_of_points + 1)
+                variable_result = numpy.linspace(sim.output_start_time, sim.output_end_time, number_of_recorded_points)
             else:
                 unpredicted_symbols.append(variable.symbol)
-                variable_result = numpy.full((sim.number_of_points + 1,), numpy.nan)
+                variable_result = numpy.full((number_of_recorded_points,), numpy.nan)
 
         else:
             target_sbml_id = target_x_paths_ids[variable.target]
             i_time_series = sbml_id_to_i_time_series.get(target_sbml_id, None)
-            variable_result = numpy.full((sim.number_of_points + 1,), numpy.nan)
+            variable_result = numpy.full((number_of_recorded_points,), numpy.nan)
             if i_time_series is None:
                 unpredicted_targets.append(variable.target)
             else:

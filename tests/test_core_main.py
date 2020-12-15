@@ -84,6 +84,71 @@ class CliTestCase(unittest.TestCase):
         for results in variable_results.values():
             self.assertFalse(numpy.any(numpy.isnan(results)))
 
+    def test_exec_sed_task_correct_time_course_attrs(self):
+        # test that initial time, output start time, output end time, number of points are correctly interpreted
+        from biosimulators_utils.sedml import data_model as sedml_data_model
+        import biosimulators_copasi.core
+        import importlib
+        importlib.reload(biosimulators_copasi.core)
+        import numpy.testing
+        import os
+
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=os.path.join('tests', 'fixtures', 'model.xml'),
+                language=sedml_data_model.ModelLanguage.SBML.value,
+                changes=[],
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000560',
+                    changes=[
+                        sedml_data_model.AlgorithmParameterChange(
+                            kisao_id='KISAO_0000209',
+                            new_value='2e-6',
+                        ),
+                    ],
+                ),
+                initial_time=0.,
+                output_start_time=0.,
+                output_end_time=20.,
+                number_of_points=20,
+            ),
+        )
+
+        variables = [
+            sedml_data_model.DataGeneratorVariable(id='time', symbol=sedml_data_model.DataGeneratorVariableSymbol.time),
+            sedml_data_model.DataGeneratorVariable(id='A', target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='A']"),
+        ]
+
+        task.simulation.initial_time = 0.
+        task.simulation.output_start_time = 0.
+        task.simulation.output_end_time = 20.
+        task.simulation.number_of_points = 20
+        full_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
+
+        task.simulation.initial_time = 0.
+        task.simulation.output_start_time = 10.
+        task.simulation.output_end_time = 20.
+        task.simulation.number_of_points = 10
+        second_half_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
+        numpy.testing.assert_almost_equal(second_half_variable_results['A'], full_variable_results['A'][10:])
+
+        task.simulation.initial_time = 5.
+        task.simulation.output_start_time = 5.
+        task.simulation.output_end_time = 25.
+        task.simulation.number_of_points = 20
+        offset_full_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
+        numpy.testing.assert_almost_equal(offset_full_variable_results['A'], full_variable_results['A'])
+
+        task.simulation.initial_time = 5.
+        task.simulation.output_start_time = 15.
+        task.simulation.output_end_time = 25.
+        task.simulation.number_of_points = 10
+        offset_second_half_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
+        numpy.testing.assert_almost_equal(offset_second_half_variable_results['A'], offset_full_variable_results['A'][10:])
+        numpy.testing.assert_almost_equal(offset_second_half_variable_results['A'], second_half_variable_results['A'])
+
     def test_exec_sed_task_error_handling(self):
         task = sedml_data_model.Task(
             model=sedml_data_model.Model(
