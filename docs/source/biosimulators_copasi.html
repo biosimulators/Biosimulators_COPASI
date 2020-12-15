@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>biosimulators_copasi package &#8212; BioSimulators-COPASI 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="About BioSimulators-COPASI" href="../about.html" />
+    <link rel="prev" title="Tutorial" href="../tutorial.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">BioSimulators-COPASI</a></h1>
+
+
+
+<p class="blurb">BioSimulators-compliant interface to COPASI</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=biosimulators&repo=Biosimulators_COPASI&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biosimulators_copasi.core">biosimulators_copasi.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biosimulators_copasi.data_model">biosimulators_copasi.data_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-biosimulators_copasi.utils">biosimulators_copasi.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About BioSimulators-COPASI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://biosimulators.org">BioSimulators</a></li>
+    
+    <li class="toctree-l1"><a href="https://run.biosimulations.org">runBioSimulations</a></li>
+    
+    <li class="toctree-l1"><a href="https://biosimulations.org">BioSimulations</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../tutorial.html" title="previous chapter">Tutorial</a></li>
+      <li>Next: <a href="../about.html" title="next chapter">About BioSimulators-COPASI</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-biosimulators_copasi">
+<span id="biosimulators-copasi-package"></span><h1>biosimulators_copasi package<a class="headerlink" href="#module-biosimulators_copasi" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-biosimulators_copasi.core">
+<span id="biosimulators-copasi-core-module"></span><h2>biosimulators_copasi.core module<a class="headerlink" href="#module-biosimulators_copasi.core" title="Permalink to this headline">¶</a></h2>
+<p>Methods for executing SED tasks in COMBINE archives and saving their outputs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Author</dt>
+<dd class="field-odd"><p>Jonathan Karr &lt;<a class="reference external" href="mailto:karr&#37;&#52;&#48;mssm&#46;edu">karr<span>&#64;</span>mssm<span>&#46;</span>edu</a>&gt;</p>
+</dd>
+<dt class="field-even">Author</dt>
+<dd class="field-even"><p>Akhil Marupilla &lt;<a class="reference external" href="mailto:akhilmteja&#37;&#52;&#48;gmail&#46;com">akhilmteja<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
+</dd>
+<dt class="field-odd">Date</dt>
+<dd class="field-odd"><p>2020-11-17</p>
+</dd>
+<dt class="field-even">Copyright</dt>
+<dd class="field-even"><p>2020, Center for Reproducible Biomedical Modeling</p>
+</dd>
+<dt class="field-odd">License</dt>
+<dd class="field-odd"><p>MIT</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt id="biosimulators_copasi.core.exec_sed_task">
+<code class="sig-prename descclassname">biosimulators_copasi.core.</code><code class="sig-name descname">exec_sed_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">variables</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biosimulators_copasi.core.exec_sed_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a task and save its results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Task</span></code>) – task</p></li>
+<li><p><strong>variables</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">DataGeneratorVariable</span></code>) – variables that should be recorded</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>results of variables</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataGeneratorVariableResults</span></code></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – if the task or an aspect of the task is not valid, or the requested output variables
+    could not be recorded</p></li>
+<li><p><strong>NotImplementedError</strong> – if the task is not of a supported type or involves an unsuported feature</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="biosimulators_copasi.core.exec_sedml_docs_in_combine_archive">
+<code class="sig-prename descclassname">biosimulators_copasi.core.</code><code class="sig-name descname">exec_sedml_docs_in_combine_archive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">archive_filename</span></em>, <em class="sig-param"><span class="n">out_dir</span></em>, <em class="sig-param"><span class="n">report_formats</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_formats</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bundle_outputs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">keep_individual_outputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biosimulators_copasi.core.exec_sedml_docs_in_combine_archive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>archive_filename</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – path to COMBINE/OMEX archive</p></li>
+<li><p><strong>out_dir</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – <p>path to store the outputs of the archive</p>
+<ul>
+<li><p>CSV: directory in which to save outputs to files
+<code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">out_dir</span> <span class="pre">}/{</span> <span class="pre">relative-path-to-SED-ML-file-within-archive</span> <span class="pre">}/{</span> <span class="pre">report.id</span> <span class="pre">}.csv</span></code></p></li>
+<li><p>HDF5: directory in which to save a single HDF5 file (<code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">out_dir</span> <span class="pre">}/reports.h5</span></code>),
+with reports at keys <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">relative-path-to-SED-ML-file-within-archive</span> <span class="pre">}/{</span> <span class="pre">report.id</span> <span class="pre">}</span></code> within the HDF5 file</p></li>
+</ul>
+</p></li>
+<li><p><strong>report_formats</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">ReportFormat</span></code>, optional) – report format (e.g., csv or h5)</p></li>
+<li><p><strong>plot_formats</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">PlotFormat</span></code>, optional) – report format (e.g., pdf)</p></li>
+<li><p><strong>bundle_outputs</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, bundle outputs into archives for reports and plots</p></li>
+<li><p><strong>keep_individual_outputs</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, keep individual output files</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-biosimulators_copasi.data_model">
+<span id="biosimulators-copasi-data-model-module"></span><h2>biosimulators_copasi.data_model module<a class="headerlink" href="#module-biosimulators_copasi.data_model" title="Permalink to this headline">¶</a></h2>
+<p>Data model for maps from KiSAO terms to COPASI algorithms and their arguments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Author</dt>
+<dd class="field-odd"><p>Jonathan Karr &lt;<a class="reference external" href="mailto:karr&#37;&#52;&#48;mssm&#46;edu">karr<span>&#64;</span>mssm<span>&#46;</span>edu</a>&gt;</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>2020-12-13</p>
+</dd>
+<dt class="field-odd">Copyright</dt>
+<dd class="field-odd"><p>2020, BioSimulators Team</p>
+</dd>
+<dt class="field-even">License</dt>
+<dd class="field-even"><p>MIT</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="biosimulators_copasi.data_model.GetDataFunction">
+<em class="property">class </em><code class="sig-prename descclassname">biosimulators_copasi.data_model.</code><code class="sig-name descname">GetDataFunction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biosimulators_copasi.data_model.GetDataFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Function for getting simulation results</p>
+<dl class="py attribute">
+<dt id="biosimulators_copasi.data_model.GetDataFunction.continuous">
+<code class="sig-name descname">continuous</code><em class="property"> = 'getConcentrationData'</em><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biosimulators_copasi.data_model.GetDataFunction.continuous" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="biosimulators_copasi.data_model.GetDataFunction.discrete">
+<code class="sig-name descname">discrete</code><em class="property"> = 'getData'</em><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biosimulators_copasi.data_model.GetDataFunction.discrete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-biosimulators_copasi.utils">
+<span id="biosimulators-copasi-utils-module"></span><h2>biosimulators_copasi.utils module<a class="headerlink" href="#module-biosimulators_copasi.utils" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for working with the maps from KiSAO ids to COPASI methods and their arguments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Author</dt>
+<dd class="field-odd"><p>Jonathan Karr &lt;<a class="reference external" href="mailto:karr&#37;&#52;&#48;mssm&#46;edu">karr<span>&#64;</span>mssm<span>&#46;</span>edu</a>&gt;</p>
+</dd>
+<dt class="field-even">Date</dt>
+<dd class="field-even"><p>2020-12-13</p>
+</dd>
+<dt class="field-odd">Copyright</dt>
+<dd class="field-odd"><p>2020, BioSimulators Team</p>
+</dd>
+<dt class="field-even">License</dt>
+<dd class="field-even"><p>MIT</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt id="biosimulators_copasi.utils.get_algorithm_id">
+<code class="sig-prename descclassname">biosimulators_copasi.utils.</code><code class="sig-name descname">get_algorithm_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kisao_id</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biosimulators_copasi.utils.get_algorithm_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the COPASI id for an algorithm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kisao_id</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – KiSAO algorithm id</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>COPASI id for algorithm</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="biosimulators_copasi.utils.set_algorithm_parameter_value">
+<code class="sig-prename descclassname">biosimulators_copasi.utils.</code><code class="sig-name descname">set_algorithm_parameter_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">algorithm_kisao_id</span></em>, <em class="sig-param"><span class="n">algorithm_function</span></em>, <em class="sig-param"><span class="n">parameter_kisao_id</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#biosimulators_copasi.utils.set_algorithm_parameter_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a parameter of a COPASI simulation function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algorithm_kisao_id</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – KiSAO algorithm id</p></li>
+<li><p><strong>algorithm_function</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">types.FunctionType</span></code>) – algorithm function</p></li>
+<li><p><strong>parameter_kisao_id</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – KiSAO parameter id</p></li>
+<li><p><strong>value</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">string</span></code>) – parameter value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2020, BioSimulators Team.
+      
+      |
+      <a href="../_sources/source/biosimulators_copasi.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/biosimulators/Biosimulators_COPASI" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
