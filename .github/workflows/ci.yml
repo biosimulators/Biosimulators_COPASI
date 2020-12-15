@@ -239,9 +239,9 @@ jobs:
           git stash
           git checkout ${{ steps.get-main-branch.outputs.mainBranch }}
           git pull
+          set +e
           git stash pop
           git add docs
-          set +e
           git commit -m "Updating compiled documentation"
           git checkout .
           git clean -f -d
