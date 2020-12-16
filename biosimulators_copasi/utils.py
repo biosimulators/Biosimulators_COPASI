@@ -132,7 +132,6 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
 
             sub_parameter = COPASI.CCopasiParameter('Reaction', COPASI.CCopasiParameter.Type_CN)
             if not sub_parameter.setCNValue(rxn_common_name):
-                # TODO: update once python-COPASI can set partitioning
-                # pragma: no cover # unreachable due to above validation
-                raise NotImplementedError("Partitioning cannot not be set via reaction common names.")
+                raise NotImplementedError("Partitioning cannot not be set via reaction common names."
+                                          )  # pragma: no cover # unreachable due to above validation
             parameter.addParameter(sub_parameter)

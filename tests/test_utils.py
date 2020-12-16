@@ -106,8 +106,7 @@ class UtilsTestCase(unittest.TestCase):
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
 
-        with self.assertRaises(NotImplementedError):  # TODO: remove once setting the partitioning is supported by python-COPASI
-            utils.set_algorithm_parameter_value('KISAO_0000563', method, 'KISAO_0000534', '["Reaction1", "Reaction2"]')
+        utils.set_algorithm_parameter_value('KISAO_0000563', method, 'KISAO_0000534', '["Reaction1", "Reaction2"]')
 
         parameter = method.getParameter('Partitioning Strategy')
         self.assertEqual(parameter.getStringValue(), 'User specified Partition')

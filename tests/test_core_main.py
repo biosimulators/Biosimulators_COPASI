@@ -24,6 +24,7 @@ from biosimulators_utils.utils.core import are_lists_equal
 from unittest import mock
 import datetime
 import dateutil.tz
+import json
 import numpy
 import numpy.testing
 import os
@@ -86,13 +87,6 @@ class CliTestCase(unittest.TestCase):
 
     def test_exec_sed_task_correct_time_course_attrs(self):
         # test that initial time, output start time, output end time, number of points are correctly interpreted
-        from biosimulators_utils.sedml import data_model as sedml_data_model
-        import biosimulators_copasi.core
-        import importlib
-        importlib.reload(biosimulators_copasi.core)
-        import numpy.testing
-        import os
-
         task = sedml_data_model.Task(
             model=sedml_data_model.Model(
                 source=os.path.join('tests', 'fixtures', 'model.xml'),
@@ -125,29 +119,67 @@ class CliTestCase(unittest.TestCase):
         task.simulation.output_start_time = 0.
         task.simulation.output_end_time = 20.
         task.simulation.number_of_points = 20
-        full_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
+        full_variable_results = exec_sed_task(task, variables)
 
         task.simulation.initial_time = 0.
         task.simulation.output_start_time = 10.
         task.simulation.output_end_time = 20.
         task.simulation.number_of_points = 10
-        second_half_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
+        second_half_variable_results = exec_sed_task(task, variables)
         numpy.testing.assert_allclose(second_half_variable_results['A'], full_variable_results['A'][10:], rtol=1e-4)
 
         task.simulation.initial_time = 5.
         task.simulation.output_start_time = 5.
         task.simulation.output_end_time = 25.
         task.simulation.number_of_points = 20
-        offset_full_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
+        offset_full_variable_results = exec_sed_task(task, variables)
         numpy.testing.assert_allclose(offset_full_variable_results['A'], full_variable_results['A'], rtol=1e-4)
 
         task.simulation.initial_time = 5.
         task.simulation.output_start_time = 15.
         task.simulation.output_end_time = 25.
         task.simulation.number_of_points = 10
-        offset_second_half_variable_results = biosimulators_copasi.core.exec_sed_task(task, variables)
+        offset_second_half_variable_results = exec_sed_task(task, variables)
         numpy.testing.assert_allclose(offset_second_half_variable_results['A'], offset_full_variable_results['A'][10:], rtol=1e-4)
         numpy.testing.assert_allclose(offset_second_half_variable_results['A'], second_half_variable_results['A'], rtol=1e-4)
+
+    def test_hybrid_rk45_partitioning(self):
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=os.path.join('tests', 'fixtures', 'BIOMD0000000634_url.xml'),
+                language=sedml_data_model.ModelLanguage.SBML.value,
+                changes=[],
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000563',
+                    changes=[
+                        sedml_data_model.AlgorithmParameterChange(
+                            kisao_id='KISAO_0000534',
+                            new_value=json.dumps(['p53mRNASynthesis']),
+                        ),
+                    ],
+
+                ),
+                initial_time=0.,
+                output_start_time=0.,
+                output_end_time=1.,
+                number_of_points=20,
+            ),
+        )
+
+        variables = [
+            sedml_data_model.DataGeneratorVariable(id='time', symbol=sedml_data_model.DataGeneratorVariableSymbol.time),
+            sedml_data_model.DataGeneratorVariable(id='Mdm2', target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='Mdm2']"),
+        ]
+
+        results = exec_sed_task(task, variables)
+
+        numpy.testing.assert_almost_equal(
+            results['time'],
+            numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
+        )
+        self.assertFalse(numpy.any(numpy.isnan(results['Mdm2'])))
 
     def test_exec_sed_task_error_handling(self):
         task = sedml_data_model.Task(
@@ -220,11 +252,13 @@ class CliTestCase(unittest.TestCase):
 
         self._assert_combine_archive_outputs(doc, out_dir)
 
-    def test_exec_sedml_docs_in_combine_archive_with_all_algorithms(self):
+    def test_exec_sedml_docs_in_combine_archive_with_continuous_model_all_algorithms(self):
         # continuous model
         errored_algs = []
         for alg in gen_algorithms_from_specs(os.path.join(os.path.dirname(__file__), '..', 'biosimulators.json')).values():
-            doc, archive_filename = self._build_combine_archive(algorithm=alg)
+            doc, archive_filename = self._build_combine_archive(algorithm=alg,
+                                                                orig_model_filename='model.xml',
+                                                                var_targets=[None, 'A', 'C', 'DA'])
 
             out_dir = os.path.join(self.dirname, alg.kisao_id)
             try:
@@ -249,13 +283,13 @@ class CliTestCase(unittest.TestCase):
             'KISAO_0000563',
         ]))
 
-    def test_exec_sedml_docs_in_combine_archive_with_all_algorithms_2(self):
+    def test_exec_sedml_docs_in_combine_archive_with_stochastic_model_all_algorithms(self):
         # discrete/continuous model
         errored_algs = []
         for alg in gen_algorithms_from_specs(os.path.join(os.path.dirname(__file__), '..', 'biosimulators.json')).values():
             doc, archive_filename = self._build_combine_archive(algorithm=alg,
-                                                                orig_model_filename='BIOMD0000000297_url.xml',
-                                                                var_targets=[None, 'Swe1', 'BE', 'Cdc20'])
+                                                                orig_model_filename='BIOMD0000000634_url.xml',
+                                                                var_targets=[None, 'Mdm2', 'p53', 'Mdm2_p53'])
 
             out_dir = os.path.join(self.dirname, alg.kisao_id)
             try:
@@ -271,7 +305,10 @@ class CliTestCase(unittest.TestCase):
                 errored_algs.append(alg.kisao_id)
 
         self.assertEqual(sorted(errored_algs), sorted([
-            'KISAO_0000039', 'KISAO_0000304', 'KISAO_0000561', 'KISAO_0000562'
+            'KISAO_0000039',
+            'KISAO_0000304',
+            'KISAO_0000561',
+            'KISAO_0000562'
         ]))
 
     def _build_combine_archive(self, algorithm=None, orig_model_filename='model.xml', var_targets=[None, 'A', 'C', 'DA']):

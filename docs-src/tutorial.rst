@@ -11,6 +11,18 @@ Information about how to create COMBINE/OMEX archives which can be executed by B
 
 A list of the algorithms and algorithm parameters supported by COPASI is available at `BioSimulators <https://biosimulators.org/simulators/copasi>`_.
 
+Conventions for values of changes to algorithm parameters 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+This package follows SED-ML conventions for Boolean-, integer- and float-valued parameters.
+
+New values of parameter KISAO_0000534 (list of deterministic reactions) of KISAO_0000563 (hybrid RK-45 method) should be JSON-encoded lists of the SBML ids of the reactions which should be deterministically simulated using the RK-45 portion of the method. For example, the following SED-ML indicates that the RK-45 partition should consist of the reactions that have the SBML ids ``reaction_1`` and ``reaction_2``.
+
+.. code-block:: text
+
+    <algorithm kisaoID="KISAO:0000563">
+      <algorithmParameter kisaoID="KISAO:0000534" value="[\"reaction_1\", \"reaction_2\"]" />
+    </algorithm>
+
 
 Command-line program
 --------------------
