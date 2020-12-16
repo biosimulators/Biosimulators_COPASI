@@ -1,11 +1,11 @@
 {
   "id": "copasi",
   "name": "COmplex PAthway SImulator",
-  "version": "4.29.227",
+  "version": "4.30.233",
   "description": "COPASI is a C++-based software application for the simulation and analysis of biochemical networks and their dynamics.",
   "urls": [{"type": "Home page", "url": "http://copasi.org/"}],
   "image": {
-    "url": "ghcr.io/biosimulators/biosimulators_copasi/copasi:4.29.227",
+    "url": "ghcr.io/biosimulators/biosimulators_copasi/copasi:4.30.233",
     "format": {
       "namespace": "EDAM",
       "id": "format_3973", "version": null, "supportedFeatures": []
