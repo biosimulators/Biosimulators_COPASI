@@ -18,6 +18,7 @@ from .utils import get_algorithm_id, set_algorithm_parameter_value
 import COPASI
 import math
 import numpy
+import warnings
 
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_task']
@@ -116,8 +117,13 @@ def exec_sed_task(task, variables):
     problem.setAutomaticStepSize(False)
     problem.setOutputEvent(False)
 
-    if not copasi_task.process(True):
-        raise RuntimeError(get_copasi_error_message(alg_kisao_id))
+    result = copasi_task.process(True)
+    warning_details = copasi_task.getProcessWarning()
+    if warning_details:
+        warnings.warn(get_copasi_error_message(alg_kisao_id, warning_details), UserWarning)
+    if not result:
+        error_details = copasi_task.getProcessError()
+        raise RuntimeError(get_copasi_error_message(alg_kisao_id, error_details))
 
     time_series = copasi_task.getTimeSeries()
     number_of_recorded_points = time_series.getRecordedSteps()
@@ -178,17 +184,22 @@ def exec_sed_task(task, variables):
     return variable_results
 
 
-def get_copasi_error_message(algorithm_kisao_id):
+def get_copasi_error_message(algorithm_kisao_id, details=None):
     """ Get an error message from COPASI
 
     Args:
         algorithm_kisao_id (:obj:`str`): KiSAO id of algorithm of failed simulation
+        details (:obj:`str`, optional): details of of error
 
     Returns:
         :obj:`str`: COPASI error message
     """
     error_msg = 'Simulation with algorithm {} ({}) failed'.format(
         algorithm_kisao_id, KISAO_ALGORITHMS_MAP.get(algorithm_kisao_id, {}).get('name', 'N/A'))
-    if COPASI.CCopasiMessage.size() > 0:
-        error_msg += ':\n\n  ' + COPASI.CCopasiMessage.getAllMessageText(True).replace('\n', '\n  ')
+    if details is None:
+        details = COPASI.CCopasiMessage.getLastMessage().getText()
+    if details:
+        details = '\n'.join(line[min(2, len(line)):] for line in details.split('\n')
+                            if not (line.startswith('>') and line.endswith('<')))
+        error_msg += ':\n\n  ' + details.replace('\n', '\n  ')
     return error_msg

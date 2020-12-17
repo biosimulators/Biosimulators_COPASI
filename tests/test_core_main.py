@@ -238,6 +238,22 @@ class CliTestCase(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'targets could not be recorded'):
             exec_sed_task(task, variables)
 
+    def test_exec_sed_task_copasi_error_handling(self):
+        alg = sedml_data_model.Algorithm(kisao_id='KISAO_0000304')
+        doc, archive_filename = self._build_combine_archive(algorithm=alg,
+                                                            orig_model_filename='BIOMD0000000634_url.xml',
+                                                            var_targets=[None, 'Mdm2', 'p53', 'Mdm2_p53'])
+
+        out_dir = os.path.join(self.dirname, alg.kisao_id)
+        with self.assertRaisesRegex(RuntimeError, 'Radau5 integration is not possible with this version of COPASI.'):
+            exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                               report_formats=[
+                                                   report_data_model.ReportFormat.h5,
+                                                   report_data_model.ReportFormat.csv,
+                                               ],
+                                               bundle_outputs=True,
+                                               keep_individual_outputs=True)
+
     def test_exec_sedml_docs_in_combine_archive(self):
         doc, archive_filename = self._build_combine_archive()
 
@@ -273,6 +289,7 @@ class CliTestCase(unittest.TestCase):
             except RuntimeError:
                 errored_algs.append(alg.kisao_id)
 
+        # fail because particle number too big for discrete methods
         self.assertEqual(sorted(errored_algs), sorted([
             'KISAO_0000027',
             'KISAO_0000029',
@@ -304,6 +321,7 @@ class CliTestCase(unittest.TestCase):
             except RuntimeError:
                 errored_algs.append(alg.kisao_id)
 
+        # failed because model has events
         self.assertEqual(sorted(errored_algs), sorted([
             'KISAO_0000039',
             'KISAO_0000304',
