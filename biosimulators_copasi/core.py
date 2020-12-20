@@ -135,7 +135,7 @@ def exec_sed_task(task, variables):
     # collect simulation predictions
     sbml_id_to_i_time_series = {}
     for i_time_series in range(0, time_series.getNumVariables()):
-        time_series_sbml_id = time_series.getTitle(i_time_series)
+        time_series_sbml_id = time_series.getSBMLId(i_time_series, copasi_data_model)
         sbml_id_to_i_time_series[time_series_sbml_id] = i_time_series
 
     get_data_function = getattr(time_series, KISAO_ALGORITHMS_MAP[alg_kisao_id]['get_data_function'].value)

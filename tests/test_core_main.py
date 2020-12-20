@@ -489,6 +489,26 @@ class CliTestCase(unittest.TestCase):
 
         self.assertFalse(numpy.any(numpy.isnan(report)))
 
+    def test_exec_sedml_docs_in_combine_archive_real_example(self):
+        archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'Ciliberto-J-Cell-Biol-2003-morphogenesis-checkpoint.omex')
+        out_dir = os.path.join(self.dirname, 'out')
+        exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                           report_formats=[
+                                               report_data_model.ReportFormat.h5,
+                                           ],
+                                           bundle_outputs=True,
+                                           keep_individual_outputs=False)
+
+        report = ReportReader().run(out_dir, 'simulation_1.sedml/simulation_1', format=report_data_model.ReportFormat.h5)
+
+        self.assertEqual(report.shape, (20, 100 + 1))
+        numpy.testing.assert_almost_equal(
+            report.loc['time', :].to_numpy(),
+            numpy.linspace(0., 100., 100 + 1),
+        )
+
+        self.assertFalse(numpy.any(numpy.isnan(report)))
+
     def test_raw_cli(self):
         with mock.patch('sys.argv', ['', '--help']):
             with self.assertRaises(SystemExit) as context:
