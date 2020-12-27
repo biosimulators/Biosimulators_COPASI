@@ -25,7 +25,7 @@ A simple web application and web service for using COPASI to execute COMBINE/OME
 
 ### Install Python package
 ```
-pip install git+https://github.com/biosimulators/Biosimulators_COPASI
+pip install biosimulators-copasi
 ```
 
 ### Install Docker image
