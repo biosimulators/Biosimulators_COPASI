@@ -42,9 +42,11 @@ LABEL \
     maintainer="BioSimulators Team <info@biosimulators.org>"
 
 # Copy code for command-line interface into image and install it
-COPY . /root/Biosimulators_copasi
-RUN pip install /root/Biosimulators_copasi
+COPY . /root/Biosimulators_COPASI
+RUN pip install /root/Biosimulators_COPASI \
+    && rm -rf /root/Biosimulators_COPASI
 RUN pip install "python_copasi==${SIMULATOR_VERSION}"
+ENV MPLBACKEND=PDF
 
 # Entrypoint
 ENTRYPOINT ["copasi"]
