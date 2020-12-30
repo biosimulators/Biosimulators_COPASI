@@ -1,6 +1,9 @@
 from biosimulators_copasi import data_model
 from biosimulators_copasi import utils
 from biosimulators_utils.data_model import ValueType
+from biosimulators_utils.simulator.exceptions import AlgorithmCannotBeSubstitutedException
+from biosimulators_utils.simulator.warnings import AlgorithmSubstitutedWarning
+from unittest import mock
 import COPASI
 import os
 import unittest
@@ -9,6 +12,19 @@ import unittest
 class UtilsTestCase(unittest.TestCase):
     def test_get_algorithm_id(self):
         self.assertEqual(utils.get_algorithm_id('KISAO_0000027'), COPASI.CTaskEnum.Method_stochastic)
+
+        self.assertEqual(utils.get_algorithm_id('KISAO_0000560'), COPASI.CTaskEnum.Method_deterministic)
+
+        with self.assertWarns(AlgorithmSubstitutedWarning):
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000088'), COPASI.CTaskEnum.Method_deterministic)
+
+        with self.assertWarns(AlgorithmSubstitutedWarning):
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000089'), COPASI.CTaskEnum.Method_deterministic)
+
+        with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'NONE'}):
+            with self.assertRaises(AlgorithmCannotBeSubstitutedException):
+                self.assertEqual(utils.get_algorithm_id('KISAO_0000088'), COPASI.CTaskEnum.Method_deterministic)
+
         with self.assertRaises(NotImplementedError):
             utils.get_algorithm_id('KISAO_0000000')
 

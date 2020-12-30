@@ -8,8 +8,13 @@
 
 from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP
 from biosimulators_utils.data_model import ValueType
+from biosimulators_utils.simulator.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
+from biosimulators_utils.simulator.exceptions import AlgorithmCannotBeSubstitutedException
+from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
+from biosimulators_utils.simulator.warnings import AlgorithmSubstitutedWarning
 from biosimulators_utils.utils.core import validate_str_value, parse_value
 import COPASI
+import warnings
 
 __all__ = ['get_algorithm_id', 'set_algorithm_parameter_value']
 
@@ -23,10 +28,30 @@ def get_algorithm_id(kisao_id):
     Returns:
         :obj:`int`: COPASI id for algorithm
     """
+    requested_kisao_id = kisao_id
+
+    substitution_policy = get_algorithm_substitution_policy()
+    if kisao_id in ['KISAO_0000088', 'KISAO_0000089']:
+        alg_name = 'LSODA' if kisao_id == 'KISAO_0000088' else 'LSODAR'
+        if (
+            ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy]
+            >= ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SAME_FRAMEWORK]
+        ):
+            warnings.warn('Hybrid LSODA/LSODAR method (KISAO_0000560) will be used rather than {} ({}).'.format(
+                alg_name, kisao_id),
+                AlgorithmSubstitutedWarning)
+            kisao_id = 'KISAO_0000560'
+        else:
+            raise AlgorithmCannotBeSubstitutedException((
+                '{} ({}) cannot be substituted to the hybrid LSODA/LSODAR method (KISAO_0000560) '
+                'under the current algorithm substitution policy {}.').format(
+                alg_name, kisao_id, substitution_policy.name
+            ))
+
     alg = KISAO_ALGORITHMS_MAP.get(kisao_id, None)
     if alg is None:
         raise NotImplementedError(
-            "Algorithm with KiSAO id '{}' is not supported".format(kisao_id))
+            "Algorithm with KiSAO id '{}' is not supported".format(requested_kisao_id))
     return alg['id']
 
 

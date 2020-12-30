@@ -10,11 +10,16 @@
 from ._version import __version__
 from .core import exec_sedml_docs_in_combine_archive
 from biosimulators_utils.simulator.cli import build_cli
+from biosimulators_utils.simulator.data_model import AlgorithmSubstitutionPolicy
+from biosimulators_utils.simulator.environ import ENVIRONMENT_VARIABLES
 import COPASI
 
 App = build_cli('copasi', __version__,
                 'COPASI', COPASI.__version__, 'http://copasi.org',
-                exec_sedml_docs_in_combine_archive)
+                exec_sedml_docs_in_combine_archive,
+                environment_variables=[
+                    ENVIRONMENT_VARIABLES[AlgorithmSubstitutionPolicy]
+                ])
 
 
 def main():
