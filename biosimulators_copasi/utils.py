@@ -35,7 +35,7 @@ def get_algorithm_id(kisao_id):
         alg_name = 'LSODA' if kisao_id == 'KISAO_0000088' else 'LSODAR'
         if (
             ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy]
-            >= ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SAME_FRAMEWORK]
+            >= ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SIMILAR_VARIABLES]
         ):
             warnings.warn('Hybrid LSODA/LSODAR method (KISAO_0000560) will be used rather than {} ({}).'.format(
                 alg_name, kisao_id),

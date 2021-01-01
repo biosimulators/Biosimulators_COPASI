@@ -14,7 +14,7 @@
 # Base OS
 FROM python:3.7.9-slim-buster
 
-ARG VERSION="0.1.11"
+ARG VERSION="0.1.12"
 ARG SIMULATOR_VERSION=4.30.233
 
 # metadata
@@ -46,7 +46,7 @@ COPY . /root/Biosimulators_COPASI
 RUN pip install /root/Biosimulators_COPASI \
     && rm -rf /root/Biosimulators_COPASI
 RUN pip install "python_copasi==${SIMULATOR_VERSION}"
-ENV ALGORITHM_SUBSTITUTION_POLICY=SAME_FRAMEWORK \
+ENV ALGORITHM_SUBSTITUTION_POLICY=SIMILAR_VARIABLES \
     MPLBACKEND=PDF
 
 # Entrypoint
