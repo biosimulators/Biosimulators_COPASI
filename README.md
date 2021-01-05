@@ -4,7 +4,7 @@
 [![Test coverage](https://codecov.io/gh/biosimulators/Biosimulators_COPASI/branch/dev/graph/badge.svg)](https://codecov.io/gh/biosimulators/Biosimulators_COPASI)
 
 
-# BioSimulators-COPASI 
+# BioSimulators-COPASI
 BioSimulators-compliant command-line interface and Docker image for the [COPASI](http://copasi.org/) simulation program.
 
 This command-line interface and Docker image enable users to use COPASI to execute [COMBINE/OMEX archives](https://combinearchive.org/) that describe one or more simulation experiments (in [SED-ML format](https://sed-ml.org)) of one or more models (in [SBML format](http://sbml.org])).
@@ -54,7 +54,7 @@ optional arguments:
 ```
 
 ### Usage through Docker container
-The entrypoint to the Docker image supports the same command-line interface described above. 
+The entrypoint to the Docker image supports the same command-line interface described above.
 
 For example, the following command could be used to use the Docker image to execute the COMBINE/OMEX archive `./modeling-study.omex` and save its outputs to `./`.
 

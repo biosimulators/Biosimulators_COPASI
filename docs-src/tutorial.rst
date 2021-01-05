@@ -11,7 +11,7 @@ Information about how to create COMBINE/OMEX archives which can be executed by B
 
 A list of the algorithms and algorithm parameters supported by COPASI is available at `BioSimulators <https://biosimulators.org/simulators/copasi>`_.
 
-Conventions for values of changes to algorithm parameters 
+Conventions for values of changes to algorithm parameters
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 This package follows SED-ML conventions for Boolean-, integer- and float-valued parameters.
 
@@ -56,7 +56,7 @@ For example, the following command could be used to execute the simulations desc
 Docker image with a command-line entrypoint
 -------------------------------------------
 
-The entrypoint to the Docker image supports the same command-line interface described above. 
+The entrypoint to the Docker image supports the same command-line interface described above.
 
 For example, the following command could be used to use the Docker image to execute the same simulations described in ``./modeling-study.omex`` and save their results to ``./``:
 

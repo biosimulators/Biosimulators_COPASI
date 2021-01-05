@@ -20,7 +20,7 @@ and then to demonstrate the effects of this intervention on soluble
 A
 <span style="color: rgb(84, 84, 84); font-family: arial, sans-serif; font-size: small;">β. </span>This
 is the stochastic version of the model, the deterministic version
-is 
+is
 <a href="http://identifiers.org/biomodels.db/BIOMD0000000488">BIOMD0000000488</a>. </div>
 <div class="dc:bibliographicCitation">
   <p>This model is described in the article:</p>
@@ -62,11 +62,11 @@ is
   </div>
 </div>
 <div class="dc:publisher">
-  <p>This model is hosted on 
+  <p>This model is hosted on
   <a href="http://www.ebi.ac.uk/biomodels/">BioModels Database</a>
-  and identified by: 
+  and identified by:
   <a href="http://identifiers.org/biomodels.db/BIOMD0000000634">BIOMD0000000634</a>.</p>
-  <p>To cite BioModels Database, please use: 
+  <p>To cite BioModels Database, please use:
   <a href="http://identifiers.org/pubmed/20587024" title="Latest BioModels Database publication">BioModels Database:
   An enhanced, curated and annotated resource for published
   quantitative kinetic models</a>.</p>
@@ -74,7 +74,7 @@ is
 <div class="dc:license">
   <p>To the extent possible under law, all copyright and related or
   neighbouring rights to this encoded model have been dedicated to
-  the public domain worldwide. Please refer to 
+  the public domain worldwide. Please refer to
   <a href="http://creativecommons.org/publicdomain/zero/1.0/" title="Access to: CC0 1.0 Universal (CC0 1.0), Public Domain Dedication">CC0
   Public Domain Dedication</a> for more information.</p>
 </div>
@@ -1428,7 +1428,7 @@ is
           <modifierSpeciesReference metaid="dca2eeb7-c511-4f7f-80b6-131d80bd4c5b" species="Source"/>
         </listOfModifiers>
         <kineticLaw metaid="_67d8f8a9-bb61-4267-8c59-db246aac9c49">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynp53mRNA </ci>
@@ -1448,7 +1448,7 @@ is
           <modifierSpeciesReference metaid="_03f5fce9-5c11-4449-ba6f-0cbf02a887ab" species="p53_mRNA"/>
         </listOfModifiers>
         <kineticLaw metaid="_956cd51a-974c-4bfc-8720-34de2e57ebca">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdegp53mRNA </ci>
@@ -1469,7 +1469,7 @@ is
           <modifierSpeciesReference metaid="eaae2c60-0e10-4962-a946-9945d4e0d922" species="Mdm2_mRNA"/>
         </listOfModifiers>
         <kineticLaw metaid="_1572536e-d8c3-4111-a440-02b8cadcacb2">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynMdm2 </ci>
@@ -1490,7 +1490,7 @@ is
           <modifierSpeciesReference metaid="fa91b082-9a0e-4193-aeb5-a8717bbed94d" species="p53"/>
         </listOfModifiers>
         <kineticLaw metaid="_1b8c8a2d-fb8a-4416-b6c7-af325cd95fc7">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynMdm2mRNA </ci>
@@ -1511,7 +1511,7 @@ is
           <modifierSpeciesReference metaid="_1cdcbf84-902e-476d-8419-5cde4163003c" species="p53_P"/>
         </listOfModifiers>
         <kineticLaw metaid="afc5baf0-d87a-4d5a-a83e-f5c6c74159a4">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynMdm2mRNA </ci>
@@ -1532,7 +1532,7 @@ is
           <modifierSpeciesReference metaid="_773cbc60-74c8-4f00-bbad-3bb99a0d4c8f" species="GSK3b_p53"/>
         </listOfModifiers>
         <kineticLaw metaid="eead7865-3657-4fdd-b403-edba4325b421">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynMdm2mRNAGSK3bp53 </ci>
@@ -1553,7 +1553,7 @@ is
           <modifierSpeciesReference metaid="_4588172c-5111-4e32-a17f-e2aed9fe1343" species="GSK3b_p53_P"/>
         </listOfModifiers>
         <kineticLaw metaid="_3f9fa6b6-779a-40bb-9342-31f3619e6361">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynMdm2mRNAGSK3bp53 </ci>
@@ -1573,7 +1573,7 @@ is
           <modifierSpeciesReference metaid="_4ce3f804-6b10-4c21-bf19-bc3d83e3c6fa" species="Mdm2_mRNA"/>
         </listOfModifiers>
         <kineticLaw metaid="_25639021-32c5-4d75-a434-bc29bc95b9ea">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdegMdm2mRNA </ci>
@@ -1595,7 +1595,7 @@ is
           <modifierSpeciesReference metaid="cb56f6fe-f5a1-435a-b1a8-482d8e19ed6f" species="Mdm2"/>
         </listOfModifiers>
         <kineticLaw metaid="db776c64-995e-4694-a70e-3437661d7a91">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinMdm2p53 </ci>
@@ -1617,7 +1617,7 @@ is
           <modifierSpeciesReference metaid="d074219f-ebb5-4dbd-9fde-4914ae387fd1" species="Mdm2_p53"/>
         </listOfModifiers>
         <kineticLaw metaid="_4702c909-8590-4643-bcb6-ff0371c64b21">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> krelMdm2p53 </ci>
@@ -1639,7 +1639,7 @@ is
           <modifierSpeciesReference metaid="_7e6d602e-e095-495e-ad93-24a3286f72bf" species="p53"/>
         </listOfModifiers>
         <kineticLaw metaid="_4b38cfb5-5d19-4511-9ab0-a40b09ad59e9">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinGSK3bp53 </ci>
@@ -1661,7 +1661,7 @@ is
           <modifierSpeciesReference metaid="_6178a891-7e9c-482d-b295-92495b2f22cf" species="GSK3b_p53"/>
         </listOfModifiers>
         <kineticLaw metaid="e3752e6b-a559-4ccb-9540-94e04eb731d7">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> krelGSK3bp53 </ci>
@@ -1683,7 +1683,7 @@ is
           <modifierSpeciesReference metaid="_8f7b82c4-5a88-4ec0-b543-04ee096cecf6" species="p53_P"/>
         </listOfModifiers>
         <kineticLaw metaid="_681983a7-dddc-4f50-b584-60aa84a1537e">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinGSK3bp53 </ci>
@@ -1705,7 +1705,7 @@ is
           <modifierSpeciesReference metaid="_3c0771a2-d758-4e41-a295-c3d11c87eb90" species="GSK3b_p53_P"/>
         </listOfModifiers>
         <kineticLaw metaid="_4e2e0cb4-099a-4b0a-8b78-4e65cb6e3d65">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> krelGSK3bp53 </ci>
@@ -1730,7 +1730,7 @@ is
           <modifierSpeciesReference metaid="_18ca59a1-6133-4f63-8a30-396958bd70d4" species="ATP"/>
         </listOfModifiers>
         <kineticLaw metaid="f1e5845c-7a3e-45b7-a098-c279453c1342">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <divide/>
               <apply>
@@ -1763,7 +1763,7 @@ is
           <modifierSpeciesReference metaid="_82d6b292-89e2-4122-abea-0d0db0891b97" species="E1_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_893770b4-eba2-472a-9ded-8cc3d440b088">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinE2Ub </ci>
@@ -1787,7 +1787,7 @@ is
           <modifierSpeciesReference metaid="_5be565a7-86c7-47a6-a194-63ed13150f5c" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_33e4373a-4f51-4f4b-a099-57c58d116d86">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kMdm2Ub </ci>
@@ -1811,7 +1811,7 @@ is
           <modifierSpeciesReference metaid="_769b8b04-3ceb-4c81-9f45-9cceb66deaba" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="e7408ea5-097e-4667-9bd6-4f1575b398f1">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kMdm2PolyUb </ci>
@@ -1835,7 +1835,7 @@ is
           <modifierSpeciesReference metaid="fbce0df2-52f5-4d39-a8b5-a4d8c3390a08" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_9dc22c42-1cd2-4406-95a4-c365c4ce6cc5">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kMdm2PolyUb </ci>
@@ -1859,7 +1859,7 @@ is
           <modifierSpeciesReference metaid="cee51661-4ef9-4018-b367-c0ab81965e0f" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_74b47238-64e1-4791-b952-60f7f95a0da3">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kMdm2PolyUb </ci>
@@ -1884,7 +1884,7 @@ is
           <modifierSpeciesReference metaid="b301e1bb-0785-4efd-b01e-f9543ed82638" species="Mdm2DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="fac77ca9-f603-4c2a-9682-a2c53101bdf3">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBMdm2 </ci>
@@ -1909,7 +1909,7 @@ is
           <modifierSpeciesReference metaid="fd492fb0-0518-4ee1-9a91-08cd266d0428" species="Mdm2DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="_29a8f94f-bb98-49af-84df-507838ce79a6">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBMdm2 </ci>
@@ -1934,7 +1934,7 @@ is
           <modifierSpeciesReference metaid="b072ef0f-cea4-4dea-8753-ef164889a52a" species="Mdm2DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="_527ae250-4f64-45fd-bbfe-310d2e223137">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBMdm2 </ci>
@@ -1959,7 +1959,7 @@ is
           <modifierSpeciesReference metaid="fa9ab99b-7cf5-4ee7-8f0d-96e6c6a00bd2" species="Mdm2DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="f9d5a970-5ae3-4888-8514-36ea3f787418">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBMdm2 </ci>
@@ -1982,7 +1982,7 @@ is
           <modifierSpeciesReference metaid="_63769a49-c449-4164-a137-5b14ed96288d" species="Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="_20b663d1-b617-49de-9d4a-22d0af123fd7">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinProt </ci>
@@ -2004,7 +2004,7 @@ is
           <modifierSpeciesReference metaid="_811f2ed5-2ed4-4b2f-b4ba-b13c594e3916" species="Mdm2_Ub4_Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="e18d9fed-87bf-4395-8f39-4d367f8b0c8c">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdegMdm2 </ci>
@@ -2026,7 +2026,7 @@ is
           <modifierSpeciesReference metaid="ddc603e2-142c-4a87-89ea-3360e83f0303" species="p53_mRNA"/>
         </listOfModifiers>
         <kineticLaw metaid="_469c653a-fc98-4a16-aa60-b3b033dbedf2">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynp53 </ci>
@@ -2049,7 +2049,7 @@ is
           <modifierSpeciesReference metaid="f458be91-1003-4f5e-89fc-ef1f924370fe" species="Mdm2_p53"/>
         </listOfModifiers>
         <kineticLaw metaid="aceeace5-9f61-41bb-add9-e8b19bff0ecd">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kp53Ub </ci>
@@ -2073,7 +2073,7 @@ is
           <modifierSpeciesReference metaid="bb63ba45-1eee-4339-acc6-fc49cf3cc30b" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_84d82e6c-f503-4795-aa42-5d5b54228cbd">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kp53PolyUb </ci>
@@ -2097,7 +2097,7 @@ is
           <modifierSpeciesReference metaid="_4ea754ed-0c08-4bfc-8343-7539a44a6998" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_0ebacaf1-7474-4e16-b8d0-5db40f78303e">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kp53PolyUb </ci>
@@ -2121,7 +2121,7 @@ is
           <modifierSpeciesReference metaid="_1da0f849-7546-4584-b456-f90de5b7bb11" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_4c80435f-edc7-464a-b813-00778d5082b5">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kp53PolyUb </ci>
@@ -2146,7 +2146,7 @@ is
           <modifierSpeciesReference metaid="_828ec0da-1c90-48bd-a55a-866d2a8c97ae" species="p53DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="_60f628ef-df88-405c-ab27-d1c3d26befdc">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBp53 </ci>
@@ -2171,7 +2171,7 @@ is
           <modifierSpeciesReference metaid="b8ef452b-0f83-4c6b-9ede-f5def1dc45a9" species="p53DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="fb1d710f-6e08-4037-b631-d4e418cd6f69">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBp53 </ci>
@@ -2196,7 +2196,7 @@ is
           <modifierSpeciesReference metaid="e4b7503c-3f20-442e-9aa9-15a4a37ca49d" species="p53DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="_18e61a52-71ec-44ff-8777-fa7c3bd7b88d">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBp53 </ci>
@@ -2221,7 +2221,7 @@ is
           <modifierSpeciesReference metaid="_6a10f3ae-63ca-4861-9a1e-2e2ae8a5ff91" species="p53DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="_1a792609-2f05-46c0-85d6-79973fc9273f">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBp53 </ci>
@@ -2245,7 +2245,7 @@ is
           <modifierSpeciesReference metaid="_8facd2c0-8d62-4ee3-9f0c-d376afce4f0a" species="GSK3b"/>
         </listOfModifiers>
         <kineticLaw metaid="f6250301-b406-435a-8e1e-cc7f72e40066">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphosMdm2GSK3b </ci>
@@ -2269,7 +2269,7 @@ is
           <modifierSpeciesReference metaid="e0343d76-7c1f-434e-989a-1852fa3ae008" species="GSK3b_p53"/>
         </listOfModifiers>
         <kineticLaw metaid="fbadcea3-bcbd-4a94-b37b-7acbd7a41204">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphosMdm2GSK3bp53 </ci>
@@ -2293,7 +2293,7 @@ is
           <modifierSpeciesReference metaid="c80ddff1-e650-4e9e-8b21-caafe84442a7" species="GSK3b_p53_P"/>
         </listOfModifiers>
         <kineticLaw metaid="_1eebe2fc-7d2b-4590-988f-50c6f9dc7718">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphosMdm2GSK3bp53 </ci>
@@ -2317,7 +2317,7 @@ is
           <modifierSpeciesReference metaid="_82ef6d81-5cd9-410a-ae6b-89bbc591717e" species="Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="d34fef50-43cd-4259-abeb-58ef31bd0eae">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinProt </ci>
@@ -2342,7 +2342,7 @@ is
           <modifierSpeciesReference metaid="fd10b81d-76a1-489c-84bc-39c7abacbd07" species="ATP"/>
         </listOfModifiers>
         <kineticLaw metaid="_12731a8a-0a6b-4f1a-947e-58af57b7dd1a">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <divide/>
               <apply>
@@ -2372,7 +2372,7 @@ is
           <modifierSpeciesReference metaid="eb66b4a2-b084-4c1b-82e2-87f48b9afa26" species="Tau"/>
         </listOfModifiers>
         <kineticLaw metaid="_1a2060df-6147-4569-a666-f19fa16ddd5a">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinMTTau </ci>
@@ -2392,7 +2392,7 @@ is
           <modifierSpeciesReference metaid="_11fc2ef9-eebd-48d3-a458-687d3de9c0e3" species="MT_Tau"/>
         </listOfModifiers>
         <kineticLaw metaid="_7b118903-fc6c-440a-8292-0a3e109afc39">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> krelMTTau </ci>
@@ -2415,7 +2415,7 @@ is
           <modifierSpeciesReference metaid="a9b60b3a-43ae-4684-b913-c751f1dea980" species="Tau"/>
         </listOfModifiers>
         <kineticLaw metaid="_71061919-e04d-489c-851e-cb8eeec4bcd0">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphospTauGSK3bp53 </ci>
@@ -2439,7 +2439,7 @@ is
           <modifierSpeciesReference metaid="_538ce580-ef32-4026-b991-0aa98c1fbd04" species="Tau_P1"/>
         </listOfModifiers>
         <kineticLaw metaid="_7eb56019-bdfa-436c-86cd-f83e485d40b4">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphospTauGSK3bp53 </ci>
@@ -2463,7 +2463,7 @@ is
           <modifierSpeciesReference metaid="_0802c0bb-2279-48a4-93d0-3325da676329" species="Tau"/>
         </listOfModifiers>
         <kineticLaw metaid="_096791a9-fead-495a-9c9b-4eb8096a0640">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphospTauGSK3bp53 </ci>
@@ -2487,7 +2487,7 @@ is
           <modifierSpeciesReference metaid="_1c693e2a-d4da-47fc-becb-3c4198981992" species="Tau_P1"/>
         </listOfModifiers>
         <kineticLaw metaid="_43000838-5bee-414f-a010-58be74d1ab7d">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphospTauGSK3bp53 </ci>
@@ -2511,7 +2511,7 @@ is
           <modifierSpeciesReference metaid="_0a8b575d-5e38-4d0b-bbbc-956eb4e81af0" species="Tau"/>
         </listOfModifiers>
         <kineticLaw metaid="c7679e06-3e15-4707-bf9d-eb3aaa002219">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphospTauGSK3b </ci>
@@ -2535,7 +2535,7 @@ is
           <modifierSpeciesReference metaid="c1e7934d-74ff-43cf-b00e-28317c599f21" species="Tau_P1"/>
         </listOfModifiers>
         <kineticLaw metaid="febc09ee-225f-412d-bd4a-0c2cb11cc4a5">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphospTauGSK3b </ci>
@@ -2559,7 +2559,7 @@ is
           <modifierSpeciesReference metaid="e2d97ca5-00e5-414f-b3c0-698f186fee4f" species="PP1"/>
         </listOfModifiers>
         <kineticLaw metaid="_15ceb9f7-00e0-4f28-b2c5-77bf4a05ea75">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdephospTau </ci>
@@ -2583,7 +2583,7 @@ is
           <modifierSpeciesReference metaid="d2a90280-acaf-4d6c-ab5f-cee62140523e" species="PP1"/>
         </listOfModifiers>
         <kineticLaw metaid="_91aa5f7c-1aef-42b5-9eb5-92761fe83ac5">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdephospTau </ci>
@@ -2604,7 +2604,7 @@ is
           <modifierSpeciesReference metaid="_08bd5d65-6fe1-4815-942c-2c31b7d1df77" species="Tau_P1"/>
         </listOfModifiers>
         <kineticLaw metaid="bfe3bd1d-16fb-407d-a40b-8b0eeb3ad484">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kaggTauP1 </ci>
@@ -2632,7 +2632,7 @@ is
           <modifierSpeciesReference metaid="_70070d86-9b22-45f9-aeba-f9cb42e4b7d3" species="AggTau"/>
         </listOfModifiers>
         <kineticLaw metaid="_939fe9d8-8ec8-4064-99ed-648586645ba4">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kaggTauP1 </ci>
@@ -2653,7 +2653,7 @@ is
           <modifierSpeciesReference metaid="_598fe461-b812-45bf-b54e-6257d374fdf0" species="Tau_P2"/>
         </listOfModifiers>
         <kineticLaw metaid="_9deef827-58df-46da-bd85-2e8e428fc729">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kaggTauP2 </ci>
@@ -2681,7 +2681,7 @@ is
           <modifierSpeciesReference metaid="b6f3a523-072d-499d-a436-823c762ed65d" species="AggTau"/>
         </listOfModifiers>
         <kineticLaw metaid="_603ba9b6-f330-47e2-91c6-58c9574a61bf">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kaggTauP2 </ci>
@@ -2702,7 +2702,7 @@ is
           <modifierSpeciesReference metaid="_86175d79-d40c-433b-ae48-2628de587ec8" species="Tau"/>
         </listOfModifiers>
         <kineticLaw metaid="_51f4d2aa-b4b7-40c2-86bd-706f57480a5f">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kaggTau </ci>
@@ -2730,7 +2730,7 @@ is
           <modifierSpeciesReference metaid="_60a56185-2f2a-43d2-854b-4a5a67ad7deb" species="AggTau"/>
         </listOfModifiers>
         <kineticLaw metaid="_74ed9425-4dfb-4698-90a2-881c2f640f0b">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kaggTau </ci>
@@ -2751,7 +2751,7 @@ is
           <modifierSpeciesReference metaid="ab6d1f4b-c9ab-45e6-a604-9ece914161dc" species="AggTau"/>
         </listOfModifiers>
         <kineticLaw metaid="_252a70ea-f4eb-4c0d-87f7-b4fd1a1192f2">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ktangfor </ci>
@@ -2779,7 +2779,7 @@ is
           <modifierSpeciesReference metaid="c2e85993-480e-4cba-b5d8-6626f38e93fe" species="NFT"/>
         </listOfModifiers>
         <kineticLaw metaid="f4913b45-7426-42fa-a199-c640d8d2fbcb">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ktangfor </ci>
@@ -2802,7 +2802,7 @@ is
           <modifierSpeciesReference metaid="_65ccf3d7-5e41-49a9-8e2e-3c0359f76af0" species="Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="_1c52a72b-4a38-4673-b013-4b3ee5661b83">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kinhibprot </ci>
@@ -2823,7 +2823,7 @@ is
           <modifierSpeciesReference metaid="_20ffe46f-a513-4014-89c9-fb3a7818b0c0" species="Source"/>
         </listOfModifiers>
         <kineticLaw metaid="_6c02c95a-476e-48db-859b-1868bfef331d">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kprodAbeta </ci>
@@ -2844,7 +2844,7 @@ is
           <modifierSpeciesReference metaid="_7f97dd86-6cda-4c25-a45f-7827feabb159" species="GSK3b_p53"/>
         </listOfModifiers>
         <kineticLaw metaid="_52947357-1602-42d4-aaac-427f64477bea">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kprodAbeta2 </ci>
@@ -2865,7 +2865,7 @@ is
           <modifierSpeciesReference metaid="_611037f1-2f64-4847-bc4d-b120e07b5e39" species="GSK3b_p53_P"/>
         </listOfModifiers>
         <kineticLaw metaid="_863d4bd8-3089-4942-9b14-3f2fc5cc7328">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kprodAbeta2 </ci>
@@ -2887,7 +2887,7 @@ is
           <modifierSpeciesReference metaid="_5ed02f69-f4f9-40d9-a62e-5802fcea14a7" species="Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="_51772b74-9c03-4830-baad-d993d12a8c27">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kinhibprot </ci>
@@ -2908,7 +2908,7 @@ is
           <modifierSpeciesReference metaid="_3a698bfd-8637-49f4-9010-f361957ed776" species="Abeta"/>
         </listOfModifiers>
         <kineticLaw metaid="fedf871b-9cae-4f8d-a629-cb099ca566a9">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdegAbeta </ci>
@@ -2929,7 +2929,7 @@ is
           <modifierSpeciesReference metaid="_05c26b5f-f8d9-4879-9b89-d6df6c3ca928" species="Abeta"/>
         </listOfModifiers>
         <kineticLaw metaid="ed2269ee-681f-4d74-97bb-78917c39f0e6">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynp53mRNAAbeta </ci>
@@ -2950,7 +2950,7 @@ is
           <modifierSpeciesReference metaid="_8cd39eb1-f7ea-48ab-9af8-4752d0fd246d" species="IR"/>
         </listOfModifiers>
         <kineticLaw metaid="_5255d4c6-210a-4a64-9670-f7ddf3b3d846">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdam </ci>
@@ -2970,7 +2970,7 @@ is
           <modifierSpeciesReference metaid="fb8e9cdc-0d87-4e43-927f-4f77d52db278" species="damDNA"/>
         </listOfModifiers>
         <kineticLaw metaid="_17953a3b-8361-476d-a320-546fdf18a58d">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> krepair </ci>
@@ -2993,7 +2993,7 @@ is
           <modifierSpeciesReference metaid="_833a00d7-1ca4-41fb-b92f-37b364d03d63" species="ATMI"/>
         </listOfModifiers>
         <kineticLaw metaid="_69ddee5f-e3ec-4c58-8811-5fa2593b6f71">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactATM </ci>
@@ -3017,7 +3017,7 @@ is
           <modifierSpeciesReference metaid="_11dc60dd-26e5-4654-8b61-00eeda7198e7" species="ATMA"/>
         </listOfModifiers>
         <kineticLaw metaid="b37448a9-841d-4599-ad13-4357383d9965">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphosp53 </ci>
@@ -3038,7 +3038,7 @@ is
           <modifierSpeciesReference metaid="_179cc591-41d3-49ca-846e-1b2fde39d878" species="p53_P"/>
         </listOfModifiers>
         <kineticLaw metaid="_78ec8895-5081-4a8f-bb2f-777cca04a5fd">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdephosp53 </ci>
@@ -3061,7 +3061,7 @@ is
           <modifierSpeciesReference metaid="a69ee1c7-8d02-496d-b308-c4a637e9ab0f" species="ATMA"/>
         </listOfModifiers>
         <kineticLaw metaid="_448d38bc-ff23-4cad-af49-7804d24464f9">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kphosMdm2 </ci>
@@ -3082,7 +3082,7 @@ is
           <modifierSpeciesReference metaid="_4029fb71-61be-4fe4-848a-d20af26dd159" species="Mdm2_P"/>
         </listOfModifiers>
         <kineticLaw metaid="de31f516-2c13-4b9d-b238-8a0ca040007c">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdephosMdm2 </ci>
@@ -3105,7 +3105,7 @@ is
           <modifierSpeciesReference metaid="_2b4a6dfe-c03d-4035-a2d5-f94fd790ad4f" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_6c6b530c-d8b6-4a7c-8af0-e3f9b46daa93">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kMdm2PUb </ci>
@@ -3129,7 +3129,7 @@ is
           <modifierSpeciesReference metaid="_2fdf90c2-5a15-4cf3-9dd5-c6d30536685d" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_503e57f9-0f8f-43ab-94c0-4bc9c02b38ab">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kMdm2PolyUb </ci>
@@ -3153,7 +3153,7 @@ is
           <modifierSpeciesReference metaid="_434676c0-2112-4351-807d-1d8f5cbc9ccc" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_31669302-5708-4bc6-9070-f7aacea014ac">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kMdm2PolyUb </ci>
@@ -3177,7 +3177,7 @@ is
           <modifierSpeciesReference metaid="_54a8f3c6-3f7e-4b0d-9ac9-349a3620495c" species="E2_Ub"/>
         </listOfModifiers>
         <kineticLaw metaid="_76dfd67b-3406-4b02-b832-1e22bfb7dded">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kMdm2PolyUb </ci>
@@ -3202,7 +3202,7 @@ is
           <modifierSpeciesReference metaid="_1c1c88b9-fe8c-41c2-a503-a2ddaa7db375" species="Mdm2DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="_33243bd5-899f-42b4-8e77-a1bd279ec565">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBMdm2 </ci>
@@ -3227,7 +3227,7 @@ is
           <modifierSpeciesReference metaid="a000af4d-ac39-42e2-9560-2cfa38628fcb" species="Mdm2DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="c1e187fb-47e0-48df-9918-6d47ff937776">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBMdm2 </ci>
@@ -3252,7 +3252,7 @@ is
           <modifierSpeciesReference metaid="_24e30d45-298f-4c7d-a53a-45b08f5fa5a6" species="Mdm2DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="_4ed50632-dfcf-4739-a647-c1f9f732fa7f">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBMdm2 </ci>
@@ -3277,7 +3277,7 @@ is
           <modifierSpeciesReference metaid="_4a1fbe91-3b7c-4be7-a3e0-ee275193c857" species="Mdm2DUB"/>
         </listOfModifiers>
         <kineticLaw metaid="_54b07cba-73a9-47b1-a6e3-0da34e52cb53">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactDUBMdm2 </ci>
@@ -3300,7 +3300,7 @@ is
           <modifierSpeciesReference metaid="c66c499c-4bd3-45c6-8f2f-999e6536f57a" species="Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="_58cbad5d-de1b-4b74-b1b8-badf0d7ec720">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinProt </ci>
@@ -3322,7 +3322,7 @@ is
           <modifierSpeciesReference metaid="dbed1fa4-f766-42d1-954c-90d239feb6de" species="Mdm2_P_Ub4_Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="_6e072636-5702-4aa4-bb5a-2fb1de6eb559">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdegMdm2 </ci>
@@ -3343,7 +3343,7 @@ is
           <modifierSpeciesReference metaid="a0f8568c-4c08-44d6-9d60-c3f768294aed" species="ATMA"/>
         </listOfModifiers>
         <kineticLaw metaid="_50ea182c-e09d-49f6-8c48-cc94a2e30b3f">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kinactATM </ci>
@@ -3364,7 +3364,7 @@ is
           <modifierSpeciesReference metaid="e618b06f-93aa-4a88-8a24-bf91a4598a70" species="Abeta"/>
         </listOfModifiers>
         <kineticLaw metaid="_40f52bba-0b91-460f-90cc-22d4f1dd960b">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kgenROSAbeta </ci>
@@ -3385,7 +3385,7 @@ is
           <modifierSpeciesReference metaid="cd7e960a-1676-4f91-8e3a-fb857f6cd803" species="AbetaPlaque"/>
         </listOfModifiers>
         <kineticLaw metaid="_3abfff16-13de-4fc0-85db-479cfa205f56">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kgenROSPlaque </ci>
@@ -3406,7 +3406,7 @@ is
           <modifierSpeciesReference metaid="_34aed171-c5c9-42a0-9f58-ee37117fef61" species="AggAbeta_Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="_35b0b5a7-137a-4429-bdfe-0b933867ee37">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kgenROSAbeta </ci>
@@ -3427,7 +3427,7 @@ is
           <modifierSpeciesReference metaid="dfce1ca7-2772-4e35-8196-4545d47a63da" species="ROS"/>
         </listOfModifiers>
         <kineticLaw metaid="_965b7e71-2d4a-4613-abb6-ebc8639a1ba5">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdamROS </ci>
@@ -3447,7 +3447,7 @@ is
           <modifierSpeciesReference metaid="afa3b75c-6d4b-44df-a607-f223c7508bba" species="Source"/>
         </listOfModifiers>
         <kineticLaw metaid="_93e54272-1edb-427c-bfb2-818919cf876b">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> ksynTau </ci>
@@ -3469,7 +3469,7 @@ is
           <modifierSpeciesReference metaid="_7f35b89b-02c0-46cf-b682-b9c3ac1fc224" species="Proteasome"/>
         </listOfModifiers>
         <kineticLaw metaid="_3cd6b7fa-43e4-4953-810d-baea3772e021">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinTauProt </ci>
@@ -3490,7 +3490,7 @@ is
           <modifierSpeciesReference metaid="_173bf389-51cd-47aa-a6cc-2a3d9fb43318" species="Proteasome_Tau"/>
         </listOfModifiers>
         <kineticLaw metaid="_7853419e-7e61-49a8-b5fe-15bd29eca871">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdegTau20SProt </ci>
@@ -3510,7 +3510,7 @@ is
           <modifierSpeciesReference metaid="_0d76d55b-0844-47d1-ba26-bbe20633bf50" species="Abeta"/>
         </listOfModifiers>
         <kineticLaw metaid="_514e4157-8c89-49df-8aea-ab037714484b">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kaggAbeta </ci>
@@ -3536,7 +3536,7 @@ is
           <modifierSpeciesReference metaid="_44e3c7c6-842b-4208-a5a3-8f0735dc4f53" species="AbetaDimer"/>
         </listOfModifiers>
         <kineticLaw metaid="_31782608-0f10-44b1-b273-60b2bb1ff5a8">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kpf </ci>
@@ -3564,7 +3564,7 @@ is
           <modifierSpeciesReference metaid="_3360b0e4-07d4-45d1-b604-5acfa28dea94" species="AbetaPlaque"/>
         </listOfModifiers>
         <kineticLaw metaid="_231a4f8f-57ef-4449-a717-549e2d77c1ff">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <divide/>
               <apply>
@@ -3605,7 +3605,7 @@ is
           <modifierSpeciesReference metaid="_3ad12810-2c6b-4bcc-9d30-6a7ad382acfc" species="AbetaDimer"/>
         </listOfModifiers>
         <kineticLaw metaid="_3ae3b85f-4a0d-42a8-b6ff-1c6ef7952bd7">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdisaggAbeta </ci>
@@ -3626,7 +3626,7 @@ is
           <modifierSpeciesReference metaid="f90bca10-5b12-4532-84ff-f96eb38e1468" species="AbetaPlaque"/>
         </listOfModifiers>
         <kineticLaw metaid="d4f891bd-40c4-4ede-b1d8-8c7339eecc4b">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdisaggAbeta1 </ci>
@@ -3650,7 +3650,7 @@ is
           <modifierSpeciesReference metaid="_7e9b1f46-6202-48ea-bc2e-15451133a0ec" species="AbetaPlaque"/>
         </listOfModifiers>
         <kineticLaw metaid="b933101b-5da0-4068-87dc-8a11ecc49f00">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdisaggAbeta2 </ci>
@@ -3673,7 +3673,7 @@ is
           <modifierSpeciesReference metaid="_4c108862-a9d2-4831-8835-8695a7897faf" species="antiAb"/>
         </listOfModifiers>
         <kineticLaw metaid="d462964d-f36b-4c0b-a515-6bc2aedd1dc8">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinAbantiAb </ci>
@@ -3696,7 +3696,7 @@ is
           <modifierSpeciesReference metaid="_24df9aed-6edc-4e44-8b63-5ea1c4f79be5" species="antiAb"/>
         </listOfModifiers>
         <kineticLaw metaid="_31e2426e-b1b5-49bf-ae91-237bae8a495c">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinAbantiAb </ci>
@@ -3717,7 +3717,7 @@ is
           <modifierSpeciesReference metaid="f7ff32da-72e7-451a-a63a-62077d8913e1" species="Abeta_antiAb"/>
         </listOfModifiers>
         <kineticLaw metaid="f0ae433d-51ca-492f-a475-0501d61bc056">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <cn type="integer"> 10 </cn>
@@ -3738,7 +3738,7 @@ is
           <modifierSpeciesReference metaid="cf9fcdd5-096e-4be8-b224-12d66417e8c9" species="AbetaDimer_antiAb"/>
         </listOfModifiers>
         <kineticLaw metaid="_143a2982-9e1d-4a3c-b8c6-4ea41e37f270">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <cn type="integer"> 10 </cn>
@@ -3762,7 +3762,7 @@ is
           <modifierSpeciesReference metaid="_543c55dd-0483-481e-8a6c-fa27594d6b4e" species="AbetaPlaque"/>
         </listOfModifiers>
         <kineticLaw metaid="f60577e8-2725-427b-b91a-6b16b239ac10">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactglia1 </ci>
@@ -3786,7 +3786,7 @@ is
           <modifierSpeciesReference metaid="_83dd6d0a-6fa4-480f-99fb-a8d2df035681" species="AbetaPlaque"/>
         </listOfModifiers>
         <kineticLaw metaid="_883003d0-3e9a-4ac6-8ae7-620999074a85">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactglia1 </ci>
@@ -3810,7 +3810,7 @@ is
           <modifierSpeciesReference metaid="_213826f4-a77d-4de8-a006-d91995615cdb" species="antiAb"/>
         </listOfModifiers>
         <kineticLaw metaid="d21aebef-a18b-4ba5-bd3d-6699a4132942">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kactglia2 </ci>
@@ -3831,7 +3831,7 @@ is
           <modifierSpeciesReference metaid="_6b142ee5-5c2e-4723-b812-6f0422282e09" species="GliaA"/>
         </listOfModifiers>
         <kineticLaw metaid="e91eeff5-03d8-4837-95a1-63387578619c">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kinactglia1 </ci>
@@ -3851,7 +3851,7 @@ is
           <modifierSpeciesReference metaid="cc5b6014-5348-41fc-a347-3583b9c463ab" species="GliaM2"/>
         </listOfModifiers>
         <kineticLaw metaid="e9a2a7e6-b716-4ba5-b4e9-c979e2a404b6">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kinactglia2 </ci>
@@ -3871,7 +3871,7 @@ is
           <modifierSpeciesReference metaid="_73097fa0-181f-452d-9a4f-d25e68165794" species="GliaM1"/>
         </listOfModifiers>
         <kineticLaw metaid="f61f0004-029b-40d3-add8-6097b1ea3fff">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kinactglia2 </ci>
@@ -3893,7 +3893,7 @@ is
           <modifierSpeciesReference metaid="fd07f8c5-e4ca-412c-b2ee-8a4a54ec0f2d" species="GliaA"/>
         </listOfModifiers>
         <kineticLaw metaid="_027bb002-f1d6-426d-afee-f37de83890fc">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kbinAbetaGlia </ci>
@@ -3915,7 +3915,7 @@ is
           <modifierSpeciesReference metaid="_02fac03c-78c5-4f7d-9f72-98ab6172f55c" species="AbetaPlaque_GliaA"/>
         </listOfModifiers>
         <kineticLaw metaid="_21f70e83-1d1c-41cc-816b-3ca2fb1959e7">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> krelAbetaGlia </ci>
@@ -3936,7 +3936,7 @@ is
           <modifierSpeciesReference metaid="_5cc216a3-18fe-427d-8ae8-aa4b3e5a3367" species="AbetaPlaque_GliaA"/>
         </listOfModifiers>
         <kineticLaw metaid="b3662713-5524-489e-a755-b7e503246a86">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdegAbetaGlia </ci>
@@ -3957,7 +3957,7 @@ is
           <modifierSpeciesReference metaid="_25d53063-4165-4cca-8f2e-fcab62077d4c" species="AbetaPlaque_GliaA"/>
         </listOfModifiers>
         <kineticLaw metaid="aedd6037-d378-48e5-924e-5fe9bd4acbd7">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kgenROSGlia </ci>
@@ -3977,7 +3977,7 @@ is
           <modifierSpeciesReference metaid="f5212166-b9b9-4afe-b475-1077170f70a5" species="antiAb"/>
         </listOfModifiers>
         <kineticLaw metaid="_3392ab97-9e2d-42f9-8ab4-f2f0d7e84b04">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kdegAntiAb </ci>
@@ -3997,7 +3997,7 @@ is
           <modifierSpeciesReference metaid="bb090093-9179-4d01-938d-a4f935fcd723" species="ROS"/>
         </listOfModifiers>
         <kineticLaw metaid="ad834702-edba-41e1-9433-abe4832b8aa8">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <times/>
               <ci> kremROS </ci>
@@ -4010,7 +4010,7 @@ is
     <listOfEvents>
       <event id="ImmunizeCell" metaid="a66fe06f-765f-45fa-9130-f163e3d39581">
         <trigger metaid="_4ad0a008-ed81-40cd-bfbc-f997395d4cbb">
-          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+          <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
               <geq/>
               <csymbol encoding="text" definitionURL="http://www.sbml.org/sbml/symbols/time"> t </csymbol>
@@ -4020,7 +4020,7 @@ is
                 </trigger>
         <listOfEventAssignments>
           <eventAssignment metaid="_20b0e8aa-9f10-4f95-8155-65eba011866f" variable="antiAb">
-            <math xmlns="http://www.w3.org/1998/Math/MathML">            
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
               <cn type="integer"> 50 </cn>
             </math>
                     </eventAssignment>
