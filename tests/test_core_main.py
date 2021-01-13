@@ -12,6 +12,7 @@ from biosimulators_copasi.core import exec_sed_task, exec_sedml_docs_in_combine_
 from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP
 from biosimulators_utils.archive.io import ArchiveReader
 from biosimulators_utils.combine import data_model as combine_data_model
+from biosimulators_utils.combine.exceptions import CombineArchiveExecutionError
 from biosimulators_utils.combine.io import CombineArchiveWriter
 from biosimulators_utils.report import data_model as report_data_model
 from biosimulators_utils.report.io import ReportReader
@@ -73,7 +74,7 @@ class CliTestCase(unittest.TestCase):
             sedml_data_model.DataGeneratorVariable(id='DA', target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='DA']"),
         ]
 
-        variable_results = exec_sed_task(task, variables)
+        variable_results, _ = exec_sed_task(task, variables)
 
         self.assertTrue(sorted(variable_results.keys()), sorted([var.id for var in variables]))
         self.assertEqual(variable_results[variables[0].id].shape, (task.simulation.number_of_points + 1,))
@@ -119,27 +120,27 @@ class CliTestCase(unittest.TestCase):
         task.simulation.output_start_time = 0.
         task.simulation.output_end_time = 20.
         task.simulation.number_of_points = 20
-        full_variable_results = exec_sed_task(task, variables)
+        full_variable_results, _ = exec_sed_task(task, variables)
 
         task.simulation.initial_time = 0.
         task.simulation.output_start_time = 10.
         task.simulation.output_end_time = 20.
         task.simulation.number_of_points = 10
-        second_half_variable_results = exec_sed_task(task, variables)
+        second_half_variable_results, _ = exec_sed_task(task, variables)
         numpy.testing.assert_allclose(second_half_variable_results['A'], full_variable_results['A'][10:], rtol=1e-4)
 
         task.simulation.initial_time = 5.
         task.simulation.output_start_time = 5.
         task.simulation.output_end_time = 25.
         task.simulation.number_of_points = 20
-        offset_full_variable_results = exec_sed_task(task, variables)
+        offset_full_variable_results, _ = exec_sed_task(task, variables)
         numpy.testing.assert_allclose(offset_full_variable_results['A'], full_variable_results['A'], rtol=1e-4)
 
         task.simulation.initial_time = 5.
         task.simulation.output_start_time = 15.
         task.simulation.output_end_time = 25.
         task.simulation.number_of_points = 10
-        offset_second_half_variable_results = exec_sed_task(task, variables)
+        offset_second_half_variable_results, _ = exec_sed_task(task, variables)
         numpy.testing.assert_allclose(offset_second_half_variable_results['A'], offset_full_variable_results['A'][10:], rtol=1e-4)
         numpy.testing.assert_allclose(offset_second_half_variable_results['A'], second_half_variable_results['A'], rtol=1e-4)
 
@@ -173,7 +174,7 @@ class CliTestCase(unittest.TestCase):
             sedml_data_model.DataGeneratorVariable(id='Mdm2', target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='Mdm2']"),
         ]
 
-        results = exec_sed_task(task, variables)
+        results, _ = exec_sed_task(task, variables)
 
         numpy.testing.assert_almost_equal(
             results['time'],
@@ -245,7 +246,7 @@ class CliTestCase(unittest.TestCase):
                                                             var_targets=[None, 'Mdm2', 'p53', 'Mdm2_p53'])
 
         out_dir = os.path.join(self.dirname, alg.kisao_id)
-        with self.assertRaisesRegex(RuntimeError, 'Radau5 integration is not possible with this version of COPASI.'):
+        with self.assertRaisesRegex(CombineArchiveExecutionError, 'Radau5 integration is not possible with this version of COPASI.'):
             exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
                                                report_formats=[
                                                    report_data_model.ReportFormat.h5,
@@ -286,7 +287,7 @@ class CliTestCase(unittest.TestCase):
                                                    bundle_outputs=True,
                                                    keep_individual_outputs=True)
                 self._assert_combine_archive_outputs(doc, out_dir)
-            except RuntimeError:
+            except CombineArchiveExecutionError:
                 errored_algs.append(alg.kisao_id)
 
         # fail because particle number too big for discrete methods
@@ -318,7 +319,7 @@ class CliTestCase(unittest.TestCase):
                                                    bundle_outputs=True,
                                                    keep_individual_outputs=True)
                 self._assert_combine_archive_outputs(doc, out_dir)
-            except RuntimeError:
+            except CombineArchiveExecutionError:
                 errored_algs.append(alg.kisao_id)
 
         # failed because model has events

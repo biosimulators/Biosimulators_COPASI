@@ -1,5 +1,6 @@
 from biosimulators_copasi import data_model
 from biosimulators_utils.data_model import ValueType
+import COPASI
 import json
 import os
 import unittest
@@ -10,7 +11,8 @@ class DataModelTestCase(unittest.TestCase):
         for kisao_id, props in data_model.KISAO_ALGORITHMS_MAP.items():
             self.assertRegex(kisao_id, r'^KISAO_\d{7}$')
             self.assertIsInstance(props['name'], str)
-            self.assertIsInstance(props['id'], int)
+            self.assertIsInstance(props['id'], str)
+            self.assertIsInstance(getattr(COPASI.CTaskEnum, 'Method_' + props['id']), int)
             self.assertIsInstance(props['get_data_function'], data_model.GetDataFunction)
 
     def test_parameters(self):

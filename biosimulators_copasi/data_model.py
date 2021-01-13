@@ -7,7 +7,6 @@
 """
 
 from biosimulators_utils.data_model import ValueType
-import COPASI
 import enum
 
 __all__ = ['GetDataFunction', 'KISAO_ALGORITHMS_MAP', 'KISAO_PARAMETERS_MAP']
@@ -22,52 +21,52 @@ class GetDataFunction(str, enum.Enum):
 KISAO_ALGORITHMS_MAP = {
     'KISAO_0000027': {
         'name': 'Gibson + Bruck',
-        'id': COPASI.CTaskEnum.Method_stochastic,
+        'id': 'stochastic',
         'get_data_function': GetDataFunction.discrete,
     },
     'KISAO_0000029': {
         'name': 'direct method',
-        'id': COPASI.CTaskEnum.Method_directMethod,
+        'id': 'directMethod',
         'get_data_function': GetDataFunction.discrete,
     },
     'KISAO_0000039': {
         'name': 'tau leap method',
-        'id': COPASI.CTaskEnum.Method_tauLeap,
+        'id': 'tauLeap',
         'get_data_function': GetDataFunction.discrete,
     },
     'KISAO_0000048': {
         'name': 'adaptive SSA + tau leap',
-        'id': COPASI.CTaskEnum.Method_adaptiveSA,
+        'id': 'adaptiveSA',
         'get_data_function': GetDataFunction.discrete,
     },
     'KISAO_0000560': {
         'name': 'LSODA/LSODAR',
-        'id': COPASI.CTaskEnum.Method_deterministic,
+        'id': 'deterministic',
         'get_data_function': GetDataFunction.continuous,
     },
     'KISAO_0000304': {
         'name': 'RADAU5',
-        'id': COPASI.CTaskEnum.Method_RADAU5,
+        'id': 'RADAU5',
         'get_data_function': GetDataFunction.continuous,
     },
     'KISAO_0000561': {
         'name': 'hybrid (runge kutta)',
-        'id': COPASI.CTaskEnum.Method_hybrid,
+        'id': 'hybrid',
         'get_data_function': GetDataFunction.discrete,
     },
     'KISAO_0000562': {
         'name': 'hybrid (lsoda)',
-        'id': COPASI.CTaskEnum.Method_hybridLSODA,
+        'id': 'hybridLSODA',
         'get_data_function': GetDataFunction.discrete,
     },
     'KISAO_0000563': {
         'name': 'hybrid (RK-45)',
-        'id': COPASI.CTaskEnum.Method_hybridODE45,
+        'id': 'hybridODE45',
         'get_data_function': GetDataFunction.discrete,
     },
     'KISAO_0000566': {
         'name': 'SDE Solve (RI5)',
-        'id': COPASI.CTaskEnum.Method_stochasticRunkeKuttaRI5,
+        'id': 'stochasticRunkeKuttaRI5',
         'get_data_function': GetDataFunction.continuous,
     },
 }

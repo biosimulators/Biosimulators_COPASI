@@ -52,7 +52,7 @@ def get_algorithm_id(kisao_id):
     if alg is None:
         raise NotImplementedError(
             "Algorithm with KiSAO id '{}' is not supported".format(requested_kisao_id))
-    return alg['id']
+    return getattr(COPASI.CTaskEnum, 'Method_' + alg['id'])
 
 
 def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parameter_kisao_id, value):
@@ -63,6 +63,9 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
         algorithm_function (:obj:`types.FunctionType`): algorithm function
         parameter_kisao_id (:obj:`str`): KiSAO parameter id
         value (:obj:`string`): parameter value
+
+    Returns:
+        :obj:`dict`: names of the COPASI parameters that were set and their values
     """
     algorithm_name = KISAO_ALGORITHMS_MAP.get(algorithm_kisao_id, {}).get('name', 'N/A')
 
@@ -114,10 +117,13 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
 
     parsed_value = parse_value(value, parameter_attrs['type'])
 
+    args = {}
+
     # Set values of basic parameters
     if param_set_method:
         if not param_set_method(parsed_value):  # pragma: no cover # unreachable due to above error checking
             raise RuntimeError('Value of parameter {} ({}) could not be set'.format(parameter_kisao_id, parameter_name))
+        args[parameter_name] = parsed_value
 
     # if the parameter is the random number generator seed (KISAO_0000488), turn on the flag to use it
     if parameter_kisao_id == 'KISAO_0000488':
@@ -127,6 +133,7 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
                 algorithm_kisao_id, algorithm_name))
         if not use_rand_seed_parameter.setBoolValue(True):  # pragma: no cover # unreachable because :obj:`True` is a valid input
             raise RuntimeError("Value of parameter '{}' could not be set".format("Use Random Seed"))
+        args['Use Random Seed'] = True
 
     # set the partitioning strategy parameter
     if parameter_kisao_id == 'KISAO_0000534':
@@ -134,6 +141,7 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
         if not algorithm_function.getParameter('Partitioning Strategy').setStringValue('User specified Partition'):
             raise RuntimeError("'Partitioning Strategy' parameter could not be set for {} ({})".format(
                 algorithm_kisao_id, algorithm_name))  # pragma: no cover # unreachable due to earlier validation
+        args['Partitioning Strategy'] = 'User specified Partition'
 
         # build mapping from the SBML ids of reactions to their common names
         object_data_model = algorithm_function.getObjectDataModel()
@@ -147,6 +155,7 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
 
         # clean up any previously defined partitioning
         parameter.clear()
+        args[parameter_name] = []
 
         # set partitioning
         for sbml_rxn_id in parsed_value:
@@ -160,3 +169,7 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
                 raise NotImplementedError("Partitioning cannot not be set via reaction common names."
                                           )  # pragma: no cover # unreachable due to above validation
             parameter.addParameter(sub_parameter)
+
+            args[parameter_name].append(rxn_common_name)
+
+    return args
