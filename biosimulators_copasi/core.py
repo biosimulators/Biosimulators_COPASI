@@ -10,9 +10,9 @@
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog  # noqa: F401
 from biosimulators_utils.plot.data_model import PlotFormat  # noqa: F401
-from biosimulators_utils.report.data_model import ReportFormat, DataGeneratorVariableResults  # noqa: F401
+from biosimulators_utils.report.data_model import ReportFormat, VariableResults  # noqa: F401
 from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, UniformTimeCourseSimulation,  # noqa: F401
-                                                  DataGeneratorVariable, DataGeneratorVariableSymbol)
+                                                  Variable, Symbol)
 from biosimulators_utils.sedml import validation
 from biosimulators_utils.sedml.exec import exec_sed_doc
 from .data_model import KISAO_ALGORITHMS_MAP
@@ -63,13 +63,13 @@ def exec_sed_task(task, variables, log=None):
 
     Args:
        task (:obj:`Task`): task
-       variables (:obj:`list` of :obj:`DataGeneratorVariable`): variables that should be recorded
+       variables (:obj:`list` of :obj:`Variable`): variables that should be recorded
        log (:obj:`TaskLog`, optional): log for the task
 
     Returns:
         :obj:`tuple`:
 
-            :obj:`DataGeneratorVariableResults`: results of variables
+            :obj:`VariableResults`: results of variables
             :obj:`TaskLog`: log
 
     Raises:
@@ -84,12 +84,13 @@ def exec_sed_task(task, variables, log=None):
     model = task.model
     validation.validate_model_language(model.language, ModelLanguage.SBML)
     validation.validate_model_change_types(model.changes, ())
+    validation.validate_model_changes(model.changes)
 
     sim = task.simulation
     validation.validate_simulation_type(sim, (UniformTimeCourseSimulation, ))
     validation.validate_uniform_time_course_simulation(sim)
     validation.validate_data_generator_variables(variables)
-    target_x_paths_ids = validation.validate_data_generator_variable_xpaths(variables, model.source, attr='id')
+    target_x_paths_ids = validation.validate_variable_xpaths(variables, model.source, attr='id')
 
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
     copasi_data_model = COPASI.CRootContainer.addDatamodel()
@@ -155,12 +156,12 @@ def exec_sed_task(task, variables, log=None):
         sbml_id_to_i_time_series[time_series_sbml_id] = i_time_series
 
     get_data_function = getattr(time_series, KISAO_ALGORITHMS_MAP[alg_kisao_id]['get_data_function'].value)
-    variable_results = DataGeneratorVariableResults()
+    variable_results = VariableResults()
     unpredicted_symbols = []
     unpredicted_targets = []
     for variable in variables:
         if variable.symbol:
-            if variable.symbol == DataGeneratorVariableSymbol.time:
+            if variable.symbol == Symbol.time:
                 variable_result = numpy.linspace(sim.output_start_time, sim.output_end_time, number_of_recorded_points)
             else:
                 unpredicted_symbols.append(variable.symbol)
@@ -183,7 +184,7 @@ def exec_sed_task(task, variables, log=None):
             "The following variable symbols are not supported:\n  - {}\n\n".format(
                 '\n  - '.join(sorted(unpredicted_symbols)),
             ),
-            "Symbols must be one of the following:\n  - {}".format(DataGeneratorVariableSymbol.time),
+            "Symbols must be one of the following:\n  - {}".format(Symbol.time),
         ]))
 
     if unpredicted_targets:
