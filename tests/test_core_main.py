@@ -248,8 +248,9 @@ class CliTestCase(unittest.TestCase):
             file.write('  </model>')
             file.write('</sbml2>')
 
-        with self.assertRaisesRegex(ValueError, 'could not be imported'):
-            exec_sed_task(task, variables)
+        with mock.patch('biosimulators_utils.sedml.validation.validate_model', return_value=None):
+            with self.assertRaisesRegex(ValueError, 'could not be imported'):
+                exec_sed_task(task, variables)
 
         task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml')
         task.simulation.output_end_time = 20.1

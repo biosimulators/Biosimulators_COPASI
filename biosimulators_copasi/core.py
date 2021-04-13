@@ -92,6 +92,8 @@ def exec_sed_task(task, variables, log=None):
     validation.validate_data_generator_variables(variables)
     target_x_paths_ids = validation.validate_variable_xpaths(variables, model.source, attr='id')
 
+    validation.validate_model(task.model.source, ModelLanguage.SBML)
+
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
     copasi_data_model = COPASI.CRootContainer.addDatamodel()
     if not copasi_data_model.importSBML(task.model.source):
