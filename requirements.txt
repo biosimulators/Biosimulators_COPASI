@@ -1,3 +1,3 @@
 biosimulators_utils[logging,sbml] >= 0.1.51
 numpy
-python_copasi >= 4.30.233
+python_copasi >= 4.30.240
