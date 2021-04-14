@@ -1,5 +1,5 @@
 # Build image:
-#   docker build --tag ghcr.io/biosimulators/copasi:4.27.214 --tag ghcr.io/biosimulators/copasi:latest .
+#   docker build --tag ghcr.io/biosimulators/copasi:4.30.240 --tag ghcr.io/biosimulators/copasi:latest .
 #
 # Run image:
 #   docker run \
@@ -14,7 +14,7 @@
 # Base OS
 FROM python:3.7.9-slim-buster
 
-ARG VERSION="0.1.21"
+ARG VERSION="0.1.22"
 ARG SIMULATOR_VERSION=4.30.240
 
 # metadata
