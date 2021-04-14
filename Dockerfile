@@ -1,5 +1,5 @@
 # Build image:
-#   docker build --tag ghcr.io/biosimulators_copasi/copasi:4.30.240 --tag ghcr.io/biosimulators_copasi/copasi:latest .
+#   docker build --tag ghcr.io/biosimulators/biosimulators_copasi/copasi:4.30.240 --tag ghcr.io/biosimulators/biosimulators_copasi/copasi:latest .
 #
 # Run image:
 #   docker run \
