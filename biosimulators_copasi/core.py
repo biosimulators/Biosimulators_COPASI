@@ -15,6 +15,7 @@ from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, UniformTi
                                                   Variable, Symbol)
 from biosimulators_utils.sedml import validation
 from biosimulators_utils.sedml.exec import exec_sed_doc
+from biosimulators_utils.utils.core import raise_errors_warnings
 from .data_model import KISAO_ALGORITHMS_MAP
 from .utils import get_algorithm_id, set_algorithm_parameter_value
 import COPASI
@@ -79,26 +80,33 @@ def exec_sed_task(task, variables, log=None):
     '''
     log = log or TaskLog()
 
-    validation.validate_task(task)
-
     model = task.model
-    validation.validate_model_language(model.language, ModelLanguage.SBML)
-    validation.validate_model_change_types(model.changes, ())
-    validation.validate_model_changes(model.changes)
-
     sim = task.simulation
-    validation.validate_simulation_type(sim, (UniformTimeCourseSimulation, ))
-    validation.validate_uniform_time_course_simulation(sim)
-    validation.validate_data_generator_variables(variables)
+
+    raise_errors_warnings(validation.validate_task(task),
+                          error_summary='Task `{}` is invalid.'.format(task.id))
+    raise_errors_warnings(validation.validate_model_language(model.language, ModelLanguage.SBML),
+                          error_summary='Language for model `{}` is not supported.'.format(model.id))
+    raise_errors_warnings(validation.validate_model_change_types(model.changes, ()),
+                          error_summary='Changes for model `{}` are not supported.'.format(model.id))
+
+    raise_errors_warnings(validation.validate_simulation_type(sim, (UniformTimeCourseSimulation, )),
+                          error_summary='{} `{}` is not supported.'.format(sim.__class__.__name__, sim.id))
+    raise_errors_warnings(validation.validate_simulation(sim),
+                          error_summary='Simulation `{}` is invalid.'.format(sim.id))
+    raise_errors_warnings(validation.validate_data_generator_variables(variables),
+                          error_summary='Variables for task `{}` are invalid.'.format(task.id))
     target_x_paths_ids = validation.validate_variable_xpaths(variables, model.source, attr='id')
 
-    validation.validate_model(task.model.source, ModelLanguage.SBML)
+    raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
+                          error_summary='Model `{}` is invalid.'.format(model.id),
+                          warning_summary='Model `{}` may be invalid.'.format(model.id))
 
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
     copasi_data_model = COPASI.CRootContainer.addDatamodel()
-    if not copasi_data_model.importSBML(task.model.source):
+    if not copasi_data_model.importSBML(model.source):
         raise ValueError("'{}' could not be imported:\n\n  {}".format(
-            task.model.source, get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
+            model.source, get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
 
     # Load the algorithm specified by `simulation.algorithm`
     alg_kisao_id = sim.algorithm.kisao_id
