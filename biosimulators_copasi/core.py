@@ -95,7 +95,7 @@ def exec_sed_task(task, variables, log=None):
     raise_errors_warnings(validation.validate_simulation(sim),
                           error_summary='Simulation `{}` is invalid.'.format(sim.id))
     raise_errors_warnings(validation.validate_data_generator_variables(variables),
-                          error_summary='Variables for task `{}` are invalid.'.format(task.id))
+                          error_summary='Data generator variables for task `{}` are invalid.'.format(task.id))
     target_x_paths_ids = validation.validate_variable_xpaths(variables, model.source, attr='id')
 
     raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
