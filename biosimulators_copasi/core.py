@@ -89,7 +89,8 @@ def exec_sed_task(task, variables, log=None):
                           error_summary='Language for model `{}` is not supported.'.format(model.id))
     raise_errors_warnings(validation.validate_model_change_types(model.changes, ()),
                           error_summary='Changes for model `{}` are not supported.'.format(model.id))
-
+    raise_errors_warnings(validation.validate_model_changes(task.model),
+                          error_summary='Changes for model `{}` are invalid.'.format(model.id))
     raise_errors_warnings(validation.validate_simulation_type(sim, (UniformTimeCourseSimulation, )),
                           error_summary='{} `{}` is not supported.'.format(sim.__class__.__name__, sim.id))
     raise_errors_warnings(validation.validate_simulation(sim),
