@@ -554,7 +554,7 @@ class CliTestCase(unittest.TestCase):
                 sedml_data_model.DataSet(id='Clb', label='Clb'),
             ]
         )
-        report_results = ReportReader().run(report, out_dir, 'simulation_1.sedml/simulation_1', format=report_data_model.ReportFormat.h5)
+        report_results = ReportReader().run(report, out_dir, 'simulation_1.sedml/report_1', format=report_data_model.ReportFormat.h5)
 
         self.assertEqual(len(report_results[report.data_sets[0].id]), 100 + 1)
         numpy.testing.assert_almost_equal(
