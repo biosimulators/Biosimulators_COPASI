@@ -93,7 +93,7 @@ def exec_sed_task(task, variables, log=None):
                           error_summary='Changes for model `{}` are invalid.'.format(model.id))
     raise_errors_warnings(validation.validate_simulation_type(sim, (UniformTimeCourseSimulation, )),
                           error_summary='{} `{}` is not supported.'.format(sim.__class__.__name__, sim.id))
-    raise_errors_warnings(validation.validate_simulation(sim),
+    raise_errors_warnings(*validation.validate_simulation(sim),
                           error_summary='Simulation `{}` is invalid.'.format(sim.id))
     raise_errors_warnings(*validation.validate_data_generator_variables(variables),
                           error_summary='Data generator variables for task `{}` are invalid.'.format(task.id))
