@@ -114,7 +114,7 @@ def exec_sed_task(task, variables, log=None):
     exec_alg_kisao_id, alg_copasi_id = get_algorithm_id(alg_kisao_id)
     copasi_task = copasi_data_model.getTask('Time-Course')
     if not copasi_task.setMethodType(alg_copasi_id):
-        raise RuntimeError('Unable to initialize function for {}'.format(alg_kisao_id)
+        raise RuntimeError('Unable to initialize function for {}'.format(exec_alg_kisao_id)
                            )  # pragma: no cover # unreachable because :obj:`get_algorithm_id` returns valid COPASI method ids
     method = copasi_task.getMethod()
 
@@ -122,7 +122,7 @@ def exec_sed_task(task, variables, log=None):
     method_parameters = {}
     if exec_alg_kisao_id == alg_kisao_id:
         for change in sim.algorithm.changes:
-            change_args = set_algorithm_parameter_value(alg_kisao_id, method,
+            change_args = set_algorithm_parameter_value(exec_alg_kisao_id, method,
                                                         change.kisao_id, change.new_value)
             for key, val in change_args.items():
                 method_parameters[key] = val
@@ -149,10 +149,10 @@ def exec_sed_task(task, variables, log=None):
     result = copasi_task.process(True)
     warning_details = copasi_task.getProcessWarning()
     if warning_details:
-        warnings.warn(get_copasi_error_message(alg_kisao_id, warning_details), UserWarning)
+        warnings.warn(get_copasi_error_message(exec_alg_kisao_id, warning_details), UserWarning)
     if not result:
         error_details = copasi_task.getProcessError()
-        raise RuntimeError(get_copasi_error_message(alg_kisao_id, error_details))
+        raise RuntimeError(get_copasi_error_message(exec_alg_kisao_id, error_details))
 
     time_series = copasi_task.getTimeSeries()
     number_of_recorded_points = time_series.getRecordedSteps()
@@ -167,7 +167,7 @@ def exec_sed_task(task, variables, log=None):
         time_series_sbml_id = time_series.getSBMLId(i_time_series, copasi_data_model)
         sbml_id_to_i_time_series[time_series_sbml_id] = i_time_series
 
-    get_data_function = getattr(time_series, KISAO_ALGORITHMS_MAP[alg_kisao_id]['get_data_function'].value)
+    get_data_function = getattr(time_series, KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['get_data_function'].value)
     variable_results = VariableResults()
     unpredicted_symbols = []
     unpredicted_targets = []
@@ -210,9 +210,9 @@ def exec_sed_task(task, variables, log=None):
         ]))
 
     # log action
-    log.algorithm = alg_kisao_id
+    log.algorithm = exec_alg_kisao_id
     log.simulator_details = {
-        'methodName': KISAO_ALGORITHMS_MAP[alg_kisao_id]['id'],
+        'methodName': KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['id'],
         'methodCode': alg_copasi_id,
         'parameters': method_parameters,
     }
