@@ -1,4 +1,4 @@
-biosimulators_utils[logging,sbml] >= 0.1.62
+biosimulators_utils[logging,sbml] >= 0.1.63
 kisao
 numpy
 python_copasi >= 4.30.240
