@@ -111,7 +111,7 @@ def exec_sed_task(task, variables, log=None):
 
     # Load the algorithm specified by `simulation.algorithm`
     alg_kisao_id = sim.algorithm.kisao_id
-    alg_copasi_id = get_algorithm_id(alg_kisao_id)
+    exec_alg_kisao_id, alg_copasi_id = get_algorithm_id(alg_kisao_id)
     copasi_task = copasi_data_model.getTask('Time-Course')
     if not copasi_task.setMethodType(alg_copasi_id):
         raise RuntimeError('Unable to initialize function for {}'.format(alg_kisao_id)
@@ -120,11 +120,12 @@ def exec_sed_task(task, variables, log=None):
 
     # Apply the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     method_parameters = {}
-    for change in sim.algorithm.changes:
-        change_args = set_algorithm_parameter_value(alg_kisao_id, method,
-                                                    change.kisao_id, change.new_value)
-        for key, val in change_args.items():
-            method_parameters[key] = val
+    if exec_alg_kisao_id == alg_kisao_id:
+        for change in sim.algorithm.changes:
+            change_args = set_algorithm_parameter_value(alg_kisao_id, method,
+                                                        change.kisao_id, change.new_value)
+            for key, val in change_args.items():
+                method_parameters[key] = val
 
     # Execute simulation
     copasi_task.setScheduled(True)

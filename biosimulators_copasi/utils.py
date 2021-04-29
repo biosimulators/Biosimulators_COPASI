@@ -8,13 +8,11 @@
 
 from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP
 from biosimulators_utils.data_model import ValueType
-from biosimulators_utils.simulator.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
-from biosimulators_utils.simulator.exceptions import AlgorithmCannotBeSubstitutedException
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
-from biosimulators_utils.simulator.warnings import AlgorithmSubstitutedWarning
 from biosimulators_utils.utils.core import validate_str_value, parse_value
+from kisao import Kisao
+from kisao.utils import get_perferred_substitute_algorithm
 import COPASI
-import warnings
 
 __all__ = ['get_algorithm_id', 'set_algorithm_parameter_value']
 
@@ -26,33 +24,21 @@ def get_algorithm_id(kisao_id):
         kisao_id (:obj:`str`): KiSAO algorithm id
 
     Returns:
-        :obj:`int`: COPASI id for algorithm
+        :obj:`tuple`:
+
+            * :obj:`str`: KiSAO id of algorithm to execute
+            * :obj:`int`: COPASI id for algorithm
     """
-    requested_kisao_id = kisao_id
-
+    kisao = Kisao()
     substitution_policy = get_algorithm_substitution_policy()
-    if kisao_id in ['KISAO_0000088', 'KISAO_0000089']:
-        alg_name = 'LSODA' if kisao_id == 'KISAO_0000088' else 'LSODAR'
-        if (
-            ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy]
-            >= ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SIMILAR_VARIABLES]
-        ):
-            warnings.warn('Hybrid LSODA/LSODAR method (KISAO_0000560) will be used rather than {} ({}).'.format(
-                alg_name, kisao_id),
-                AlgorithmSubstitutedWarning)
-            kisao_id = 'KISAO_0000560'
-        else:
-            raise AlgorithmCannotBeSubstitutedException((
-                '{} ({}) cannot be substituted to the hybrid LSODA/LSODAR method (KISAO_0000560) '
-                'under the current algorithm substitution policy {}.').format(
-                alg_name, kisao_id, substitution_policy.name
-            ))
 
-    alg = KISAO_ALGORITHMS_MAP.get(kisao_id, None)
-    if alg is None:
-        raise NotImplementedError(
-            "Algorithm with KiSAO id '{}' is not supported".format(requested_kisao_id))
-    return getattr(COPASI.CTaskEnum, 'Method_' + alg['id'])
+    requested_alg = kisao.get_term(kisao_id)
+    implemented_algs = [kisao.get_term(implemented_kisao_id) for implemented_kisao_id in KISAO_ALGORITHMS_MAP.keys()]
+    exec_alg = get_perferred_substitute_algorithm(requested_alg, implemented_algs, substitution_policy=substitution_policy)
+    exec_kisao_id = exec_alg.id.partition('#')[2]
+
+    alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
+    return (exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']))
 
 
 def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parameter_kisao_id, value):
