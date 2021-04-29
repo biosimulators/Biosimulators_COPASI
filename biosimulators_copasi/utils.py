@@ -10,8 +10,7 @@ from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP
 from biosimulators_utils.data_model import ValueType
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
 from biosimulators_utils.utils.core import validate_str_value, parse_value
-from kisao import Kisao
-from kisao.utils import get_perferred_substitute_algorithm
+from kisao.utils import get_preferred_substitute_algorithm_by_ids
 import COPASI
 
 __all__ = ['get_algorithm_id', 'set_algorithm_parameter_value']
@@ -29,13 +28,9 @@ def get_algorithm_id(kisao_id):
             * :obj:`str`: KiSAO id of algorithm to execute
             * :obj:`int`: COPASI id for algorithm
     """
-    kisao = Kisao()
-    substitution_policy = get_algorithm_substitution_policy()
-
-    requested_alg = kisao.get_term(kisao_id)
-    implemented_algs = [kisao.get_term(implemented_kisao_id) for implemented_kisao_id in KISAO_ALGORITHMS_MAP.keys()]
-    exec_alg = get_perferred_substitute_algorithm(requested_alg, implemented_algs, substitution_policy=substitution_policy)
-    exec_kisao_id = exec_alg.id.partition('#')[2]
+    exec_kisao_id = get_preferred_substitute_algorithm_by_ids(
+        kisao_id, KISAO_ALGORITHMS_MAP.keys(),
+        substitution_policy=get_algorithm_substitution_policy())
 
     alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
     return (exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']))
