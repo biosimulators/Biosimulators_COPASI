@@ -285,7 +285,7 @@ class CliTestCase(unittest.TestCase):
 
         variables = []
         task.simulation.algorithm.changes[0].new_value = 'adf'
-        with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_METHOD'}):
+        with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'NONE'}):
             with self.assertRaisesRegex(ValueError, 'is not a valid'):
                 exec_sed_task(task, variables)
 
@@ -294,7 +294,7 @@ class CliTestCase(unittest.TestCase):
                     exec_sed_task(task, variables)
 
         task.simulation.algorithm.changes[0].kisao_id = 'KISAO_9999999'
-        with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_METHOD'}):
+        with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'NONE'}):
             with self.assertRaisesRegex(NotImplementedError, 'is not supported'):
                 exec_sed_task(task, variables)
 
