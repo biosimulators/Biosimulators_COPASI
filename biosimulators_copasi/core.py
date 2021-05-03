@@ -15,14 +15,16 @@ from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, UniformTi
                                                   Variable, Symbol)
 from biosimulators_utils.sedml import validation
 from biosimulators_utils.sedml.exec import exec_sed_doc
+from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
 from biosimulators_utils.utils.core import raise_errors_warnings
+from biosimulators_utils.warnings import warn, BioSimulatorsWarning
+from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from .data_model import KISAO_ALGORITHMS_MAP
 from .utils import get_algorithm_id, set_algorithm_parameter_value
 import COPASI
 import functools
 import math
 import numpy
-import warnings
 
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_task']
@@ -120,12 +122,34 @@ def exec_sed_task(task, variables, log=None):
 
     # Apply the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     method_parameters = {}
+    algorithm_substitution_policy = get_algorithm_substitution_policy()
     if exec_alg_kisao_id == alg_kisao_id:
         for change in sim.algorithm.changes:
-            change_args = set_algorithm_parameter_value(exec_alg_kisao_id, method,
-                                                        change.kisao_id, change.new_value)
-            for key, val in change_args.items():
-                method_parameters[key] = val
+            try:
+                change_args = set_algorithm_parameter_value(exec_alg_kisao_id, method,
+                                                            change.kisao_id, change.new_value)
+                for key, val in change_args.items():
+                    method_parameters[key] = val
+            except NotImplementedError as exception:
+                if (
+                    ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
+                    > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SAME_METHOD]
+                ):
+                    warn('Unsuported algorithm parameter `{}` was ignored:\n  {}'.format(
+                        change.kisao_id, str(exception).replace('\n', '\n  ')),
+                        BioSimulatorsWarning)
+                else:
+                    raise
+            except ValueError as exception:
+                if (
+                    ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
+                    > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SAME_METHOD]
+                ):
+                    warn('Unsuported value `{}` for algorithm parameter `{}` was ignored:\n  {}'.format(
+                        change.new_value, change.kisao_id, str(exception).replace('\n', '\n  ')),
+                        BioSimulatorsWarning)
+                else:
+                    raise
 
     # Execute simulation
     copasi_task.setScheduled(True)
@@ -149,7 +173,7 @@ def exec_sed_task(task, variables, log=None):
     result = copasi_task.process(True)
     warning_details = copasi_task.getProcessWarning()
     if warning_details:
-        warnings.warn(get_copasi_error_message(exec_alg_kisao_id, warning_details), UserWarning)
+        warn(get_copasi_error_message(exec_alg_kisao_id, warning_details), BioSimulatorsWarning)
     if not result:
         error_details = copasi_task.getProcessError()
         raise RuntimeError(get_copasi_error_message(exec_alg_kisao_id, error_details))

@@ -22,6 +22,7 @@ from biosimulators_utils.sedml import data_model as sedml_data_model
 from biosimulators_utils.sedml.io import SedmlSimulationWriter
 from biosimulators_utils.sedml.utils import append_all_nested_children_to_doc
 from biosimulators_utils.utils.core import are_lists_equal
+from biosimulators_utils.warnings import BioSimulatorsWarning
 from unittest import mock
 import datetime
 import dateutil.tz
@@ -281,6 +282,25 @@ class CliTestCase(unittest.TestCase):
         ]
         with self.assertRaisesRegex(ValueError, 'targets could not be recorded'):
             exec_sed_task(task, variables)
+
+        variables = []
+        task.simulation.algorithm.changes[0].new_value = 'adf'
+        with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_METHOD'}):
+            with self.assertRaisesRegex(ValueError, 'is not a valid'):
+                exec_sed_task(task, variables)
+
+        with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_VARIABLES'}):
+            with self.assertWarnsRegex(BioSimulatorsWarning, 'Unsuported value'):
+                    exec_sed_task(task, variables)
+
+        task.simulation.algorithm.changes[0].kisao_id = 'KISAO_9999999'
+        with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_METHOD'}):
+            with self.assertRaisesRegex(NotImplementedError, 'is not supported'):
+                exec_sed_task(task, variables)
+
+        with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_VARIABLES'}):
+            with self.assertWarnsRegex(BioSimulatorsWarning, 'Unsuported algorithm parameter'):
+                exec_sed_task(task, variables)
 
     def test_exec_sed_task_copasi_error_handling(self):
         alg = sedml_data_model.Algorithm(kisao_id='KISAO_0000304')
