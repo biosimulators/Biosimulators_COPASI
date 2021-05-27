@@ -293,7 +293,7 @@ class CliTestCase(unittest.TestCase):
             with self.assertWarnsRegex(BioSimulatorsWarning, 'Unsuported value'):
                     exec_sed_task(task, variables)
 
-        task.simulation.algorithm.changes[0].kisao_id = 'KISAO_9999999'
+        task.simulation.algorithm.changes[0].kisao_id = 'KISAO_0000531'
         with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'NONE'}):
             with self.assertRaisesRegex(NotImplementedError, 'is not supported'):
                 exec_sed_task(task, variables)
