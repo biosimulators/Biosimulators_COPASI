@@ -249,7 +249,7 @@ class CliTestCase(unittest.TestCase):
             file.write('  </model>')
             file.write('</sbml2>')
 
-        with mock.patch('biosimulators_utils.sedml.validation.validate_model_with_language', return_value=([], [])):
+        with mock.patch('biosimulators_utils.sedml.validation.validate_model_with_language', return_value=([], [], None)):
             with self.assertRaisesRegex(ValueError, 'could not be imported'):
                 exec_sed_task(task, variables)
 
