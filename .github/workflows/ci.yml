@@ -7,9 +7,8 @@ on:
       simulatorVersion:
         description: New version of the underlying simulation tool (e.g., '1.5.6')
         required: true
-      simulatorVersionLatest:
-        description: Is this version the latest version of the underlying simulation tool ("true" or "false")?
-        required: false
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   continuousIntegration:
@@ -51,23 +50,6 @@ jobs:
           fi
 
       #############################################
-      ## Update the version of the simulator
-      #############################################
-      - name: Update the version of the simulator
-        if: github.event.inputs.simulatorVersion
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y --no-install-recommends jq moreutils
-
-          IMAGE_BASE_URL=$(jq -r '.image.url' biosimulators.json | cut -d : -f 1)
-          jq ".version = \"${{ github.event.inputs.simulatorVersion }}\"" biosimulators.json | sponge biosimulators.json
-          jq ".image.url = \"${IMAGE_BASE_URL}:${{ github.event.inputs.simulatorVersion }}\"" biosimulators.json | sponge biosimulators.json
-
-          sed -i -E \
-            "s/SIMULATOR_VERSION=([^ \n]+|\".*?\")/SIMULATOR_VERSION=\"${{ github.event.inputs.simulatorVersion }}\"/" \
-            Dockerfile
-
-      #############################################
       ## Install package and its dependencies
       #############################################
       - name: Install Python
@@ -91,6 +73,55 @@ jobs:
       # install package
       - name: Install the package
         run: python -m pip install .[all]
+
+      #############################################
+      ## Update the version of the simulator
+      #############################################
+      - id: update-simulator-version
+        name: Update the version of the simulator
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            simulatorVersion="${{ github.event.inputs.simulatorVersion }}"
+          else
+            python -m pip install -U python-copasi
+            simulatorVersion=$(python -m pip show python-copasi | grep "Version: " | cut -d " " -f 2)
+          fi
+
+          simulatorSpecVersion=$(jq -r '.version' biosimulators.json)
+          set +e
+          dpkg --compare-versions "$simulatorVersion" ge "$simulatorSpecVersion"
+          if [[ $? = 0 ]]; then
+            simulatorVersionLatest="true"
+          else
+            simulatorVersionLatest="false"
+          fi
+          dpkg --compare-versions "$simulatorVersion" gt "$simulatorSpecVersion"
+          if [[ $? = 0 ]]; then
+            simulatorVersionNewer="true"
+          else
+            simulatorVersionNewer="false"
+          fi
+          set -e
+
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends jq moreutils
+
+          IMAGE_BASE_URL=$(jq -r '.image.url' biosimulators.json | cut -d : -f 1)
+          jq ".version = \"${simulatorVersion}\"" biosimulators.json | sponge biosimulators.json
+          jq ".image.url = \"${IMAGE_BASE_URL}:${simulatorVersion}\"" biosimulators.json | sponge biosimulators.json
+
+          sed -i -E \
+            "s/SIMULATOR_VERSION=([^ \n]+|\".*?\")/SIMULATOR_VERSION=\"${simulatorVersion}\"/" \
+            Dockerfile
+
+          echo "::set-output name=simulatorVersion::$simulatorVersion"
+          echo "::set-output name=simulatorVersionLatest::$simulatorVersionLatest"
+          echo "::set-output name=simulatorVersionNewer::$simulatorVersionNewer"
+
+      - name: Cancel build if the specifications already have the latest version of COPASI
+        uses: andymckay/cancel-action@0.2
+        if: github.event_name == 'schedule' && steps.update-simulator-version.outputs.simulatorVersionNewer != 'true'
 
       #############################################
       ## Lint
@@ -186,7 +217,7 @@ jobs:
       #############################################
       # If new version of simulator, commit and push the new version
       - name: Commit the revised version of the simulator
-        if: github.event.inputs.simulatorVersion && github.event.inputs.simulatorVersionLatest == 'true'
+        if: steps.update-simulator-version.outputs.simulatorVersion && steps.update-simulator-version.outputs.simulatorVersionLatest == 'true'
         run: |
           git config --local user.email "biosimulators.daemon@gmail.com"
           git config --local user.name "biosimulatorsdaemon"
@@ -200,7 +231,7 @@ jobs:
           git commit -m "Updating version of simulator"
 
       - name: Push the revised version of the simulator
-        if: github.event.inputs.simulatorVersion && github.event.inputs.simulatorVersionLatest == 'true'
+        if: steps.update-simulator-version.outputs.simulatorVersion && steps.update-simulator-version.outputs.simulatorVersionLatest == 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -215,7 +246,7 @@ jobs:
         run: |
           release="0"
 
-          if [ ! -z "${{ github.event.inputs.simulatorVersion }}" ]; then
+          if [ ! -z "${{ steps.update-simulator-version.outputs.simulatorVersion }}" ]; then
             if [ "${{ github.ref }}" == "${{ steps.get-main-branch.outputs.mainBranchRef }}" ]; then
               release="1"
             fi
@@ -311,7 +342,7 @@ jobs:
             --password ${{ secrets.DOCKER_REGISTRY_TOKEN }}
           docker push ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
 
-          if [[ "${{ github.ref }}" =~ ^refs/tags/ ]] || [ "${{ github.event.inputs.simulatorVersionLatest }}" == "true" ]; then
+          if [[ "${{ github.ref }}" =~ ^refs/tags/ ]] || [ "${{ steps.update-simulator-version.outputs.simulatorVersionLatest }}" == "true" ]; then
             docker push ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:latest
           fi
 
