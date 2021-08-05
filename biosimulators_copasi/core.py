@@ -216,11 +216,17 @@ def exec_sed_task(task, variables, log=None):
     copasi_model.setInitialTime(sim.initial_time)
     copasi_problem.setOutputStartTime(sim.output_start_time - sim.initial_time)
     copasi_problem.setDuration(sim.output_end_time - sim.initial_time)
-    step_number = (
-        sim.number_of_points
-        * (sim.output_end_time - sim.initial_time)
-        / (sim.output_end_time - sim.output_start_time)
-    )
+    if sim.output_end_time == sim.output_start_time:
+        if sim.output_start_time == sim.initial_time:
+            step_number = sim.number_of_points
+        else:
+            raise ValueError('Output end time must be greater than the output start time.')
+    else:
+        step_number = (
+            sim.number_of_points
+            * (sim.output_end_time - sim.initial_time)
+            / (sim.output_end_time - sim.output_start_time)
+        )
     if step_number != math.floor(step_number):
         raise NotImplementedError('Time course must specify an integer number of time points')
     else:

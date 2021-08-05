@@ -38,8 +38,11 @@ import unittest
 
 class CliTestCase(unittest.TestCase):
     DOCKER_IMAGE = 'ghcr.io/biosimulators/biosimulators_copasi/copasi:latest'
-    NAMESPACES = {
+    NAMESPACES_L2V4 = {
         'sbml': 'http://www.sbml.org/sbml/level2/version4',
+    }
+    NAMESPACES_L3V1 = {
+        'sbml': 'http://www.sbml.org/sbml/level3/version1/core',
     }
 
     def setUp(self):
@@ -80,17 +83,17 @@ class CliTestCase(unittest.TestCase):
             sedml_data_model.Variable(
                 id='A',
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='A']",
-                target_namespaces=self.NAMESPACES,
+                target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
             sedml_data_model.Variable(
                 id='C',
                 target='/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id="C"]',
-                target_namespaces=self.NAMESPACES,
+                target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
             sedml_data_model.Variable(
                 id='DA',
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='DA']",
-                target_namespaces=self.NAMESPACES,
+                target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
         ]
 
@@ -105,6 +108,55 @@ class CliTestCase(unittest.TestCase):
 
         for results in variable_results.values():
             self.assertFalse(numpy.any(numpy.isnan(results)))
+
+    def test_exec_sed_task_record_parameters(self):
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000806.xml'),
+                language=sedml_data_model.ModelLanguage.SBML.value,
+                changes=[],
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000560',
+                ),
+                initial_time=0.,
+                output_start_time=0.,
+                output_end_time=10.,
+                number_of_points=10,
+            ),
+        )
+
+        variables = [
+            sedml_data_model.Variable(
+                id='time',
+                symbol=sedml_data_model.Symbol.time,
+                task=task),
+            sedml_data_model.Variable(
+                id='r',
+                target="/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter[@id='r']",
+                target_namespaces=self.NAMESPACES_L3V1,
+                task=task),
+            sedml_data_model.Variable(
+                id='d_u',
+                target="/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter[@id='d_u']",
+                target_namespaces=self.NAMESPACES_L3V1,
+                task=task),
+        ]
+
+        variable_results, _ = exec_sed_task(task, variables)
+
+        self.assertTrue(sorted(variable_results.keys()), sorted([var.id for var in variables]))
+        self.assertEqual(variable_results[variables[0].id].shape, (task.simulation.number_of_points + 1,))
+        numpy.testing.assert_almost_equal(
+            variable_results['time'],
+            numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
+        )
+
+        for results in variable_results.values():
+            self.assertFalse(numpy.any(numpy.isnan(results)))
+
+        self.assertTrue(numpy.all(variable_results['r'] == variable_results['r'][0]))
 
     def test_exec_sed_task_correct_time_course_attrs(self):
         # test that initial time, output start time, output end time, number of points are correctly interpreted
@@ -139,7 +191,7 @@ class CliTestCase(unittest.TestCase):
             sedml_data_model.Variable(
                 id='A',
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='A']",
-                target_namespaces=self.NAMESPACES,
+                target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
         ]
 
@@ -204,7 +256,7 @@ class CliTestCase(unittest.TestCase):
             sedml_data_model.Variable(
                 id='Mdm2',
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='Mdm2']",
-                target_namespaces=self.NAMESPACES,
+                target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
         ]
 
@@ -268,7 +320,7 @@ class CliTestCase(unittest.TestCase):
             sedml_data_model.Variable(
                 id='A',
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='A']",
-                target_namespaces=self.NAMESPACES,
+                target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
         ]
         with self.assertRaisesRegex(NotImplementedError, 'symbols are not supported'):
@@ -278,7 +330,7 @@ class CliTestCase(unittest.TestCase):
             sedml_data_model.Variable(
                 id='A',
                 target="/sbml:sbml/sbml:model",
-                target_namespaces=self.NAMESPACES,
+                target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
         ]
         with self.assertRaisesRegex(ValueError, 'targets cannot be recorded'):
@@ -492,7 +544,7 @@ class CliTestCase(unittest.TestCase):
                 sedml_data_model.Variable(
                     id='var_A',
                     target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@name='A']",
-                    target_namespaces=self.NAMESPACES,
+                    target_namespaces=self.NAMESPACES_L2V4,
                     task=doc.tasks[0],
                 ),
             ],
@@ -504,7 +556,7 @@ class CliTestCase(unittest.TestCase):
                 sedml_data_model.Variable(
                     id='var_C',
                     target='/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@name="C"]',
-                    target_namespaces=self.NAMESPACES,
+                    target_namespaces=self.NAMESPACES_L2V4,
                     task=doc.tasks[0],
                 ),
             ],
@@ -516,7 +568,7 @@ class CliTestCase(unittest.TestCase):
                 sedml_data_model.Variable(
                     id='var_DA',
                     target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='DA']",
-                    target_namespaces=self.NAMESPACES,
+                    target_namespaces=self.NAMESPACES_L2V4,
                     task=doc.tasks[0],
                 ),
             ],
