@@ -4,9 +4,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-    <title>biosimulators_copasi package &#8212; BioSimulators-COPASI 0.1.25 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>biosimulators_copasi package &#8212; BioSimulators-COPASI 0.1.26 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -86,7 +85,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -108,12 +107,12 @@
 
           <div class="body" role="main">
             
-  <section id="module-biosimulators_copasi">
+  <div class="section" id="module-biosimulators_copasi">
 <span id="biosimulators-copasi-package"></span><h1>biosimulators_copasi package<a class="headerlink" href="#module-biosimulators_copasi" title="Permalink to this headline">¶</a></h1>
-<section id="submodules">
+<div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</section>
-<section id="module-biosimulators_copasi.core">
+</div>
+<div class="section" id="module-biosimulators_copasi.core">
 <span id="biosimulators-copasi-core-module"></span><h2>biosimulators_copasi.core module<a class="headerlink" href="#module-biosimulators_copasi.core" title="Permalink to this headline">¶</a></h2>
 <p>Methods for executing SED tasks in COMBINE archives and saving their outputs</p>
 <dl class="field-list simple">
@@ -179,7 +178,7 @@ with reports at keys <code class="docutils literal notranslate"><span class="pre
 </ul>
 </p></li>
 <li><p><strong>report_formats</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">ReportFormat</span></code>, optional) – report format (e.g., csv or h5)</p></li>
-<li><p><strong>plot_formats</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">PlotFormat</span></code>, optional) – report format (e.g., pdf)</p></li>
+<li><p><strong>plot_formats</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">VizFormat</span></code>, optional) – report format (e.g., pdf)</p></li>
 <li><p><strong>bundle_outputs</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, bundle outputs into archives for reports and plots</p></li>
 <li><p><strong>keep_individual_outputs</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, keep individual output files</p></li>
 </ul>
@@ -193,8 +192,8 @@ with reports at keys <code class="docutils literal notranslate"><span class="pre
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-biosimulators_copasi.data_model">
+</div>
+<div class="section" id="module-biosimulators_copasi.data_model">
 <span id="biosimulators-copasi-data-model-module"></span><h2>biosimulators_copasi.data_model module<a class="headerlink" href="#module-biosimulators_copasi.data_model" title="Permalink to this headline">¶</a></h2>
 <p>Data model for maps from KiSAO terms to COPASI algorithms and their arguments</p>
 <dl class="field-list simple">
@@ -212,24 +211,24 @@ with reports at keys <code class="docutils literal notranslate"><span class="pre
 </dd>
 </dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="biosimulators_copasi.data_model.GetDataFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">biosimulators_copasi.data_model.</span></span><span class="sig-name descname"><span class="pre">GetDataFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.data_model.GetDataFunction" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="biosimulators_copasi.data_model.Units">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">biosimulators_copasi.data_model.</span></span><span class="sig-name descname"><span class="pre">Units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.data_model.Units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Function for getting simulation results</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="biosimulators_copasi.data_model.GetDataFunction.continuous">
-<span class="sig-name descname"><span class="pre">continuous</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'getConcentrationData'</span></em><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.data_model.GetDataFunction.continuous" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="biosimulators_copasi.data_model.Units.continuous">
+<span class="sig-name descname"><span class="pre">continuous</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'continuous'</span></em><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.data_model.Units.continuous" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="biosimulators_copasi.data_model.GetDataFunction.discrete">
-<span class="sig-name descname"><span class="pre">discrete</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'getData'</span></em><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.data_model.GetDataFunction.discrete" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="biosimulators_copasi.data_model.Units.discrete">
+<span class="sig-name descname"><span class="pre">discrete</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'discrete'</span></em><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/data_model.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.data_model.Units.discrete" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="module-biosimulators_copasi.utils">
+</div>
+<div class="section" id="module-biosimulators_copasi.utils">
 <span id="biosimulators-copasi-utils-module"></span><h2>biosimulators_copasi.utils module<a class="headerlink" href="#module-biosimulators_copasi.utils" title="Permalink to this headline">¶</a></h2>
 <p>Utilities for working with the maps from KiSAO ids to COPASI methods and their arguments</p>
 <dl class="field-list simple">
@@ -248,11 +247,15 @@ with reports at keys <code class="docutils literal notranslate"><span class="pre
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="biosimulators_copasi.utils.get_algorithm_id">
-<span class="sig-prename descclassname"><span class="pre">biosimulators_copasi.utils.</span></span><span class="sig-name descname"><span class="pre">get_algorithm_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kisao_id</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.utils.get_algorithm_id" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">biosimulators_copasi.utils.</span></span><span class="sig-name descname"><span class="pre">get_algorithm_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kisao_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.utils.get_algorithm_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the COPASI id for an algorithm</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>kisao_id</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – KiSAO algorithm id</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kisao_id</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – KiSAO algorithm id</p></li>
+<li><p><strong>events</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – whether an algorithm that supports
+events is needed</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
@@ -263,6 +266,44 @@ with reports at keys <code class="docutils literal notranslate"><span class="pre
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="biosimulators_copasi.utils.get_copasi_model_obj_sbml_ids">
+<span class="sig-prename descclassname"><span class="pre">biosimulators_copasi.utils.</span></span><span class="sig-name descname"><span class="pre">get_copasi_model_obj_sbml_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.utils.get_copasi_model_obj_sbml_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the SBML id of each object of a COPASI model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">COPASI.CModel</span></code>) – model</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>obj:<a href="#id1"><span class="problematic" id="id2">`</span></a>str: SBML id of each object of the model</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="biosimulators_copasi.utils.get_copasi_model_object_by_sbml_id">
+<span class="sig-prename descclassname"><span class="pre">biosimulators_copasi.utils.</span></span><span class="sig-name descname"><span class="pre">get_copasi_model_object_by_sbml_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/biosimulators/Biosimulators_COPASI/blob/dev/biosimulators_copasi/utils.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#biosimulators_copasi.utils.get_copasi_model_object_by_sbml_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a COPASI model object by its SBML id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">COPASI.CModel</span></code>) – model</p></li>
+<li><p><strong>id</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – SBML id</p></li>
+<li><p><strong>units</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Units</span></code>) – desired units for the object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>model object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">COPASI.CCompartment</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">COPASI.CMetab</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">COPASI.CModelValue</span></code>, or <code class="xref py py-obj docutils literal notranslate"><span class="pre">COPASI.CReaction</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -289,8 +330,8 @@ with reports at keys <code class="docutils literal notranslate"><span class="pre
 </dl>
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
           </div>
