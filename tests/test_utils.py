@@ -28,6 +28,15 @@ class UtilsTestCase(unittest.TestCase):
         with self.assertRaises(AlgorithmCannotBeSubstitutedException):
             utils.get_algorithm_id('KISAO_0000450')
 
+        with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_MATH'}):
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=False)[0], 'KISAO_0000561')
+        with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=False)[0], 'KISAO_0000561')
+        with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_MATH'}):
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=True)[0], 'KISAO_0000561')
+        with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=True)[0], 'KISAO_0000563')
+
     def test_set_function_boolean_parameter(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         copasi_task = copasi_data_model.getTask('Time-Course')
@@ -193,6 +202,17 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(
             object.getCN().getString(),
             'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Compartments[compartment],Vector=Metabolites[UnInfected_Tumour_Cells(Xu)],Reference=ParticleNumber')
+
+        object = utils.get_copasi_model_object_by_sbml_id(copasi_model, 'compartment', data_model.Units.continuous)
+        self.assertEqual(
+            object.getCN().getString(),
+            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Compartments[compartment],Reference=Volume')
+
+        object = utils.get_copasi_model_object_by_sbml_id(
+            copasi_model, 'Uninfected_tumour_cell_logistic_growth', data_model.Units.continuous)
+        self.assertEqual(
+            object.getCN().getString(),
+            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Reactions[Uninfected tumour cell logistic growth],Reference=Flux')
 
     def test_get_copasi_model_obj_sbml_ids(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()

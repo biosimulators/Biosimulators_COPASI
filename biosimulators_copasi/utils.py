@@ -10,6 +10,7 @@ from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units
 from biosimulators_utils.data_model import ValueType
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
 from biosimulators_utils.utils.core import validate_str_value, parse_value
+from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from kisao.utils import get_preferred_substitute_algorithm_by_ids
 import COPASI
 import itertools
@@ -22,11 +23,13 @@ __all__ = [
 ]
 
 
-def get_algorithm_id(kisao_id):
+def get_algorithm_id(kisao_id, events=False):
     """ Get the COPASI id for an algorithm
 
     Args:
         kisao_id (:obj:`str`): KiSAO algorithm id
+        events (:obj:`bool`, optional): whether an algorithm that supports
+            events is needed
 
     Returns:
         :obj:`tuple`:
@@ -34,9 +37,29 @@ def get_algorithm_id(kisao_id):
             * :obj:`str`: KiSAO id of algorithm to execute
             * :obj:`int`: COPASI id for algorithm
     """
-    exec_kisao_id = get_preferred_substitute_algorithm_by_ids(
-        kisao_id, KISAO_ALGORITHMS_MAP.keys(),
-        substitution_policy=get_algorithm_substitution_policy())
+    possible_alg_kisao_ids = [
+        id
+        for id, props in KISAO_ALGORITHMS_MAP.items()
+        if not events or props['supports_events']
+    ]
+
+    substitution_policy = get_algorithm_substitution_policy()
+    try:
+        exec_kisao_id = get_preferred_substitute_algorithm_by_ids(
+            kisao_id, possible_alg_kisao_ids,
+            substitution_policy=substitution_policy)
+    except NotImplementedError:
+        if (
+            events
+            and kisao_id in ['KISAO_0000561', 'KISAO_0000562']
+            and (
+                ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy] >=
+                ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SIMILAR_APPROXIMATIONS]
+            )
+        ):
+            exec_kisao_id = 'KISAO_0000563'
+        else:
+            exec_kisao_id = kisao_id
 
     alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
     return (exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']))

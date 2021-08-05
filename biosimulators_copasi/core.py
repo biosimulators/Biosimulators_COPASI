@@ -111,10 +111,11 @@ def exec_sed_task(task, variables, log=None):
     if not copasi_data_model.importSBML(model.source):
         raise ValueError("`{}` could not be imported:\n\n  {}".format(
             model.source, get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
+    copasi_model = copasi_data_model.getModel()
 
     # determine the algorithm to execute
     alg_kisao_id = sim.algorithm.kisao_id
-    exec_alg_kisao_id, alg_copasi_id = get_algorithm_id(alg_kisao_id)
+    exec_alg_kisao_id, alg_copasi_id = get_algorithm_id(alg_kisao_id, events=copasi_model.getNumEvents() >= 1)
 
     # initialize COPASI task
     copasi_task = copasi_data_model.getTask('Time-Course')
@@ -165,7 +166,6 @@ def exec_sed_task(task, variables, log=None):
     invalid_symbols = []
     invalid_targets = []
 
-    copasi_model = copasi_data_model.getModel()
     for variable in variables:
         copasi_model_obj_common_name = None
         if variable.symbol:
@@ -178,7 +178,7 @@ def exec_sed_task(task, variables, log=None):
             target_sbml_id = target_x_paths_ids[variable.target]
 
             copasi_model_obj = get_copasi_model_object_by_sbml_id(copasi_model, target_sbml_id,
-                                                                  KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['units'])
+                                                                  KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units'])
             if copasi_model_obj is None:
                 invalid_targets.append(variable.target)
             else:
@@ -206,7 +206,7 @@ def exec_sed_task(task, variables, log=None):
         ]))
 
     if not copasi_task.initializeRawWithOutputHandler(COPASI.CCopasiTask.OUTPUT_DURING, copasi_data_handler):
-        raise ValueError("Output handler could not be initialized:\n\n  {}".format(
+        raise RuntimeError("Output handler could not be initialized:\n\n  {}".format(
             get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
 
     # Execute simulation
@@ -220,7 +220,7 @@ def exec_sed_task(task, variables, log=None):
         if sim.output_start_time == sim.initial_time:
             step_number = sim.number_of_points
         else:
-            raise ValueError('Output end time must be greater than the output start time.')
+            raise NotImplementedError('Output end time must be greater than the output start time.')
     else:
         step_number = (
             sim.number_of_points
@@ -247,7 +247,11 @@ def exec_sed_task(task, variables, log=None):
     # collect simulation predictions
     number_of_recorded_points = copasi_data_handler.getNumRowsDuring()
 
-    if variables and number_of_recorded_points != (sim.number_of_points + 1):
+    if (
+        variables
+        and number_of_recorded_points != (sim.number_of_points + 1)
+        and (sim.output_end_time != sim.output_start_time or sim.output_start_time != sim.initial_time)
+    ):
         raise RuntimeError('Simulation produced {} rather than {} time points'.format(
             number_of_recorded_points, sim.number_of_points)
         )  # pragma: no cover # unreachable because COPASI produces the correct number of outputs
@@ -260,6 +264,13 @@ def exec_sed_task(task, variables, log=None):
         step_values = copasi_data_handler.getNthRow(i_step)
         for variable, value in zip(variables, step_values):
             variable_results[variable.id][i_step] = value
+
+    if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:
+        for variable in variables:
+            variable_results[variable.id] = numpy.concatenate((
+                variable_results[variable.id][0:1],
+                numpy.full((sim.number_of_points,), variable_results[variable.id][1]),
+            ))
 
     # log action
     log.algorithm = exec_alg_kisao_id

@@ -24,6 +24,7 @@ from biosimulators_utils.sedml.utils import append_all_nested_children_to_doc
 from biosimulators_utils.utils.core import are_lists_equal
 from biosimulators_utils.warnings import BioSimulatorsWarning
 from unittest import mock
+import COPASI
 import copy
 import datetime
 import dateutil.tz
@@ -107,6 +108,17 @@ class CliTestCase(unittest.TestCase):
         )
 
         for results in variable_results.values():
+            self.assertFalse(numpy.any(numpy.isnan(results)))
+
+        # initial_time = output_start_time = output_end_time
+        task.simulation.initial_time = 0.
+        task.simulation.output_start_time = 0.
+        task.simulation.output_end_time = 0.
+        task.simulation.number_of_points = 10
+        variable_results, _ = exec_sed_task(task, variables)
+        self.assertTrue(numpy.all(variable_results['time'] == 0.))
+        for results in variable_results.values():
+            self.assertEqual(results.shape, (task.simulation.number_of_points + 1,))
             self.assertFalse(numpy.any(numpy.isnan(results)))
 
     def test_exec_sed_task_record_parameters(self):
@@ -307,11 +319,20 @@ class CliTestCase(unittest.TestCase):
                 exec_sed_task(task, variables)
 
         task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml')
+        with mock.patch.object(COPASI.CCopasiTask, 'initializeRawWithOutputHandler', return_value=False):
+            with self.assertRaisesRegex(RuntimeError, 'Output handler could not be initialized'):
+                exec_sed_task(task, variables)
+
         task.simulation.output_end_time = 20.1
         with self.assertRaisesRegex(NotImplementedError, 'integer number of time points'):
             exec_sed_task(task, variables)
 
+        task.simulation.output_start_time = 20.
         task.simulation.output_end_time = 20.
+        with self.assertRaisesRegex(NotImplementedError, 'must be greater'):
+            exec_sed_task(task, variables)
+
+        task.simulation.output_start_time = 10.
         variables = [
             sedml_data_model.Variable(
                 id='time',
@@ -367,25 +388,32 @@ class CliTestCase(unittest.TestCase):
         task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000634_url.xml')
         task.simulation.algorithm.kisao_id = 'KISAO_0000560'
         variables = [data_set.data_generator.variables[0] for data_set in doc.outputs[0].data_sets]
-        exec_sed_task(task, variables)
+        _, log = exec_sed_task(task, variables)
+        self.assertEqual(log.algorithm, 'KISAO_0000560')
 
         task = copy.deepcopy(doc.tasks[0])
         task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000634_url.xml')
         task.simulation.algorithm.kisao_id = 'KISAO_0000304'
         variables = [data_set.data_generator.variables[0] for data_set in doc.outputs[0].data_sets]
-        with self.assertRaisesRegex(RuntimeError,
-                                    'Radau5 integration is not possible with this version of COPASI.'):
-            exec_sed_task(task, variables)
+        _, log = exec_sed_task(task, variables)
+        self.assertNotEqual(log.algorithm, 'KISAO_0000304')
 
-        with self.assertRaisesRegex(CombineArchiveExecutionError,
-                                    'Radau5 integration is not possible with this version of COPASI.'):
-            exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                               report_formats=[
-                                                   report_data_model.ReportFormat.h5,
-                                                   report_data_model.ReportFormat.csv,
-                                               ],
-                                               bundle_outputs=True,
-                                               keep_individual_outputs=True)
+        task = copy.deepcopy(doc.tasks[0])
+        task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml')
+        task.simulation.algorithm.kisao_id = 'KISAO_0000304'
+        variables = [sedml_data_model.Variable(id='time', task=task, symbol=sedml_data_model.Symbol.time.value)]
+        _, log = exec_sed_task(task, variables)
+        self.assertEqual(log.algorithm, 'KISAO_0000304')
+
+        with self.assertRaises(CombineArchiveExecutionError):
+            with mock.patch.object(COPASI.CCopasiTask, 'processRaw', return_value=False):
+                exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                                   report_formats=[
+                                                       report_data_model.ReportFormat.h5,
+                                                       report_data_model.ReportFormat.csv,
+                                                   ],
+                                                   bundle_outputs=True,
+                                                   keep_individual_outputs=True)
 
     def test_exec_sedml_docs_in_combine_archive(self):
         doc, archive_filename = self._build_combine_archive()
@@ -435,32 +463,20 @@ class CliTestCase(unittest.TestCase):
 
     def test_exec_sedml_docs_in_combine_archive_with_stochastic_model_all_algorithms(self):
         # discrete/continuous model
-        errored_algs = []
         for alg in gen_algorithms_from_specs(os.path.join(os.path.dirname(__file__), '..', 'biosimulators.json')).values():
             doc, archive_filename = self._build_combine_archive(algorithm=alg,
                                                                 orig_model_filename='BIOMD0000000634_url.xml',
                                                                 var_targets=[None, 'Mdm2', 'p53', 'Mdm2_p53'])
 
             out_dir = os.path.join(self.dirname, alg.kisao_id)
-            try:
-                exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                                   report_formats=[
-                                                       report_data_model.ReportFormat.h5,
-                                                       report_data_model.ReportFormat.csv,
-                                                   ],
-                                                   bundle_outputs=True,
-                                                   keep_individual_outputs=True)
-                self._assert_combine_archive_outputs(doc, out_dir)
-            except CombineArchiveExecutionError:
-                errored_algs.append(alg.kisao_id)
-
-        # failed because model has events
-        self.assertEqual(sorted(errored_algs), sorted([
-            'KISAO_0000039',
-            'KISAO_0000304',
-            'KISAO_0000561',
-            'KISAO_0000562'
-        ]))
+            exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                               report_formats=[
+                                                   report_data_model.ReportFormat.h5,
+                                                   report_data_model.ReportFormat.csv,
+                                               ],
+                                               bundle_outputs=True,
+                                               keep_individual_outputs=True)
+            self._assert_combine_archive_outputs(doc, out_dir)
 
     def _build_combine_archive(self, algorithm=None, orig_model_filename='model.xml', var_targets=[None, 'A', 'C', 'DA']):
         doc = self._build_sed_doc(algorithm=algorithm)
