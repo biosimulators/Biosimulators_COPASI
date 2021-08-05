@@ -6,14 +6,20 @@
 :License: MIT
 """
 
-from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP
+from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units
 from biosimulators_utils.data_model import ValueType
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
 from biosimulators_utils.utils.core import validate_str_value, parse_value
 from kisao.utils import get_preferred_substitute_algorithm_by_ids
 import COPASI
+import itertools
 
-__all__ = ['get_algorithm_id', 'set_algorithm_parameter_value']
+__all__ = [
+    'get_algorithm_id',
+    'set_algorithm_parameter_value',
+    'get_copasi_model_object_by_sbml_id',
+    'get_copasi_model_obj_sbml_ids',
+]
 
 
 def get_algorithm_id(kisao_id):
@@ -154,3 +160,59 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
             args[parameter_name].append(rxn_common_name)
 
     return args
+
+
+def get_copasi_model_object_by_sbml_id(model, id, units):
+    """ Get a COPASI model object by its SBML id
+
+    Args:
+        model (:obj:`COPASI.CModel`): model
+        id (:obj:`str`): SBML id
+        units (:obj:`Units`): desired units for the object
+
+    Returns:
+        :obj:`COPASI.CCompartment`, :obj:`COPASI.CMetab`, :obj:`COPASI.CModelValue`, or :obj:`COPASI.CReaction`:
+            model object
+    """
+    for object in model.getMetabolites():
+        if object.getSBMLId() == id:
+            if units == Units.discrete:
+                return object.getValueReference()
+            else:
+                return object.getConcentrationReference()
+
+    for object in model.getModelValues():
+        if object.getSBMLId() == id:
+            return object.getValueReference()
+
+    for object in model.getCompartments():
+        if object.getSBMLId() == id:
+            return object.getValueReference()
+
+    for object in model.getReactions():
+        if object.getSBMLId() == id:
+            return object.getFluxReference()
+
+    return None
+
+
+def get_copasi_model_obj_sbml_ids(model):
+    """ Get the SBML id of each object of a COPASI model
+
+    Args:
+        model (:obj:`COPASI.CModel`): model
+
+    Returns:
+        :obj:`list` of :obj:`str: SBML id of each object of the model
+    """
+    ids = []
+
+    for object in itertools.chain(
+        model.getMetabolites(),
+        model.getModelValues(),
+        model.getCompartments(),
+        model.getReactions()
+    ):
+        ids.append(object.getSBMLId())
+
+    return ids

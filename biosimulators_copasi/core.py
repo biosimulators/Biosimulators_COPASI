@@ -20,7 +20,8 @@ from biosimulators_utils.utils.core import raise_errors_warnings
 from biosimulators_utils.warnings import warn, BioSimulatorsWarning
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from .data_model import KISAO_ALGORITHMS_MAP
-from .utils import get_algorithm_id, set_algorithm_parameter_value
+from .utils import (get_algorithm_id, set_algorithm_parameter_value,
+                    get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids)
 import COPASI
 import functools
 import math
@@ -108,17 +109,21 @@ def exec_sed_task(task, variables, log=None):
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
     copasi_data_model = COPASI.CRootContainer.addDatamodel()
     if not copasi_data_model.importSBML(model.source):
-        raise ValueError("'{}' could not be imported:\n\n  {}".format(
+        raise ValueError("`{}` could not be imported:\n\n  {}".format(
             model.source, get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
 
-    # Load the algorithm specified by `simulation.algorithm`
+    # determine the algorithm to execute
     alg_kisao_id = sim.algorithm.kisao_id
     exec_alg_kisao_id, alg_copasi_id = get_algorithm_id(alg_kisao_id)
+
+    # initialize COPASI task
     copasi_task = copasi_data_model.getTask('Time-Course')
+
+    # Load the algorithm specified by `simulation.algorithm`
     if not copasi_task.setMethodType(alg_copasi_id):
         raise RuntimeError('Unable to initialize function for {}'.format(exec_alg_kisao_id)
                            )  # pragma: no cover # unreachable because :obj:`get_algorithm_id` returns valid COPASI method ids
-    method = copasi_task.getMethod()
+    copasi_method = copasi_task.getMethod()
 
     # Apply the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     method_parameters = {}
@@ -126,7 +131,7 @@ def exec_sed_task(task, variables, log=None):
     if exec_alg_kisao_id == alg_kisao_id:
         for change in sim.algorithm.changes:
             try:
-                change_args = set_algorithm_parameter_value(exec_alg_kisao_id, method,
+                change_args = set_algorithm_parameter_value(exec_alg_kisao_id, copasi_method,
                                                             change.kisao_id, change.new_value)
                 for key, val in change_args.items():
                     method_parameters[key] = val
@@ -151,26 +156,81 @@ def exec_sed_task(task, variables, log=None):
                 else:
                     raise
 
+    # set up observables of the task
+    # due to a COPASI bug, :obj:`COPASI.CCopasiTask.initializeRawWithOutputHandler` must be called after
+    # :obj:`COPASI.CCopasiTask.setMethodType`
+
+    copasi_data_handler = COPASI.CDataHandler()
+
+    invalid_symbols = []
+    invalid_targets = []
+
+    copasi_model = copasi_data_model.getModel()
+    for variable in variables:
+        copasi_model_obj_common_name = None
+        if variable.symbol:
+            if variable.symbol == Symbol.time.value:
+                copasi_model_obj_common_name = copasi_model.getValueReference().getCN()
+            else:
+                invalid_symbols.append(variable.symbol)
+
+        else:
+            target_sbml_id = target_x_paths_ids[variable.target]
+
+            copasi_model_obj = get_copasi_model_object_by_sbml_id(copasi_model, target_sbml_id,
+                                                                  KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['units'])
+            if copasi_model_obj is None:
+                invalid_targets.append(variable.target)
+            else:
+                copasi_model_obj_common_name = copasi_model_obj.getCN().getString()
+
+        if copasi_model_obj_common_name is not None:
+            copasi_data_handler.addDuringName(COPASI.CRegisteredCommonName(copasi_model_obj_common_name))
+
+    if invalid_symbols:
+        raise NotImplementedError("".join([
+            "The following variable symbols are not supported:\n  - {}\n\n".format(
+                '\n  - '.join(sorted(invalid_symbols)),
+            ),
+            "Symbols must be one of the following:\n  - {}".format(Symbol.time),
+        ]))
+
+    if invalid_targets:
+        raise ValueError(''.join([
+            'The following variable targets cannot be recorded:\n  - {}\n\n'.format(
+                '\n  - '.join(sorted(invalid_targets)),
+            ),
+            'Targets must have one of the following ids:\n  - {}'.format(
+                '\n  - '.join(sorted(get_copasi_model_obj_sbml_ids(copasi_model))),
+            ),
+        ]))
+
+    if not copasi_task.initializeRawWithOutputHandler(COPASI.CCopasiTask.OUTPUT_DURING, copasi_data_handler):
+        raise ValueError("Output handler could not be initialized:\n\n  {}".format(
+            get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
+
     # Execute simulation
     copasi_task.setScheduled(True)
 
-    model = copasi_data_model.getModel()
-
-    problem = copasi_task.getProblem()
-    model.setInitialTime(sim.initial_time)
-    problem.setOutputStartTime(sim.output_start_time - sim.initial_time)
-    problem.setDuration(sim.output_end_time - sim.initial_time)
-    step_number = sim.number_of_points * (sim.output_end_time - sim.initial_time) / (sim.output_end_time - sim.output_start_time)
+    copasi_problem = copasi_task.getProblem()
+    copasi_model.setInitialTime(sim.initial_time)
+    copasi_problem.setOutputStartTime(sim.output_start_time - sim.initial_time)
+    copasi_problem.setDuration(sim.output_end_time - sim.initial_time)
+    step_number = (
+        sim.number_of_points
+        * (sim.output_end_time - sim.initial_time)
+        / (sim.output_end_time - sim.output_start_time)
+    )
     if step_number != math.floor(step_number):
         raise NotImplementedError('Time course must specify an integer number of time points')
     else:
         step_number = int(step_number)
-    problem.setStepNumber(step_number)
-    problem.setTimeSeriesRequested(True)
-    problem.setAutomaticStepSize(False)
-    problem.setOutputEvent(False)
+    copasi_problem.setStepNumber(step_number)
+    copasi_problem.setTimeSeriesRequested(False)
+    copasi_problem.setAutomaticStepSize(False)
+    copasi_problem.setOutputEvent(False)
 
-    result = copasi_task.process(True)
+    result = copasi_task.processRaw(True)
     warning_details = copasi_task.getProcessWarning()
     if warning_details:
         warn(get_copasi_error_message(exec_alg_kisao_id, warning_details), BioSimulatorsWarning)
@@ -178,60 +238,22 @@ def exec_sed_task(task, variables, log=None):
         error_details = copasi_task.getProcessError()
         raise RuntimeError(get_copasi_error_message(exec_alg_kisao_id, error_details))
 
-    time_series = copasi_task.getTimeSeries()
-    number_of_recorded_points = time_series.getRecordedSteps()
-    if number_of_recorded_points != (sim.number_of_points + 1):
+    # collect simulation predictions
+    number_of_recorded_points = copasi_data_handler.getNumRowsDuring()
+
+    if variables and number_of_recorded_points != (sim.number_of_points + 1):
         raise RuntimeError('Simulation produced {} rather than {} time points'.format(
             number_of_recorded_points, sim.number_of_points)
         )  # pragma: no cover # unreachable because COPASI produces the correct number of outputs
 
-    # collect simulation predictions
-    sbml_id_to_i_time_series = {}
-    for i_time_series in range(0, time_series.getNumVariables()):
-        time_series_sbml_id = time_series.getSBMLId(i_time_series, copasi_data_model)
-        sbml_id_to_i_time_series[time_series_sbml_id] = i_time_series
-
-    get_data_function = getattr(time_series, KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['get_data_function'].value)
     variable_results = VariableResults()
-    unpredicted_symbols = []
-    unpredicted_targets = []
     for variable in variables:
-        if variable.symbol:
-            if variable.symbol == Symbol.time:
-                variable_result = numpy.linspace(sim.output_start_time, sim.output_end_time, number_of_recorded_points)
-            else:
-                unpredicted_symbols.append(variable.symbol)
-                variable_result = numpy.full((number_of_recorded_points,), numpy.nan)
+        variable_results[variable.id] = numpy.full((number_of_recorded_points,), numpy.nan)
 
-        else:
-            target_sbml_id = target_x_paths_ids[variable.target]
-            i_time_series = sbml_id_to_i_time_series.get(target_sbml_id, None)
-            variable_result = numpy.full((number_of_recorded_points,), numpy.nan)
-            if i_time_series is None:
-                unpredicted_targets.append(variable.target)
-            else:
-                for i_step in range(0, time_series.getRecordedSteps()):
-                    variable_result[i_step] = get_data_function(i_step, i_time_series)
-
-        variable_results[variable.id] = variable_result
-
-    if unpredicted_symbols:
-        raise NotImplementedError("".join([
-            "The following variable symbols are not supported:\n  - {}\n\n".format(
-                '\n  - '.join(sorted(unpredicted_symbols)),
-            ),
-            "Symbols must be one of the following:\n  - {}".format(Symbol.time),
-        ]))
-
-    if unpredicted_targets:
-        raise ValueError(''.join([
-            'The following variable targets could not be recorded:\n  - {}\n\n'.format(
-                '\n  - '.join(sorted(unpredicted_targets)),
-            ),
-            'Targets must have one of the following ids:\n  - {}'.format(
-                '\n  - '.join(sorted(sbml_id_to_i_time_series.keys())),
-            ),
-        ]))
+    for i_step in range(number_of_recorded_points):
+        step_values = copasi_data_handler.getNthRow(i_step)
+        for variable, value in zip(variables, step_values):
+            variable_results[variable.id][i_step] = value
 
     # log action
     log.algorithm = exec_alg_kisao_id
@@ -257,7 +279,7 @@ def get_copasi_error_message(algorithm_kisao_id, details=None):
     """
     error_msg = 'Simulation with algorithm {} ({}) failed'.format(
         algorithm_kisao_id, KISAO_ALGORITHMS_MAP.get(algorithm_kisao_id, {}).get('name', 'N/A'))
-    if details is None:
+    if not details:
         details = COPASI.CCopasiMessage.getLastMessage().getText()
     if details:
         details = '\n'.join(line[min(2, len(line)):] for line in details.split('\n')

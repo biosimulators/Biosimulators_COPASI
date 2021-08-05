@@ -24,6 +24,7 @@ from biosimulators_utils.sedml.utils import append_all_nested_children_to_doc
 from biosimulators_utils.utils.core import are_lists_equal
 from biosimulators_utils.warnings import BioSimulatorsWarning
 from unittest import mock
+import copy
 import datetime
 import dateutil.tz
 import json
@@ -276,11 +277,11 @@ class CliTestCase(unittest.TestCase):
         variables = [
             sedml_data_model.Variable(
                 id='A',
-                target="/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction[@id='Reaction1']",
+                target="/sbml:sbml/sbml:model",
                 target_namespaces=self.NAMESPACES,
                 task=task),
         ]
-        with self.assertRaisesRegex(ValueError, 'targets could not be recorded'):
+        with self.assertRaisesRegex(ValueError, 'targets cannot be recorded'):
             exec_sed_task(task, variables)
 
         variables = []
@@ -291,7 +292,7 @@ class CliTestCase(unittest.TestCase):
 
         with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_VARIABLES'}):
             with self.assertWarnsRegex(BioSimulatorsWarning, 'Unsuported value'):
-                    exec_sed_task(task, variables)
+                exec_sed_task(task, variables)
 
         task.simulation.algorithm.changes[0].kisao_id = 'KISAO_0000531'
         with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'NONE'}):
@@ -309,7 +310,23 @@ class CliTestCase(unittest.TestCase):
                                                             var_targets=[None, 'Mdm2', 'p53', 'Mdm2_p53'])
 
         out_dir = os.path.join(self.dirname, alg.kisao_id)
-        with self.assertRaisesRegex(CombineArchiveExecutionError, 'Radau5 integration is not possible with this version of COPASI.'):
+
+        task = copy.deepcopy(doc.tasks[0])
+        task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000634_url.xml')
+        task.simulation.algorithm.kisao_id = 'KISAO_0000560'
+        variables = [data_set.data_generator.variables[0] for data_set in doc.outputs[0].data_sets]
+        exec_sed_task(task, variables)
+
+        task = copy.deepcopy(doc.tasks[0])
+        task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000634_url.xml')
+        task.simulation.algorithm.kisao_id = 'KISAO_0000304'
+        variables = [data_set.data_generator.variables[0] for data_set in doc.outputs[0].data_sets]
+        with self.assertRaisesRegex(RuntimeError,
+                                    'Radau5 integration is not possible with this version of COPASI.'):
+            exec_sed_task(task, variables)
+
+        with self.assertRaisesRegex(CombineArchiveExecutionError,
+                                    'Radau5 integration is not possible with this version of COPASI.'):
             exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
                                                report_formats=[
                                                    report_data_model.ReportFormat.h5,

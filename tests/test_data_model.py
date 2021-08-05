@@ -13,7 +13,7 @@ class DataModelTestCase(unittest.TestCase):
             self.assertIsInstance(props['name'], str)
             self.assertIsInstance(props['id'], str)
             self.assertIsInstance(getattr(COPASI.CTaskEnum, 'Method_' + props['id']), int)
-            self.assertIsInstance(props['get_data_function'], data_model.GetDataFunction)
+            self.assertIsInstance(props['units'], data_model.Units)
 
     def test_parameters(self):
         for kisao_id, props in data_model.KISAO_PARAMETERS_MAP.items():

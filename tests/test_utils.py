@@ -178,3 +178,27 @@ class UtilsTestCase(unittest.TestCase):
                     self.assertEqual(parameter.getIntValue(), 2)
                 elif param_props['type'] == ValueType.float:
                     self.assertEqual(parameter.getDblValue(), 1e-8)
+
+    def test_get_copasi_model_object_by_sbml_id(self):
+        copasi_data_model = COPASI.CRootContainer.addDatamodel()
+        copasi_data_model.importSBML(os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000806.xml'))
+        copasi_model = copasi_data_model.getModel()
+
+        object = utils.get_copasi_model_object_by_sbml_id(copasi_model, 'UnInfected_Tumour_Cells_Xu', data_model.Units.continuous)
+        self.assertEqual(
+            object.getCN().getString(),
+            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Compartments[compartment],Vector=Metabolites[UnInfected_Tumour_Cells(Xu)],Reference=Concentration')
+
+        object = utils.get_copasi_model_object_by_sbml_id(copasi_model, 'UnInfected_Tumour_Cells_Xu', data_model.Units.discrete)
+        self.assertEqual(
+            object.getCN().getString(),
+            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Compartments[compartment],Vector=Metabolites[UnInfected_Tumour_Cells(Xu)],Reference=ParticleNumber')
+
+    def test_get_copasi_model_obj_sbml_ids(self):
+        copasi_data_model = COPASI.CRootContainer.addDatamodel()
+        copasi_data_model.importSBML(os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000806.xml'))
+        copasi_model = copasi_data_model.getModel()
+
+        ids = utils.get_copasi_model_obj_sbml_ids(copasi_model)
+        self.assertEqual(len(ids), 6 + 32 + 25 + 1)
+        self.assertIn('UnInfected_Tumour_Cells_Xu', ids)
