@@ -14,7 +14,7 @@ from biosimulators_utils.simulator.environ import ENVIRONMENT_VARIABLES
 from kisao.data_model import AlgorithmSubstitutionPolicy
 import COPASI
 
-App = build_cli('copasi', __version__,
+App = build_cli('biosimulators-copasi', __version__,
                 'COPASI', COPASI.__version__, 'http://copasi.org',
                 exec_sedml_docs_in_combine_archive,
                 environment_variables=[

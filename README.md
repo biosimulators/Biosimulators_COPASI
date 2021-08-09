@@ -29,7 +29,7 @@ docker pull ghcr.io/biosimulators/copasi
 
 ### Local usage
 ```
-usage: copasi [-h] [-d] [-q] -i ARCHIVE [-o OUT_DIR] [-v]
+usage: biosimulators-copasi [-h] [-d] [-q] -i ARCHIVE [-o OUT_DIR] [-v]
 
 BioSimulators-compliant command-line interface to the COPASI simulation program <http://copasi.org>.
 

@@ -31,7 +31,7 @@ The command-line program can be used to execute COMBINE/OMEX archives that descr
 
 .. code-block:: text
 
-    usage: copasi [-h] [-d] [-q] -i ARCHIVE [-o OUT_DIR] [-v]
+    usage: biosimulators-copasi [-h] [-d] [-q] -i ARCHIVE [-o OUT_DIR] [-v]
 
     BioSimulators-compliant command-line interface to the COPASI <http://copasi.org> simulation program.
 
@@ -50,7 +50,7 @@ For example, the following command could be used to execute the simulations desc
 
 .. code-block:: text
 
-    copasi -i ./modeling-study.omex -o ./
+    biosimulators-copasi -i ./modeling-study.omex -o ./
 
 
 Docker image with a command-line entrypoint

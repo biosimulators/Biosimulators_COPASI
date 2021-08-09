@@ -47,7 +47,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'copasi = biosimulators_copasi.__main__:main',
+            'biosimulators-copasi = biosimulators_copasi.__main__:main',
         ],
     },
 )
