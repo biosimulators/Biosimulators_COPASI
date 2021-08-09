@@ -38,7 +38,7 @@ LABEL \
     about.documentation="http://copasi.org/Support/User_Manual/" \
     about.license_file="https://github.com/copasi/COPASI/blob/develop/license.txt" \
     about.license="SPDX:Artistic-2.0" \
-    about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,SBML,SED-ML,COMBINE,OMEX,XPP,Berkeley Madonna,BioSimulators" \
+    about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,SBML,SED-ML,COMBINE,OMEX,BioSimulators" \
     maintainer="BioSimulators Team <info@biosimulators.org>"
 
 # Copy code for command-line interface into image and install it
