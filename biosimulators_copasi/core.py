@@ -263,6 +263,9 @@ def exec_sed_task(task, variables, log=None):
     for i_step in range(number_of_recorded_points):
         step_values = copasi_data_handler.getNthRow(i_step)
         for variable, value in zip(variables, step_values):
+            if variable.symbol == Symbol.time.value:
+                value += sim.initial_time
+
             variable_results[variable.id][i_step] = value
 
     if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:

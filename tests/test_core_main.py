@@ -212,12 +212,20 @@ class CliTestCase(unittest.TestCase):
         task.simulation.output_end_time = 20.
         task.simulation.number_of_points = 20
         full_variable_results, _ = exec_sed_task(task, variables)
+        numpy.testing.assert_allclose(
+            full_variable_results['time'],
+            numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
+            rtol=1e-4)
 
         task.simulation.initial_time = 0.
         task.simulation.output_start_time = 10.
         task.simulation.output_end_time = 20.
         task.simulation.number_of_points = 10
         second_half_variable_results, _ = exec_sed_task(task, variables)
+        numpy.testing.assert_allclose(
+            second_half_variable_results['time'],
+            numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
+            rtol=1e-4)
         numpy.testing.assert_allclose(second_half_variable_results['A'], full_variable_results['A'][10:], rtol=1e-4)
 
         task.simulation.initial_time = 5.
@@ -225,6 +233,10 @@ class CliTestCase(unittest.TestCase):
         task.simulation.output_end_time = 25.
         task.simulation.number_of_points = 20
         offset_full_variable_results, _ = exec_sed_task(task, variables)
+        numpy.testing.assert_allclose(
+            offset_full_variable_results['time'],
+            numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
+            rtol=1e-4)
         numpy.testing.assert_allclose(offset_full_variable_results['A'], full_variable_results['A'], rtol=1e-4)
 
         task.simulation.initial_time = 5.
@@ -232,8 +244,41 @@ class CliTestCase(unittest.TestCase):
         task.simulation.output_end_time = 25.
         task.simulation.number_of_points = 10
         offset_second_half_variable_results, _ = exec_sed_task(task, variables)
+        numpy.testing.assert_allclose(
+            offset_second_half_variable_results['time'],
+            numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
+            rtol=1e-4)
         numpy.testing.assert_allclose(offset_second_half_variable_results['A'], offset_full_variable_results['A'][10:], rtol=1e-4)
         numpy.testing.assert_allclose(offset_second_half_variable_results['A'], second_half_variable_results['A'], rtol=1e-4)
+
+    def test_exec_sed_task_correct_time_course_attrs_2(self):
+        # test that initial time, output start time, output end time, number of points are correctly interpreted
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=os.path.join('tests', 'fixtures', 'model.xml'),
+                language=sedml_data_model.ModelLanguage.SBML.value,
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000560',
+                ),
+                initial_time=0.4,
+                output_start_time=0.4,
+                output_end_time=0.8,
+                number_of_points=5,
+            ),
+        )
+
+        variables = [
+            sedml_data_model.Variable(
+                id='time',
+                symbol=sedml_data_model.Symbol.time,
+                task=task),
+        ]
+
+        results, _ = exec_sed_task(task, variables)
+
+        numpy.testing.assert_allclose(results['time'], numpy.linspace(0.4, 0.8, 5 + 1))
 
     def test_hybrid_rk45_partitioning(self):
         task = sedml_data_model.Task(
