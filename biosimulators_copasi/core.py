@@ -214,7 +214,8 @@ def exec_sed_task(task, variables, log=None):
 
     copasi_problem = copasi_task.getProblem()
     copasi_model.setInitialTime(sim.initial_time)
-    copasi_problem.setOutputStartTime(sim.output_start_time - sim.initial_time)
+    copasi_model.forceCompile()
+    copasi_problem.setOutputStartTime(sim.output_start_time)
     copasi_problem.setDuration(sim.output_end_time - sim.initial_time)
     if sim.output_end_time == sim.output_start_time:
         if sim.output_start_time == sim.initial_time:
@@ -263,9 +264,6 @@ def exec_sed_task(task, variables, log=None):
     for i_step in range(number_of_recorded_points):
         step_values = copasi_data_handler.getNthRow(i_step)
         for variable, value in zip(variables, step_values):
-            if variable.symbol == Symbol.time.value:
-                value += sim.initial_time
-
             variable_results[variable.id][i_step] = value
 
     if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:

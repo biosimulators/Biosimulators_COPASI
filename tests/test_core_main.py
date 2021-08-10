@@ -207,6 +207,7 @@ class CliTestCase(unittest.TestCase):
                 task=task),
         ]
 
+        # initial time == 0, output start time == initial time
         task.simulation.initial_time = 0.
         task.simulation.output_start_time = 0.
         task.simulation.output_end_time = 20.
@@ -217,6 +218,7 @@ class CliTestCase(unittest.TestCase):
             numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
             rtol=1e-4)
 
+        # initial time == 0, output start time != initial time
         task.simulation.initial_time = 0.
         task.simulation.output_start_time = 10.
         task.simulation.output_end_time = 20.
@@ -228,6 +230,7 @@ class CliTestCase(unittest.TestCase):
             rtol=1e-4)
         numpy.testing.assert_allclose(second_half_variable_results['A'], full_variable_results['A'][10:], rtol=1e-4)
 
+        # initial time != 0, output start time == initial time
         task.simulation.initial_time = 5.
         task.simulation.output_start_time = 5.
         task.simulation.output_end_time = 25.
@@ -239,6 +242,7 @@ class CliTestCase(unittest.TestCase):
             rtol=1e-4)
         numpy.testing.assert_allclose(offset_full_variable_results['A'], full_variable_results['A'], rtol=1e-4)
 
+        # initial time != 0, output start time != initial time
         task.simulation.initial_time = 5.
         task.simulation.output_start_time = 15.
         task.simulation.output_end_time = 25.
