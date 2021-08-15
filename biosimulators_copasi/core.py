@@ -34,7 +34,8 @@ __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_task']
 def exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
                                        return_results=False,
                                        report_formats=None, plot_formats=None,
-                                       bundle_outputs=None, keep_individual_outputs=None):
+                                       bundle_outputs=None, keep_individual_outputs=None,
+                                       raise_exceptions=True):
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
 
     Args:
@@ -51,6 +52,7 @@ def exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
         plot_formats (:obj:`list` of :obj:`VizFormat`, optional): report format (e.g., pdf)
         bundle_outputs (:obj:`bool`, optional): if :obj:`True`, bundle outputs into archives for reports and plots
         keep_individual_outputs (:obj:`bool`, optional): if :obj:`True`, keep individual output files
+        raise_exceptions (:obj:`bool`, optional): whether to raise exceptions
 
     Returns:
         :obj:`tuple`:
@@ -61,10 +63,12 @@ def exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
     sed_doc_executer = functools.partial(exec_sed_doc, exec_sed_task)
     return exec_sedml_docs_in_archive(sed_doc_executer, archive_filename, out_dir,
                                       apply_xml_model_changes=True,
+                                      return_results=return_results,
                                       report_formats=report_formats,
                                       plot_formats=plot_formats,
                                       bundle_outputs=bundle_outputs,
-                                      keep_individual_outputs=keep_individual_outputs)
+                                      keep_individual_outputs=keep_individual_outputs,
+                                      raise_exceptions=raise_exceptions)
 
 
 def exec_sed_task(task, variables, log=None):
