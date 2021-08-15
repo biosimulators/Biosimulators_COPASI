@@ -10,7 +10,7 @@
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog  # noqa: F401
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
-from biosimulators_utils.report.data_model import ReportFormat, VariableResults  # noqa: F401
+from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults  # noqa: F401
 from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, UniformTimeCourseSimulation,  # noqa: F401
                                                   Variable, Symbol)
 from biosimulators_utils.sedml import validation
@@ -32,6 +32,7 @@ __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_task']
 
 
 def exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
+                                       return_results=False,
                                        report_formats=None, plot_formats=None,
                                        bundle_outputs=None, keep_individual_outputs=None):
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
@@ -45,13 +46,17 @@ def exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
             * HDF5: directory in which to save a single HDF5 file (``{ out_dir }/reports.h5``),
               with reports at keys ``{ relative-path-to-SED-ML-file-within-archive }/{ report.id }`` within the HDF5 file
 
+        return_results (:obj:`bool`, optional): whether to return the result of each output of each SED-ML file
         report_formats (:obj:`list` of :obj:`ReportFormat`, optional): report format (e.g., csv or h5)
         plot_formats (:obj:`list` of :obj:`VizFormat`, optional): report format (e.g., pdf)
         bundle_outputs (:obj:`bool`, optional): if :obj:`True`, bundle outputs into archives for reports and plots
         keep_individual_outputs (:obj:`bool`, optional): if :obj:`True`, keep individual output files
 
     Returns:
-        :obj:`CombineArchiveLog`: log
+        :obj:`tuple`:
+
+            * :obj:`SedDocumentResults`: results
+            * :obj:`CombineArchiveLog`: log
     """
     sed_doc_executer = functools.partial(exec_sed_doc, exec_sed_task)
     return exec_sedml_docs_in_archive(sed_doc_executer, archive_filename, out_dir,
