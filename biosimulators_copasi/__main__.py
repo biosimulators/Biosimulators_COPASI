@@ -11,7 +11,6 @@ from . import get_simulator_version
 from ._version import __version__
 from .core import exec_sedml_docs_in_combine_archive
 from biosimulators_utils.simulator.cli import build_cli
-from kisao.data_model import AlgorithmSubstitutionPolicy
 
 App = build_cli('biosimulators-copasi', __version__,
                 'COPASI', get_simulator_version(), 'http://copasi.org',
