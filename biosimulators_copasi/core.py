@@ -8,6 +8,7 @@
 """
 
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
+from biosimulators_utils.config import get_config
 from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog  # noqa: F401
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
 from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults  # noqa: F401
@@ -90,30 +91,34 @@ def exec_sed_task(task, variables, log=None):
             could not be recorded
         :obj:`NotImplementedError`: if the task is not of a supported type or involves an unsuported feature
     '''
+    config = get_config()
+
     log = log or TaskLog()
 
     model = task.model
     sim = task.simulation
 
-    raise_errors_warnings(validation.validate_task(task),
-                          error_summary='Task `{}` is invalid.'.format(task.id))
-    raise_errors_warnings(validation.validate_model_language(model.language, ModelLanguage.SBML),
-                          error_summary='Language for model `{}` is not supported.'.format(model.id))
-    raise_errors_warnings(validation.validate_model_change_types(model.changes, ()),
-                          error_summary='Changes for model `{}` are not supported.'.format(model.id))
-    raise_errors_warnings(*validation.validate_model_changes(task.model),
-                          error_summary='Changes for model `{}` are invalid.'.format(model.id))
-    raise_errors_warnings(validation.validate_simulation_type(sim, (UniformTimeCourseSimulation, )),
-                          error_summary='{} `{}` is not supported.'.format(sim.__class__.__name__, sim.id))
-    raise_errors_warnings(*validation.validate_simulation(sim),
-                          error_summary='Simulation `{}` is invalid.'.format(sim.id))
-    raise_errors_warnings(*validation.validate_data_generator_variables(variables),
-                          error_summary='Data generator variables for task `{}` are invalid.'.format(task.id))
+    if config.VALIDATE_SEDML:
+        raise_errors_warnings(validation.validate_task(task),
+                              error_summary='Task `{}` is invalid.'.format(task.id))
+        raise_errors_warnings(validation.validate_model_language(model.language, ModelLanguage.SBML),
+                              error_summary='Language for model `{}` is not supported.'.format(model.id))
+        raise_errors_warnings(validation.validate_model_change_types(model.changes, ()),
+                              error_summary='Changes for model `{}` are not supported.'.format(model.id))
+        raise_errors_warnings(*validation.validate_model_changes(task.model),
+                              error_summary='Changes for model `{}` are invalid.'.format(model.id))
+        raise_errors_warnings(validation.validate_simulation_type(sim, (UniformTimeCourseSimulation, )),
+                              error_summary='{} `{}` is not supported.'.format(sim.__class__.__name__, sim.id))
+        raise_errors_warnings(*validation.validate_simulation(sim),
+                              error_summary='Simulation `{}` is invalid.'.format(sim.id))
+        raise_errors_warnings(*validation.validate_data_generator_variables(variables),
+                              error_summary='Data generator variables for task `{}` are invalid.'.format(task.id))
     target_x_paths_ids = validation.validate_variable_xpaths(variables, model.source, attr='id')
 
-    raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
-                          error_summary='Model `{}` is invalid.'.format(model.id),
-                          warning_summary='Model `{}` may be invalid.'.format(model.id))
+    if config.VALIDATE_SEDML_MODELS:
+        raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
+                              error_summary='Model `{}` is invalid.'.format(model.id),
+                              warning_summary='Model `{}` may be invalid.'.format(model.id))
 
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
     copasi_data_model = COPASI.CRootContainer.addDatamodel()
