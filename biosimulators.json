@@ -505,6 +505,14 @@
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
         },
         {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
+        },
+        {
           "variables": "parameter values",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter/@value"
         }
@@ -672,6 +680,14 @@
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
         },
         {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
+        },
+        {
           "variables": "parameter values",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter/@value"
         }
@@ -788,6 +804,14 @@
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
         },
         {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
+        },
+        {
           "variables": "parameter values",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter/@value"
         }
@@ -902,6 +926,14 @@
         {
           "variables": "species counts",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
+        },
+        {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
         },
         {
           "variables": "parameter values",
@@ -1037,6 +1069,14 @@
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
         },
         {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
+        },
+        {
           "variables": "parameter values",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter/@value"
         }
@@ -1168,6 +1208,14 @@
         {
           "variables": "species counts",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
+        },
+        {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
         },
         {
           "variables": "parameter values",
@@ -1396,6 +1444,14 @@
         {
           "variables": "species counts",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
+        },
+        {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
         },
         {
           "variables": "parameter values",
@@ -1677,6 +1733,14 @@
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
         },
         {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
+        },
+        {
           "variables": "parameter values",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter/@value"
         }
@@ -1888,6 +1952,14 @@
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
         },
         {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
+        },
+        {
           "variables": "parameter values",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter/@value"
         }
@@ -2070,6 +2142,14 @@
         {
           "variables": "species concentrations",
           "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species"
+        },
+        {
+          "variables": "reaction fluxes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfReactions/sbml:reaction"
+        },
+        {
+          "variables": "compartment volumes",
+          "targetPattern": "/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment"
         },
         {
           "variables": "parameter values",
