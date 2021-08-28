@@ -62,7 +62,7 @@ docker run \
 ```
 
 ## Documentation
-Documentation is available at https://biosimulators.github.io/Biosimulators_COPASI/.
+Documentation is available at https://docs.biosimulators.org/Biosimulators_COPASI/.
 
 ## License
 This package is released under the [MIT license](LICENSE). COPASI is released under the [Artistic 2.0 License](http://copasi.org/Download/License/).
