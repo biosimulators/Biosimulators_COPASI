@@ -14,6 +14,7 @@ from biosimulators_utils.archive.io import ArchiveReader
 from biosimulators_utils.combine import data_model as combine_data_model
 from biosimulators_utils.combine.exceptions import CombineArchiveExecutionError
 from biosimulators_utils.combine.io import CombineArchiveWriter
+from biosimulators_utils.config import get_config
 from biosimulators_utils.report import data_model as report_data_model
 from biosimulators_utils.report.io import ReportReader
 from biosimulators_utils.simulator.exec import exec_sedml_docs_in_archive_with_containerized_simulator
@@ -454,27 +455,36 @@ class CliTestCase(unittest.TestCase):
         _, log = exec_sed_task(task, variables)
         self.assertEqual(log.algorithm, 'KISAO_0000304')
 
+        config = get_config()
+        config.REPORT_FORMATS = [
+            report_data_model.ReportFormat.h5,
+            report_data_model.ReportFormat.csv,
+        ]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = True
+
         with self.assertRaises(CombineArchiveExecutionError):
             with mock.patch.object(COPASI.CCopasiTask, 'processRaw', return_value=False):
-                exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                                   report_formats=[
-                                                       report_data_model.ReportFormat.h5,
-                                                       report_data_model.ReportFormat.csv,
-                                                   ],
-                                                   bundle_outputs=True,
-                                                   keep_individual_outputs=True)
+                _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+            if log.exception:
+                raise log.exception
 
     def test_exec_sedml_docs_in_combine_archive(self):
         doc, archive_filename = self._build_combine_archive()
 
         out_dir = os.path.join(self.dirname, 'out')
-        exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                           report_formats=[
-                                               report_data_model.ReportFormat.h5,
-                                               report_data_model.ReportFormat.csv,
-                                           ],
-                                           bundle_outputs=True,
-                                           keep_individual_outputs=True)
+
+        config = get_config()
+        config.REPORT_FORMATS = [
+            report_data_model.ReportFormat.h5,
+            report_data_model.ReportFormat.csv,
+        ]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = True
+
+        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+        if log.exception:
+            raise log.exception
 
         self._assert_combine_archive_outputs(doc, out_dir)
 
@@ -487,14 +497,19 @@ class CliTestCase(unittest.TestCase):
                                                                 var_targets=[None, 'A', 'C', 'DA'])
 
             out_dir = os.path.join(self.dirname, alg.kisao_id)
+
+            config = get_config()
+            config.REPORT_FORMATS = [
+                report_data_model.ReportFormat.h5,
+                report_data_model.ReportFormat.csv,
+            ]
+            config.BUNDLE_OUTPUTS = True
+            config.KEEP_INDIVIDUAL_OUTPUTS = True
+
             try:
-                exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                                   report_formats=[
-                                                       report_data_model.ReportFormat.h5,
-                                                       report_data_model.ReportFormat.csv,
-                                                   ],
-                                                   bundle_outputs=True,
-                                                   keep_individual_outputs=True)
+                _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+                if log.exception:
+                    raise log.exception
                 self._assert_combine_archive_outputs(doc, out_dir)
             except CombineArchiveExecutionError:
                 errored_algs.append(alg.kisao_id)
@@ -518,13 +533,18 @@ class CliTestCase(unittest.TestCase):
                                                                 var_targets=[None, 'Mdm2', 'p53', 'Mdm2_p53'])
 
             out_dir = os.path.join(self.dirname, alg.kisao_id)
-            exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                               report_formats=[
-                                                   report_data_model.ReportFormat.h5,
-                                                   report_data_model.ReportFormat.csv,
-                                               ],
-                                               bundle_outputs=True,
-                                               keep_individual_outputs=True)
+
+            config = get_config()
+            config.REPORT_FORMATS = [
+                report_data_model.ReportFormat.h5,
+                report_data_model.ReportFormat.csv,
+            ]
+            config.BUNDLE_OUTPUTS = True
+            config.KEEP_INDIVIDUAL_OUTPUTS = True
+
+            _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+            if log.exception:
+                raise log.exception
             self._assert_combine_archive_outputs(doc, out_dir)
 
     def _build_combine_archive(self, algorithm=None, orig_model_filename='model.xml', var_targets=[None, 'A', 'C', 'DA']):
@@ -691,12 +711,17 @@ class CliTestCase(unittest.TestCase):
     def test_exec_sedml_docs_in_combine_archive_real_example(self):
         archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'Ciliberto-J-Cell-Biol-2003-morphogenesis-checkpoint.omex')
         out_dir = os.path.join(self.dirname, 'out')
-        exec_sedml_docs_in_combine_archive(archive_filename, out_dir,
-                                           report_formats=[
-                                               report_data_model.ReportFormat.h5,
-                                           ],
-                                           bundle_outputs=True,
-                                           keep_individual_outputs=False)
+
+        config = get_config()
+        config.REPORT_FORMATS = [
+            report_data_model.ReportFormat.h5,
+        ]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = False
+
+        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+        if log.exception:
+            raise log.exception
 
         report = sedml_data_model.Report(
             data_sets=[

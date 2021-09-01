@@ -7,6 +7,7 @@
 """
 
 from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units
+from biosimulators_utils.config import Config  # noqa: F401
 from biosimulators_utils.data_model import ValueType
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
 from biosimulators_utils.utils.core import validate_str_value, parse_value
@@ -23,13 +24,14 @@ __all__ = [
 ]
 
 
-def get_algorithm_id(kisao_id, events=False):
+def get_algorithm_id(kisao_id, events=False, config=None):
     """ Get the COPASI id for an algorithm
 
     Args:
         kisao_id (:obj:`str`): KiSAO algorithm id
         events (:obj:`bool`, optional): whether an algorithm that supports
             events is needed
+        config (:obj:`Config`, optional): configuration
 
     Returns:
         :obj:`tuple`:
@@ -43,7 +45,7 @@ def get_algorithm_id(kisao_id, events=False):
         if not events or props['supports_events']
     ]
 
-    substitution_policy = get_algorithm_substitution_policy()
+    substitution_policy = get_algorithm_substitution_policy(config=config)
     try:
         exec_kisao_id = get_preferred_substitute_algorithm_by_ids(
             kisao_id, possible_alg_kisao_ids,

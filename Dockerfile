@@ -41,6 +41,11 @@ LABEL \
     about.tags="kinetic modeling,dynamical simulation,systems biology,biochemical networks,SBML,SED-ML,COMBINE,OMEX,BioSimulators" \
     maintainer="BioSimulators Team <info@biosimulators.org>"
 
+# fonts for matplotlib
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends libfreetype6 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy code for command-line interface into image and install it
 COPY . /root/Biosimulators_COPASI
 RUN pip install /root/Biosimulators_COPASI \
