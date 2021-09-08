@@ -21,7 +21,8 @@
   },
   "pythonApi": {
     "package": "biosimulators-copasi",
-    "module": "biosimulators_copasi"
+    "module": "biosimulators_copasi",
+      "installationInstructions": null
   },
   "authors": [
     {
