@@ -256,6 +256,17 @@ class CliTestCase(unittest.TestCase):
         numpy.testing.assert_allclose(offset_second_half_variable_results['A'], offset_full_variable_results['A'][10:], rtol=1e-4)
         numpy.testing.assert_allclose(offset_second_half_variable_results['A'], second_half_variable_results['A'], rtol=1e-4)
 
+        # negative initial time
+        task.simulation.initial_time = -5.
+        task.simulation.output_start_time = 5.
+        task.simulation.output_end_time = 15.
+        task.simulation.number_of_points = 10
+        offset_second_half_variable_results, _ = exec_sed_task(task, variables)
+        numpy.testing.assert_allclose(
+            offset_second_half_variable_results['time'],
+            numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
+            rtol=1e-4)
+
     def test_exec_sed_task_correct_time_course_attrs_2(self):
         # test that initial time, output start time, output end time, number of points are correctly interpreted
         task = sedml_data_model.Task(
