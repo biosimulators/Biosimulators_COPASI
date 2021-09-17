@@ -8,7 +8,7 @@
 """
 
 from biosimulators_copasi import __main__
-from biosimulators_copasi.core import exec_sed_task, exec_sedml_docs_in_combine_archive
+from biosimulators_copasi.core import exec_sed_task, exec_sedml_docs_in_combine_archive, preprocess_sed_task
 from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP
 from biosimulators_utils.archive.io import ArchiveReader
 from biosimulators_utils.combine import data_model as combine_data_model
@@ -340,6 +340,143 @@ class CliTestCase(unittest.TestCase):
             numpy.linspace(task.simulation.output_start_time, task.simulation.output_end_time, task.simulation.number_of_points + 1),
         )
         self.assertFalse(numpy.any(numpy.isnan(results['Mdm2'])))
+
+    def test_exec_sed_task_with_changes(self):
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml'),
+                language=sedml_data_model.ModelLanguage.SBML.value,
+                changes=[],
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000560',
+                ),
+                initial_time=0.,
+                output_start_time=0.,
+                output_end_time=10.,
+                number_of_points=10,
+            ),
+        )
+        model = task.model
+        sim = task.simulation
+
+        variable_ids = ['EmptySet', 'A', 'C', 'DA', 'DAp', "DR", "DRp", "MA", "MR", "R"]
+        variables = []
+        for variable_id in variable_ids:
+            model.changes.append(sedml_data_model.ModelAttributeChange(
+                id=variable_id,
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']/@initialConcentration".format(variable_id),
+                target_namespaces=self.NAMESPACES_L2V4,
+                new_value=None,
+            ))
+            variables.append(sedml_data_model.Variable(
+                id=variable_id,
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']".format(variable_id),
+                target_namespaces=self.NAMESPACES_L2V4,
+                task=task,
+            ))
+        preprocessed_task = preprocess_sed_task(task, variables)
+
+        model.changes = []
+        results, _ = exec_sed_task(task, variables, preprocessed_task=preprocessed_task)
+        with self.assertRaises(AssertionError):
+            for variable_id in variable_ids:
+                self.assertEqual(
+                    results[variable_id][0:int(sim.number_of_points / 2 + 1)].shape,
+                    results[variable_id][-int(sim.number_of_points / 2 + 1):].shape,
+                )
+                numpy.testing.assert_allclose(
+                    results[variable_id][0:int(sim.number_of_points / 2 + 1)],
+                    results[variable_id][-int(sim.number_of_points / 2 + 1):])
+
+        sim.output_end_time = sim.output_end_time / 2
+        sim.number_of_points = int(sim.number_of_points / 2)
+        results2, _ = exec_sed_task(task, variables, preprocessed_task=preprocessed_task)
+
+        for variable_id in variable_ids:
+            numpy.testing.assert_allclose(results2[variable_id], results[variable_id][0:sim.number_of_points + 1])
+
+        for variable_id in variable_ids:
+            model.changes.append(sedml_data_model.ModelAttributeChange(
+                id=variable_id,
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']/@initialConcentration".format(variable_id),
+                target_namespaces=self.NAMESPACES_L2V4,
+                new_value=results2[variable_id][-1],
+            ))
+
+        results3, _ = exec_sed_task(task, variables, preprocessed_task=preprocessed_task)
+
+        with self.assertRaises(AssertionError):
+            for variable_id in variable_ids:
+                numpy.testing.assert_allclose(results3[variable_id], results2[variable_id])
+
+        for variable_id in variable_ids:
+            numpy.testing.assert_allclose(results3[variable_id], results[variable_id][-(sim.number_of_points + 1):], rtol=5e-6)
+
+        task.model.changes = [
+            sedml_data_model.ModelAttributeChange(
+                id="model_change",
+                target="/sbml:sbml",
+                target_namespaces=self.NAMESPACES_L2V4,
+                new_value=None,
+            ),
+        ]
+        with self.assertRaises(ValueError):
+            preprocess_sed_task(task, variables)
+
+    def test_exec_sed_task_with_changes_discrete(self):
+        task = sedml_data_model.Task(
+            model=sedml_data_model.Model(
+                source=os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000806.xml'),
+                language=sedml_data_model.ModelLanguage.SBML.value,
+                changes=[],
+            ),
+            simulation=sedml_data_model.UniformTimeCourseSimulation(
+                algorithm=sedml_data_model.Algorithm(
+                    kisao_id='KISAO_0000027',
+                ),
+                initial_time=0.,
+                output_start_time=0.,
+                output_end_time=10.,
+                number_of_points=10,
+            ),
+        )
+        model = task.model
+        sim = task.simulation
+
+        model.changes = [
+            sedml_data_model.ModelAttributeChange(
+                id='UnInfected_Tumour_Cells_Xu',
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']/@initialConcentration".format(
+                    'UnInfected_Tumour_Cells_Xu'),
+                target_namespaces=self.NAMESPACES_L3V1,
+                new_value=None,
+            ),
+            sedml_data_model.ModelAttributeChange(
+                id='r',
+                target="/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter[@id='{}']/@initialConcentration".format('r'),
+                target_namespaces=self.NAMESPACES_L3V1,
+                new_value=None,
+            ),
+            sedml_data_model.ModelAttributeChange(
+                id='compartment',
+                target="/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment[@id='{}']/@size".format('compartment'),
+                target_namespaces=self.NAMESPACES_L3V1,
+                new_value=None,
+            ),
+        ]
+
+        variables = [
+            sedml_data_model.Variable(
+                id='UnInfected_Tumour_Cells_Xu',
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']".format('UnInfected_Tumour_Cells_Xu'),
+                target_namespaces=self.NAMESPACES_L3V1,
+                task=task,
+            ),
+        ]
+
+        preprocessed_task = preprocess_sed_task(task, variables)
 
     def test_exec_sed_task_error_handling(self):
         task = sedml_data_model.Task(
