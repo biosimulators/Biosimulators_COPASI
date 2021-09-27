@@ -19,10 +19,16 @@
     },
     "operatingSystemType": "Linux"
   },
+  "cli": {
+    "packageRepository": "PyPI",
+    "package": "biosimulators-copasi",
+    "command": "biosimulators-copasi",
+    "installationInstructions": null
+  },
   "pythonApi": {
     "package": "biosimulators-copasi",
     "module": "biosimulators_copasi",
-      "installationInstructions": null
+    "installationInstructions": null
   },
   "authors": [
     {
