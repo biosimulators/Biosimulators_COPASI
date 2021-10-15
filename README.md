@@ -2,6 +2,7 @@
 [![PyPI](https://img.shields.io/pypi/v/biosimulators_copasi)](https://pypi.org/project/biosimulators_copasi/)
 [![CI status](https://github.com/biosimulators/Biosimulators_COPASI/workflows/Continuous%20integration/badge.svg)](https://github.com/biosimulators/Biosimulators_COPASI/actions?query=workflow%3A%22Continuous+integration%22)
 [![Test coverage](https://codecov.io/gh/biosimulators/Biosimulators_COPASI/branch/dev/graph/badge.svg)](https://codecov.io/gh/biosimulators/Biosimulators_COPASI)
+[![All Contributors](https://img.shields.io/github/all-contributors/biosimulators/Biosimulators_COPASI/HEAD)](#contributors-)
 
 
 # BioSimulators-COPASI
@@ -68,7 +69,7 @@ Documentation is available at https://docs.biosimulators.org/Biosimulators_COPAS
 This package is released under the [MIT license](LICENSE). COPASI is released under the [Artistic 2.0 License](http://copasi.org/Download/License/).
 
 ## Development team
-This package was developed by the [Center for Reproducible Biomedical Modeling](http://reproduciblebiomodels.org). COPASI was developed by a [team](http://copasi.org/About/Team/) at the University of Connecticut, the University of Heidelberg, and the University of Virginia.
+This package was developed by the [Center for Reproducible Biomedical Modeling](http://reproduciblebiomodels.org). COPASI was developed by a [team](http://copasi.org/About/Team/) at the University of Connecticut, the University of Heidelberg, and the University of Virginia with assistance from the contributors listed [here](CONTRIBUTORS.md).
 
 ## Questions and comments
 Please contact the [BioSimulators Team](mailto:info@biosimulators.org) with any questions or comments.
