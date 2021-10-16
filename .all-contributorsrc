@@ -13,12 +13,42 @@
       "contributions": [
         "code"
       ]
-    } 
+    },
+    {
+      "login": "pmendes",
+      "name": "Pedro Mendes",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2159130?v=4",
+      "profile": "http://www.comp-sys-bio.org/",
+      "contributions": [
+        "tool"
+      ]
+    },
+    {
+      "login": "shoops",
+      "name": "Stefan Hoops",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1760522?v=4",
+      "profile": "https://github.com/shoops",
+      "contributions": [
+        "tool"
+      ]
+    },
+    {
+      "login": "fbergmann",
+      "name": "Frank Bergmann",
+      "avatar_url": "https://avatars.githubusercontent.com/u/949059?v=4",
+      "profile": "https://github.com/fbergmann",
+      "contributions": [
+        "tool",
+        "code",
+        "ideas"
+      ]
+    }
   ],
   "contributorsPerLine": 7,
   "projectName": "Biosimulators_COPASI",
   "projectOwner": "biosimulators",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": true,
+  "commitConvention": "none"
 }
