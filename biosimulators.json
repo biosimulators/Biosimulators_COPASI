@@ -11,6 +11,7 @@
   ],
   "image": {
     "url": "ghcr.io/biosimulators/biosimulators_copasi/copasi:4.34.251",
+    "digest": "sha256:d32d7a427b8aeec14acab3ade77f01223082c65d1978d3a150ba863eca8d5b64",
     "format": {
       "namespace": "EDAM",
       "id": "format_3973",
