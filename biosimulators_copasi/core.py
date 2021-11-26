@@ -504,17 +504,14 @@ def fix_copasi_export(archive, archive_tmp_dir):
                 ns = root.getroot().nsmap[None]
                 break
 
-    if ns is None:
-        # if the sbml file had no default namespace, it is written by another tool
-        return
-
-    for content in archive.contents:
-        if content.format == 'http://identifiers.org/combine.specifications/sed-ml':
-            sedml_file = os.path.join(archive_tmp_dir, content.location)
-            doc = libsedml.readSedMLFromFile(sedml_file)
-            sedml_ns = doc.getSedNamespaces().getNamespaces()
-            if not sedml_ns.hasPrefix('sbml'):
-                sedml_ns.add(ns, 'sbml')
-                libsedml.writeSedMLToFile(doc, sedml_file)
-                # potentially issue warning message here, that the sedml file had no sbml prefix and it was added
-                break
+    if ns:
+        for content in archive.contents:
+            if content.format == 'http://identifiers.org/combine.specifications/sed-ml':
+                sedml_file = os.path.join(archive_tmp_dir, content.location)
+                doc = libsedml.readSedMLFromFile(sedml_file)
+                sedml_ns = doc.getSedNamespaces().getNamespaces()
+                if not sedml_ns.hasPrefix('sbml'):
+                    sedml_ns.add(ns, 'sbml')
+                    libsedml.writeSedMLToFile(doc, sedml_file)
+                    # potentially issue warning message here, that the sedml file had no sbml prefix and it was added
+                    break
