@@ -27,7 +27,8 @@ import COPASI
 import lxml
 import math
 import numpy
-
+import os
+import libsedml
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
@@ -468,3 +469,52 @@ def preprocess_sed_task(task, variables, config=None):
             'method_parameters': method_parameters,
         },
     }
+
+
+def fix_copasi_export(archive, archive_tmp_dir):
+    """ Utility function that fixes the archive, so that biosimulators does not reject the copasi export
+
+    All currently released versions of COPASI, export COMBINE archives, that are automatically rejected
+    by bio simulators. it would be nice, if at least the files exported by COPASI could be run, by
+    the COPASI biosimulator
+
+    Args:
+        archive: the combine archive description as imported by the CombineArchiveReader
+        archive_tmp_dir: the directory, into which CombineArchiveReader extracted the files
+
+    Returns:
+        None
+
+    """
+
+    # correct copasi application format, that causes biosimulators to reject the archive
+    for content in archive.contents:
+        if content.format == 'application/x-copasi':
+            content.format = 'http://purl.org/NET/mediatypes/' + content.format
+            # potentially issue warning messages if needed
+            break
+
+    # add sbml namespace to SED-ML file, since biosimulators rejects the archive otherwise
+    ns = None
+    for content in archive.contents:
+        if content.format == 'http://identifiers.org/combine.specifications/sbml':
+            with open(os.path.join(archive_tmp_dir, content.location), 'rb') as sbml:
+                root = lxml.etree.parse(sbml)
+                # get default ns
+                ns = root.getroot().nsmap[None]
+                break
+
+    if ns is None:
+        # if the sbml file had no default namespace, it is written by another tool
+        return
+
+    for content in archive.contents:
+        if content.format == 'http://identifiers.org/combine.specifications/sed-ml':
+            sedml_file = os.path.join(archive_tmp_dir, content.location)
+            doc = libsedml.readSedMLFromFile(sedml_file)
+            sedml_ns = doc.getSedNamespaces().getNamespaces()
+            if not sedml_ns.hasPrefix('sbml'):
+                sedml_ns.add(ns, 'sbml')
+                libsedml.writeSedMLToFile(doc, sedml_file)
+                # potentially issue warning message here, that the sedml file had no sbml prefix and it was added
+                break

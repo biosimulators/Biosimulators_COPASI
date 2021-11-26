@@ -120,6 +120,7 @@ venv.bak/
 # Temp directory
 temp/
 tests/results/
+tests/out/
 
 *.tmp
 
