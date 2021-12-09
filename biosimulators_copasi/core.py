@@ -22,18 +22,19 @@ from biosimulators_utils.warnings import warn, BioSimulatorsWarning
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from .data_model import KISAO_ALGORITHMS_MAP, Units
 from .utils import (get_algorithm_id, set_algorithm_parameter_value,
-                    get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids)
+                    get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids,
+                    fix_copasi_generated_combine_archive as fix_copasi_generated_combine_archive_func)
 import COPASI
 import lxml
 import math
 import numpy
 import os
-import libsedml
+import tempfile
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
 
-def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None):
+def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None, fix_copasi_generated_combine_archive=None):
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
 
     Args:
@@ -46,6 +47,8 @@ def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None):
               with reports at keys ``{ relative-path-to-SED-ML-file-within-archive }/{ report.id }`` within the HDF5 file
 
         config (:obj:`Config`, optional): BioSimulators common configuration
+        fix_copasi_generated_combine_archive (:obj:`bool`, optional): Whether to make COPASI-generated COMBINE archives
+            compatible with the specifications of the OMEX manifest and SED-ML standards
 
     Returns:
         :obj:`tuple`:
@@ -53,9 +56,22 @@ def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None):
             * :obj:`SedDocumentResults`: results
             * :obj:`CombineArchiveLog`: log
     """
-    return exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
-                                      apply_xml_model_changes=True,
-                                      config=config)
+    if fix_copasi_generated_combine_archive is None:
+        fix_copasi_generated_combine_archive = os.getenv('FIX_COPASI_GENERATED_COMBINE_ARCHIVE', '0').lower() in ['1', 'true']
+
+    if fix_copasi_generated_combine_archive:
+        temp_archive_file, temp_archive_filename = tempfile.mkstemp()
+        os.close(temp_archive_file)
+        fix_copasi_generated_combine_archive_func(archive_filename, temp_archive_filename)
+        archive_filename = temp_archive_filename
+
+    result = exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
+                                        apply_xml_model_changes=True,
+                                        config=config)
+    if fix_copasi_generated_combine_archive:
+        os.remove(temp_archive_filename)
+
+    return result
 
 
 def exec_sed_doc(doc, working_dir, base_out_path, rel_out_path=None,
@@ -469,49 +485,3 @@ def preprocess_sed_task(task, variables, config=None):
             'method_parameters': method_parameters,
         },
     }
-
-
-def fix_copasi_export(archive, archive_tmp_dir):
-    """ Utility function that fixes the archive, so that biosimulators does not reject the copasi export
-
-    All currently released versions of COPASI, export COMBINE archives, that are automatically rejected
-    by bio simulators. it would be nice, if at least the files exported by COPASI could be run, by
-    the COPASI biosimulator
-
-    Args:
-        archive: the combine archive description as imported by the CombineArchiveReader
-        archive_tmp_dir: the directory, into which CombineArchiveReader extracted the files
-
-    Returns:
-        None
-
-    """
-
-    # correct copasi application format, that causes biosimulators to reject the archive
-    for content in archive.contents:
-        if content.format == 'application/x-copasi':
-            content.format = 'http://purl.org/NET/mediatypes/' + content.format
-            # potentially issue warning messages if needed
-            break
-
-    # add sbml namespace to SED-ML file, since biosimulators rejects the archive otherwise
-    ns = None
-    for content in archive.contents:
-        if content.format == 'http://identifiers.org/combine.specifications/sbml':
-            with open(os.path.join(archive_tmp_dir, content.location), 'rb') as sbml:
-                root = lxml.etree.parse(sbml)
-                # get default ns
-                ns = root.getroot().nsmap[None]
-                break
-
-    if ns:
-        for content in archive.contents:
-            if content.format == 'http://identifiers.org/combine.specifications/sed-ml':
-                sedml_file = os.path.join(archive_tmp_dir, content.location)
-                doc = libsedml.readSedMLFromFile(sedml_file)
-                sedml_ns = doc.getSedNamespaces().getNamespaces()
-                if not sedml_ns.hasPrefix('sbml'):
-                    sedml_ns.add(ns, 'sbml')
-                    libsedml.writeSedMLToFile(doc, sedml_file)
-                    # potentially issue warning message here, that the sedml file had no sbml prefix and it was added
-                    break
