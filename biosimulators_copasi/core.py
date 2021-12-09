@@ -22,17 +22,19 @@ from biosimulators_utils.warnings import warn, BioSimulatorsWarning
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from .data_model import KISAO_ALGORITHMS_MAP, Units
 from .utils import (get_algorithm_id, set_algorithm_parameter_value,
-                    get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids)
+                    get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids,
+                    fix_copasi_generated_combine_archive as fix_copasi_generated_combine_archive_func)
 import COPASI
 import lxml
 import math
 import numpy
-
+import os
+import tempfile
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
 
-def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None):
+def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None, fix_copasi_generated_combine_archive=None):
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
 
     Args:
@@ -45,6 +47,8 @@ def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None):
               with reports at keys ``{ relative-path-to-SED-ML-file-within-archive }/{ report.id }`` within the HDF5 file
 
         config (:obj:`Config`, optional): BioSimulators common configuration
+        fix_copasi_generated_combine_archive (:obj:`bool`, optional): Whether to make COPASI-generated COMBINE archives
+            compatible with the specifications of the OMEX manifest and SED-ML standards
 
     Returns:
         :obj:`tuple`:
@@ -52,9 +56,22 @@ def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None):
             * :obj:`SedDocumentResults`: results
             * :obj:`CombineArchiveLog`: log
     """
-    return exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
-                                      apply_xml_model_changes=True,
-                                      config=config)
+    if fix_copasi_generated_combine_archive is None:
+        fix_copasi_generated_combine_archive = os.getenv('FIX_COPASI_GENERATED_COMBINE_ARCHIVE', '0').lower() in ['1', 'true']
+
+    if fix_copasi_generated_combine_archive:
+        temp_archive_file, temp_archive_filename = tempfile.mkstemp()
+        os.close(temp_archive_file)
+        fix_copasi_generated_combine_archive_func(archive_filename, temp_archive_filename)
+        archive_filename = temp_archive_filename
+
+    result = exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
+                                        apply_xml_model_changes=True,
+                                        config=config)
+    if fix_copasi_generated_combine_archive:
+        os.remove(temp_archive_filename)
+
+    return result
 
 
 def exec_sed_doc(doc, working_dir, base_out_path, rel_out_path=None,

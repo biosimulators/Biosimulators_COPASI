@@ -24,8 +24,8 @@ New values of parameter KISAO_0000534 (list of deterministic reactions) of KISAO
     </algorithm>
 
 
-Command-line program
---------------------
+Command-line program for executing COMBINE/OMEX archives
+--------------------------------------------------------
 
 The command-line program can be used to execute COMBINE/OMEX archives that describe simulations as illustrated below.
 
@@ -69,3 +69,31 @@ For example, the following command could be used to use the Docker image to exec
         ghcr.io/biosimulators/copasi:latest \
             -i /tmp/working-dir/modeling-study.omex \
             -o /tmp/working-dir
+
+Command-line program for correcting COMBINE/OMEX archives created by COPASI
+---------------------------------------------------------------------------
+
+The ``fix-copasi-generated-combine-archive`` command-line program can be used to align COMBINE/OMEX archives created by COPASI with the specifications of the OMEX manifest and SED-ML formats.
+
+.. code-block:: text
+
+    usage: fix-copasi-generated-combine-archive [-h] [-d] [-q] -i IN_FILE -o OUT_FILE
+
+    Correct a COPASI-generated COMBINE/OMEX archive to be consistent with the specifications of the OMEX manifest and SED-ML formats
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -d, --debug           full application debug mode
+      -q, --quiet           suppress all console output
+      -i IN_FILE, --in-file IN_FILE
+                            Path to COMBINE/OMEX file to correct
+      -o OUT_FILE, --out-file OUT_FILE
+                            Path to save the corrected archive
+
+For example, the following command could be used to correct the example COPASI-generated archive in the ``tests/fixtures`` directory:
+
+.. code-block:: text
+
+    fix-copasi-generated-combine-archive \
+        -i tests/fixtures/copasi-34-export.omex \
+        -o tests/fixtures/copasi-34-export-fixed.omex
