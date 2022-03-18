@@ -427,7 +427,7 @@ def preprocess_sed_task(task, variables, config=None):
         copasi_model_obj_common_name = None
         if variable.symbol:
             if variable.symbol == Symbol.time.value:
-                copasi_model_obj_common_name = copasi_model.getValueReference().getCN()
+                copasi_model_obj_common_name = copasi_model.getValueReference().getCN().getString()
             else:
                 invalid_symbols.append(variable.symbol)
 
