@@ -368,7 +368,7 @@ class CliTestCase(unittest.TestCase):
                 id=variable_id,
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']/@initialConcentration".format(variable_id),
                 target_namespaces=self.NAMESPACES_L2V4,
-                new_value=None,
+                new_value='0',
             ))
             variables.append(sedml_data_model.Variable(
                 id=variable_id,
@@ -419,7 +419,7 @@ class CliTestCase(unittest.TestCase):
                 id="model_change",
                 target="/sbml:sbml",
                 target_namespaces=self.NAMESPACES_L2V4,
-                new_value=None,
+                new_value='0',
             ),
         ]
         with self.assertRaises(ValueError):
@@ -451,19 +451,19 @@ class CliTestCase(unittest.TestCase):
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']/@initialConcentration".format(
                     'UnInfected_Tumour_Cells_Xu'),
                 target_namespaces=self.NAMESPACES_L3V1,
-                new_value=None,
+                new_value='0',
             ),
             sedml_data_model.ModelAttributeChange(
                 id='r',
                 target="/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter[@id='{}']/@initialConcentration".format('r'),
                 target_namespaces=self.NAMESPACES_L3V1,
-                new_value=None,
+                new_value='0',
             ),
             sedml_data_model.ModelAttributeChange(
                 id='compartment',
                 target="/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment[@id='{}']/@size".format('compartment'),
                 target_namespaces=self.NAMESPACES_L3V1,
-                new_value=None,
+                new_value='0',
             ),
         ]
 
