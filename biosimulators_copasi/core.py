@@ -7,12 +7,12 @@
 :License: MIT
 """
 
-from typing import Union
+from typing import Union #wip-typing
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.config import get_config, Config  # noqa: F401
-from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel  # noqa: F401
+from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  #wip-typing
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
-from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults  # noqa: F401
+from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, ReportResults  # noqa: F401  #wip-typing
 from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
                                                   Variable, Symbol, SedDocument)
 from biosimulators_utils.sedml import validation
@@ -35,7 +35,7 @@ import tempfile
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
 
-def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None, fix_copasi_generated_combine_archive=None):
+def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None, fix_copasi_generated_combine_archive=None) -> tuple:
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
 
     Args:
@@ -78,7 +78,7 @@ def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None, f
 def exec_sed_doc(doc:Union[SedDocument, str], working_dir:str, base_out_path:str, rel_out_path:str=None,
                  apply_xml_model_changes:bool=True,
                  log=None, indent:int=0, pretty_print_modified_xml_models:bool=False,
-                 log_level=StandardOutputErrorCapturerLevel.c, config:Config=None):
+                 log_level=StandardOutputErrorCapturerLevel.c, config:Config=None) -> tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
     Args:
@@ -118,7 +118,7 @@ def exec_sed_doc(doc:Union[SedDocument, str], working_dir:str, base_out_path:str
                              config=config)
 
 
-def exec_sed_task(task:Task, variables:list, preprocessed_task:dict=None, log:TaskLog=None, config:Config=None):
+def exec_sed_task(task:Task, variables:list, preprocessed_task:dict=None, log:TaskLog=None, config:Config=None) -> tuple[VariableResults, TaskLog]:
     ''' Execute a task and save its results
 
     Args:
@@ -151,7 +151,7 @@ def exec_sed_task(task:Task, variables:list, preprocessed_task:dict=None, log:Ta
 
     model = task.model
     sim = task.simulation
-
+    print(f"THIS IS THE PROCESSED TASK OBJECT! \n{preprocessed_task}\n")
     # initialize COPASI task
     copasi_model = preprocessed_task['model']['model']
 
@@ -486,3 +486,6 @@ def preprocess_sed_task(task:Task, variables:list, config:Config=None) -> dict:
             'method_parameters': method_parameters,
         },
     }
+
+
+
