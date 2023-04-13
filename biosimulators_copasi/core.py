@@ -328,7 +328,7 @@ def preprocess_sed_task(task:Task, variables:list, config:Config=None) -> dict:
     if not copasi_data_model.importSBML(model.source):
         raise ValueError("`{}` could not be imported:\n\n  {}".format(
             model.source, get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
-    copasi_model = copasi_data_model.getModel()
+    copasi_model = copasi_data_model.getModel() 
 
     # determine the algorithm to execute
     alg_kisao_id = sim.algorithm.kisao_id
