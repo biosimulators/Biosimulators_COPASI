@@ -141,11 +141,13 @@ def exec_sed_task(task:Task, variables:List, preprocessed_task:Optional[Dict]=No
             could not be recorded
         :obj:`NotImplementedError`: if the task is not of a supported type or involves an unsuported feature
     '''
+    
+    
     #config = config or get_config()
     try:
-        config = get_config() #if not config else config #PR: 55
-    except config:
-        config = config 
+        config = config  #if not config else config #PR: 55
+    except not config:
+        config = get_config()
 
     #if config.LOG and not log:
     #    log = TaskLog()
