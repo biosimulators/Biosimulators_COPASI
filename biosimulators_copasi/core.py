@@ -142,12 +142,17 @@ def exec_sed_task(task:Task, variables:List, preprocessed_task:Optional[Dict]=No
         :obj:`NotImplementedError`: if the task is not of a supported type or involves an unsuported feature
     '''
     
-    config_generator = lambda conf: get_config() if not conf else Exception
+    #config_generator = lambda conf: get_config() if not conf else conf
+    def config_generator(config):
+        if not config:
+            raise Exception
+        else:
+            return config 
     #config = config or get_config()
     try:
-        config_generator(config) #PR: 55
+        config = config_generator(config) #PR: 55
     except Exception:
-        config = config 
+        config = get_config()
 
     #if config.LOG and not log:
     #    log = TaskLog()
