@@ -145,7 +145,7 @@ def exec_sed_task(task:Task, variables:List, preprocessed_task:Optional[Dict]=No
     #config_generator = lambda conf: get_config() if not conf else conf
     #config = config or get_config()
     try:
-        config = config #PR: 55
+        config  #PR: 55
     finally:
         config = get_config()
 
