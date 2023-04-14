@@ -93,8 +93,9 @@ def set_algorithm_parameter_value(algorithm_kisao_id:str, algorithm_function:Fun
 
     parameter_attrs = KISAO_PARAMETERS_MAP.get(parameter_kisao_id, None)
     if parameter_attrs is None:
+        supported_parameters = '\n  - '.join(sorted('{}: {}'.format(id, val['name']) for id, val in KISAO_PARAMETERS_MAP.items()))
         raise NotImplementedError("Parameter '{}' is not supported. COPASI supports the following parameters:\n  - {}".format(
-            parameter_kisao_id, '\n  - '.join(sorted('{}: {}'.format(id, val['name']) for id, val in KISAO_PARAMETERS_MAP.items()))))
+            parameter_kisao_id, supported_parameters))
 
     if isinstance(parameter_attrs['name'], str):
         parameter_name = parameter_attrs['name']
