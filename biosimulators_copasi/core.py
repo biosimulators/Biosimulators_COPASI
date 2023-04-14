@@ -7,12 +7,12 @@
 :License: MIT
 """
 
-from typing import Union #wip-typing
+from typing import Union #typing
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.config import get_config, Config  # noqa: F401
-from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  #wip-typing
+from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  #typing
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
-from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, ReportResults  # noqa: F401  #wip-typing
+from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, ReportResults  # noqa: F401  #typing
 from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
                                                   Variable, Symbol, SedDocument)
 from biosimulators_utils.sedml import validation
@@ -35,7 +35,7 @@ import tempfile
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
 
-def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None, fix_copasi_generated_combine_archive=None) -> tuple:
+def exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=None, fix_copasi_generated_combine_archive=None) -> tuple[SedDocumentResults, CombineArchiveLog]:
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
 
     Args:
