@@ -7,12 +7,12 @@
 :License: MIT
 """
 
-from typing import Union, Tuple, List, Dict, Optional #typing
+from typing import Dict, List, Tuple, Union, Optional #PR: 55
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.config import get_config, Config  # noqa: F401
-from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  #typing
+from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  #PR: 55
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
-from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, ReportResults  # noqa: F401  #typing
+from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, ReportResults  # noqa: F401   #PR: 55
 from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
                                                   Variable, Symbol, SedDocument)
 from biosimulators_utils.sedml import validation
@@ -75,10 +75,10 @@ def exec_sedml_docs_in_combine_archive(archive_filename:str, out_dir:str, config
     return result
 
 
-def exec_sed_doc(doc:Union[SedDocument, str], working_dir:str, base_out_path:str, rel_out_path:str=None,
+def exec_sed_doc(doc:Union[SedDocument, str], working_dir:str, base_out_path:str, rel_out_path:Optional[str]=None,
                  apply_xml_model_changes:bool=True,
-                 log:SedDocumentLog=None, indent:int=0, pretty_print_modified_xml_models:bool=False,
-                 log_level=StandardOutputErrorCapturerLevel.c, config:Config=None) -> Tuple[ReportResults, SedDocumentLog]:
+                 log:Optional[SedDocumentLog]=None, indent:int=0, pretty_print_modified_xml_models:bool=False,
+                 log_level=StandardOutputErrorCapturerLevel.c, config:Optional[Config]=None) -> Tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
     Args:
@@ -118,7 +118,7 @@ def exec_sed_doc(doc:Union[SedDocument, str], working_dir:str, base_out_path:str
                              config=config)
 
 
-def exec_sed_task(task:Task, variables:List, preprocessed_task:Dict=None, log:TaskLog=None, config:Optional[Config]=None) -> Tuple[VariableResults, TaskLog]:
+def exec_sed_task(task:Task, variables:List, preprocessed_task:Optional[Dict]=None, log:Optional[TaskLog]=None, config:Optional[Config]=None) -> Tuple[VariableResults, TaskLog]:
     ''' Execute a task and save its results
 
     Args:
@@ -281,7 +281,7 @@ def get_copasi_error_message(algorithm_kisao_id:str, details:Optional[str]=None)
     return error_msg
 
 
-def preprocess_sed_task(task:Task, variables:list, config:Config=None) -> Dict:
+def preprocess_sed_task(task:Task, variables:list, config:Optional[Config]=None) -> Dict:
     """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
     repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
 
