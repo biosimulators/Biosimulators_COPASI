@@ -143,15 +143,10 @@ def exec_sed_task(task:Task, variables:List, preprocessed_task:Optional[Dict]=No
     '''
     
     #config_generator = lambda conf: get_config() if not conf else conf
-    def config_generator(config):
-        if not config:
-            raise Exception
-        else:
-            return config 
     #config = config or get_config()
     try:
-        config = config_generator(config) #PR: 55
-    except Exception:
+        config = config #PR: 55
+    finally:
         config = get_config()
 
     #if config.LOG and not log:
