@@ -151,7 +151,7 @@ def exec_sed_task(task:Task, variables:list, preprocessed_task:dict=None, log:Ta
 
     model = task.model
     sim = task.simulation
-    print(f"THIS IS THE PROCESSED TASK OBJECT! \n{preprocessed_task}\n")
+    
     # initialize COPASI task
     copasi_model = preprocessed_task['model']['model']
 
