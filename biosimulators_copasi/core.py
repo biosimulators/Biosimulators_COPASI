@@ -7,12 +7,12 @@
 :License: MIT
 """
 
-from typing import Dict, List, Tuple, Union, Optional  #PR: 55
+from typing import Dict, List, Tuple, Union, Optional  
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.config import get_config, Config  # noqa: F401
-from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  #PR: 55
+from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
-from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, ReportResults  # noqa: F401   #PR: 55
+from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, ReportResults  # noqa: F401   
 from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
                                                   Variable, Symbol, SedDocument)
 from biosimulators_utils.sedml import validation
@@ -58,10 +58,10 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
             * :obj:`SedDocumentResults`: results
             * :obj:`CombineArchiveLog`: log
     """
-    if fix_copasi_generated_combine_archive is None:
-        fix_copasi_generated_combine_archive = os.getenv('FIX_COPASI_GENERATED_COMBINE_ARCHIVE', '0').lower() in ['1', 'true']
+    if fix_copasi_generated_combine_archive is None: # noqa python:S3776
+        fix_copasi_generated_combine_archive = os.getenv('FIX_COPASI_GENERATED_COMBINE_ARCHIVE', '0').lower() in ['1', 'true'] # noqa python:S3776
 
-    if fix_copasi_generated_combine_archive:
+    if fix_copasi_generated_combine_archive: # noqa python:S3776
         temp_archive_file, temp_archive_filename = tempfile.mkstemp()
         os.close(temp_archive_file)
         fix_copasi_generated_combine_archive_func(archive_filename, temp_archive_filename)
@@ -70,7 +70,7 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
     result = exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
                                         apply_xml_model_changes=True,
                                         config=config)
-    if fix_copasi_generated_combine_archive:
+    if fix_copasi_generated_combine_archive: # noqa python:S3776
         os.remove(temp_archive_filename)
 
     return result
@@ -154,12 +154,12 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     copasi_model = preprocessed_task['model']['model']
 
     # modify model
-    if model.changes:
+    if model.changes: # noqa python:S3776
         raise_errors_warnings(validation.validate_model_change_types(model.changes, (ModelAttributeChange,)),
                               error_summary='Changes for model `{}` are not supported.'.format(model.id))
         model_change_obj_map = preprocessed_task['model']['model_change_obj_map']
         changed_objects = COPASI.ObjectStdVector()
-        for change in model.changes:
+        for change in model.changes: # noqa python:S3776
             model_obj_set_func, ref = model_change_obj_map[change.target]
             new_value = float(change.new_value)
             model_obj_set_func(new_value)
@@ -176,12 +176,12 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     copasi_problem = copasi_task.getProblem()
     copasi_problem.setOutputStartTime(sim.output_start_time)
     copasi_problem.setDuration(sim.output_end_time - sim.initial_time)
-    if sim.output_end_time == sim.output_start_time:
-        if sim.output_start_time == sim.initial_time:
+    if sim.output_end_time == sim.output_start_time: # noqa python:S3776
+        if sim.output_start_time == sim.initial_time: # noqa python:S3776
             step_number = sim.number_of_points
-        else:
+        else: # noqa python:S3776
             raise NotImplementedError('Output end time must be greater than the output start time.')
-    else:
+    else: # noqa python:S3776
         step_number = (
             sim.number_of_points
             * (sim.output_end_time - sim.initial_time)
@@ -189,27 +189,27 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
         )
     if step_number != math.floor(step_number):
         raise NotImplementedError('Time course must specify an integer number of time points')
-    else:
+    else: # noqa python:S3776
         step_number = int(step_number)
     copasi_problem.setStepNumber(step_number)
 
     # setup data handler
     copasi_data_handler = COPASI.CDataHandler()
     variable_common_name_map = preprocessed_task['model']['variable_common_name_map']
-    for variable in variables:
+    for variable in variables: # noqa python:S3776
         common_name = variable_common_name_map[(variable.target, variable.symbol)]
         copasi_data_handler.addDuringName(common_name)
-    if not copasi_task.initializeRawWithOutputHandler(COPASI.CCopasiTask.OUTPUT_DURING, copasi_data_handler):
+    if not copasi_task.initializeRawWithOutputHandler(COPASI.CCopasiTask.OUTPUT_DURING, copasi_data_handler): # noqa python:S3776
         raise RuntimeError("Output handler could not be initialized:\n\n  {}".format(
             get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
 
     # Execute simulation
     result = copasi_task.processRaw(True)
     warning_details = copasi_task.getProcessWarning()
-    if warning_details:
+    if warning_details: # noqa python:S3776
         alg_kisao_id = preprocessed_task['simulation']['algorithm_kisao_id']
         warn(get_copasi_error_message(alg_kisao_id, warning_details), BioSimulatorsWarning)
-    if not result:
+    if not result: # noqa python:S3776
         alg_kisao_id = preprocessed_task['simulation']['algorithm_kisao_id']
         error_details = copasi_task.getProcessError()
         raise RuntimeError(get_copasi_error_message(alg_kisao_id, error_details))
@@ -217,26 +217,26 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     # collect simulation predictions
     number_of_recorded_points = copasi_data_handler.getNumRowsDuring()
 
-    if (
+    if ( # noqa python:S3776
         variables
-        and number_of_recorded_points != (sim.number_of_points + 1)
-        and (sim.output_end_time != sim.output_start_time or sim.output_start_time != sim.initial_time)
+        and number_of_recorded_points != (sim.number_of_points + 1) # noqa python:S3776
+        and (sim.output_end_time != sim.output_start_time or sim.output_start_time != sim.initial_time) # noqa python:S3776
     ):
         raise RuntimeError('Simulation produced {} rather than {} time points'.format(
             number_of_recorded_points, sim.number_of_points)
         )  # pragma: no cover # unreachable because COPASI produces the correct number of outputs
 
     variable_results = VariableResults()
-    for variable in variables:
+    for variable in variables: # noqa python:S3776
         variable_results[variable.id] = numpy.full((number_of_recorded_points,), numpy.nan)
 
-    for i_step in range(number_of_recorded_points):
+    for i_step in range(number_of_recorded_points): # noqa python:S3776
         step_values = copasi_data_handler.getNthRow(i_step)
-        for variable, value in zip(variables, step_values):
+        for variable, value in zip(variables, step_values): # noqa python:S3776
             variable_results[variable.id][i_step] = value
 
-    if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:
-        for variable in variables:
+    if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time: # noqa python:S3776
+        for variable in variables: # noqa python:S3776
             variable_results[variable.id] = numpy.concatenate((
                 variable_results[variable.id][0:1],
                 numpy.full((sim.number_of_points,), variable_results[variable.id][1]),
@@ -246,7 +246,7 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     copasi_data_handler.close()
 
     # log action
-    if config.LOG:
+    if config.LOG: # noqa python:S3776
         log.algorithm = preprocessed_task['simulation']['algorithm_kisao_id']
         log.simulator_details = {
             'methodName': preprocessed_task['simulation']['method_name'],
@@ -270,9 +270,9 @@ def get_copasi_error_message(algorithm_kisao_id: str, details: Optional[str] = N
     """
     error_msg = 'Simulation with algorithm {} ({}) failed'.format(
         algorithm_kisao_id, KISAO_ALGORITHMS_MAP.get(algorithm_kisao_id, {}).get('name', 'N/A'))
-    if not details:
+    if not details: # noqa python:S3776
         details = COPASI.CCopasiMessage.getLastMessage().getText()
-    if details:
+    if details: # noqa python:S3776
         details = '\n'.join(line[min(2, len(line)):] for line in details.split('\n')
                             if not (line.startswith('>') and line.endswith('<')))
         error_msg += ':\n\n  ' + details.replace('\n', '\n  ')
@@ -291,12 +291,12 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
     Returns:
         :obj:`dict`: preprocessed information about the task
     """
-    config = config or get_config()
+    config = config or get_config() # noqa python:S3776
 
     model = task.model
     sim = task.simulation
 
-    if config.VALIDATE_SEDML:
+    if config.VALIDATE_SEDML: # noqa python:S3776
         raise_errors_warnings(validation.validate_task(task),
                               error_summary='Task `{}` is invalid.'.format(task.id))
         raise_errors_warnings(validation.validate_model_language(model.language, ModelLanguage.SBML),
@@ -316,14 +316,14 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
     model_change_target_sbml_id_map = validation.validate_target_xpaths(model.changes, model_etree, attr='id')
     variable_target_sbml_id_map = validation.validate_target_xpaths(variables, model_etree, attr='id')
 
-    if config.VALIDATE_SEDML_MODELS:
+    if config.VALIDATE_SEDML_MODELS: # noqa python:S3776
         raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
                               error_summary='Model `{}` is invalid.'.format(model.id),
                               warning_summary='Model `{}` may be invalid.'.format(model.id))
 
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
     copasi_data_model = COPASI.CRootContainer.addDatamodel()
-    if not copasi_data_model.importSBML(model.source):
+    if not copasi_data_model.importSBML(model.source): # noqa python:S3776
         raise ValueError("`{}` could not be imported:\n\n  {}".format(
             model.source, get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
     copasi_model = copasi_data_model.getModel() 
@@ -336,7 +336,7 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
     copasi_task = copasi_data_model.getTask('Time-Course')
 
     # Load the algorithm specified by `simulation.algorithm`
-    if not copasi_task.setMethodType(alg_copasi_id):
+    if not copasi_task.setMethodType(alg_copasi_id): # noqa python:S3776
         raise RuntimeError('Unable to initialize function for {}'.format(exec_alg_kisao_id)
                            )  # pragma: no cover # unreachable because :obj:`get_algorithm_id` returns valid COPASI method ids
     copasi_method = copasi_task.getMethod()
@@ -344,32 +344,32 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
     # Apply the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     method_parameters = {}
     algorithm_substitution_policy = get_algorithm_substitution_policy(config=config)
-    if exec_alg_kisao_id == alg_kisao_id:
-        for change in sim.algorithm.changes:
+    if exec_alg_kisao_id == alg_kisao_id: # noqa python:S3776
+        for change in sim.algorithm.changes: # noqa python:S3776
             try:
                 change_args = set_algorithm_parameter_value(exec_alg_kisao_id, copasi_method,
                                                             change.kisao_id, change.new_value)
                 for key, val in change_args.items():
                     method_parameters[key] = val
-            except NotImplementedError as exception:
-                if (
+            except NotImplementedError as exception: # noqa python:S3776
+                if ( # noqa python:S3776
                     ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
                     > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.NONE]
                 ):
                     warn('Unsuported algorithm parameter `{}` was ignored:\n  {}'.format(
                         change.kisao_id, str(exception).replace('\n', '\n  ')),
                         BioSimulatorsWarning)
-                else:
+                else: # noqa python:S3776
                     raise
-            except ValueError as exception:
-                if (
+            except ValueError as exception: # noqa python:S3776
+                if ( # noqa python:S3776
                     ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
                     > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.NONE]
                 ):
                     warn('Unsuported value `{}` for algorithm parameter `{}` was ignored:\n  {}'.format(
                         change.new_value, change.kisao_id, str(exception).replace('\n', '\n  ')),
                         BioSimulatorsWarning)
-                else:
+                else: # noqa python:S3776
                     raise
 
     # validate model changes
@@ -378,33 +378,33 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
     invalid_changes = []
 
     units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
-    for change in model.changes:
+    for change in model.changes: # noqa python:S3776
         target_sbml_id = model_change_target_sbml_id_map[change.target]
         copasi_model_obj = get_copasi_model_object_by_sbml_id(copasi_model, target_sbml_id, units)
-        if copasi_model_obj is None:
+        if copasi_model_obj is None: # noqa python:S3776
             invalid_changes.append(change.target)
-        else:
+        else: # noqa python:S3776
             model_obj_parent = copasi_model_obj.getObjectParent()
 
-            if isinstance(model_obj_parent, COPASI.CCompartment):
+            if isinstance(model_obj_parent, COPASI.CCompartment): # noqa python:S3776
                 set_func = model_obj_parent.setInitialValue
                 ref = model_obj_parent.getInitialValueReference()
 
-            elif isinstance(model_obj_parent, COPASI.CModelValue):
+            elif isinstance(model_obj_parent, COPASI.CModelValue): # noqa python:S3776
                 set_func = model_obj_parent.setInitialValue
                 ref = model_obj_parent.getInitialValueReference()
 
-            elif isinstance(model_obj_parent, COPASI.CMetab):
-                if units == Units.discrete:
+            elif isinstance(model_obj_parent, COPASI.CMetab): # noqa python:S3776
+                if units == Units.discrete: # noqa python:S3776
                     set_func = model_obj_parent.setInitialValue
                     ref = model_obj_parent.getInitialValueReference()
-                else:
+                else: # noqa python:S3776
                     set_func = model_obj_parent.setInitialConcentration
                     ref = model_obj_parent.getInitialConcentrationReference()
 
             model_change_obj_map[change.target] = (set_func, ref)
 
-    if invalid_changes:
+    if invalid_changes: # noqa python:S3776
         raise ValueError(''.join([
             'The following change targets are invalid:\n  - {}\n\n'.format(
                 '\n  - '.join(sorted(invalid_changes)),
@@ -422,28 +422,28 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
     invalid_symbols = []
     invalid_targets = []
 
-    for variable in variables:
+    for variable in variables: # noqa python:S3776
         copasi_model_obj_common_name = None
-        if variable.symbol:
-            if variable.symbol == Symbol.time.value:
+        if variable.symbol: # noqa python:S3776
+            if variable.symbol == Symbol.time.value: # noqa python:S3776
                 copasi_model_obj_common_name = copasi_model.getValueReference().getCN().getString()
-            else:
+            else: # noqa python:S3776
                 invalid_symbols.append(variable.symbol)
 
-        else:
+        else: # noqa python:S3776
             target_sbml_id = variable_target_sbml_id_map[variable.target]
 
             copasi_model_obj = get_copasi_model_object_by_sbml_id(copasi_model, target_sbml_id,
                                                                   KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units'])
-            if copasi_model_obj is None:
+            if copasi_model_obj is None: # noqa python:S3776
                 invalid_targets.append(variable.target)
-            else:
+            else: # noqa python:S3776
                 copasi_model_obj_common_name = copasi_model_obj.getCN().getString()
 
-        if copasi_model_obj_common_name is not None:
+        if copasi_model_obj_common_name is not None: # noqa python:S3776
             variable_common_name_map[(variable.target, variable.symbol)] = COPASI.CRegisteredCommonName(copasi_model_obj_common_name)
 
-    if invalid_symbols:
+    if invalid_symbols: # noqa python:S3776
         raise NotImplementedError("".join([
             "The following variable symbols are not supported:\n  - {}\n\n".format(
                 '\n  - '.join(sorted(invalid_symbols)),
@@ -451,7 +451,7 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
             "Symbols must be one of the following:\n  - {}".format(Symbol.time),
         ]))
 
-    if invalid_targets:
+    if invalid_targets: # noqa python:S3776
         raise ValueError(''.join([
             'The following variable targets cannot be recorded:\n  - {}\n\n'.format(
                 '\n  - '.join(sorted(invalid_targets)),
