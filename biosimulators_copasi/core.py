@@ -7,7 +7,7 @@
 :License: MIT
 """
 
-from typing import Dict, List, Tuple, Union, Optional #PR: 55
+from typing import Dict, List, Tuple, Union, Optional  #PR: 55
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.config import get_config, Config  # noqa: F401
 from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  #PR: 55
@@ -35,7 +35,8 @@ import tempfile
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
 
-def exec_sedml_docs_in_combine_archive(archive_filename:str, out_dir:str, config:Optional[Config]=None, fix_copasi_generated_combine_archive:Optional[bool]=None) -> Tuple[SedDocumentResults, CombineArchiveLog]:
+def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Optional[Config] = None,
+                                       fix_copasi_generated_combine_archive: Optional[bool] = None) -> Tuple[SedDocumentResults, CombineArchiveLog]:
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
 
     Args:
@@ -75,10 +76,10 @@ def exec_sedml_docs_in_combine_archive(archive_filename:str, out_dir:str, config
     return result
 
 
-def exec_sed_doc(doc:Union[SedDocument, str], working_dir:str, base_out_path:str, rel_out_path:Optional[str]=None,
-                 apply_xml_model_changes:bool=True,
-                 log:Optional[SedDocumentLog]=None, indent:int=0, pretty_print_modified_xml_models:bool=False,
-                 log_level=StandardOutputErrorCapturerLevel.c, config:Optional[Config]=None) -> Tuple[ReportResults, SedDocumentLog]:
+def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, rel_out_path: Optional[str] = None,
+                 apply_xml_model_changes: bool = True, log: Optional[SedDocumentLog] = None, indent: int = 0,
+                 pretty_print_modified_xml_models: bool = False, log_level=StandardOutputErrorCapturerLevel.c,
+                 config: Optional[Config] = None) -> Tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
     Args:
@@ -118,7 +119,8 @@ def exec_sed_doc(doc:Union[SedDocument, str], working_dir:str, base_out_path:str
                              config=config)
 
 
-def exec_sed_task(task:Task, variables:List, preprocessed_task:Optional[Dict]=None, log:Optional[TaskLog]=None, config:Optional[Config]=None) -> Tuple[VariableResults, TaskLog]:
+def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Optional[Dict] = None, 
+                  log: Optional[TaskLog] = None, config: Optional[Config] = None) -> Tuple[VariableResults, TaskLog]:
     ''' Execute a task and save its results
 
     Args:
@@ -142,19 +144,13 @@ def exec_sed_task(task:Task, variables:List, preprocessed_task:Optional[Dict]=No
         :obj:`NotImplementedError`: if the task is not of a supported type or involves an unsuported feature
     '''
     
-    #config_generator = lambda conf: get_config() if not conf else conf
     #config = config or get_config()
-    try:
-        config  #PR: 55
-    finally:
-        config = get_config()
-
-    #if config.LOG and not log:
-    #    log = TaskLog()
-        
-    log = TaskLog() if not log and config.LOG else log #PR: 55
-
-    preprocessed_task = preprocess_sed_task(task, variables, config=config) if not preprocessed_task else preprocessed_task #PR: 55
+    #log = TaskLog() if not log and config.LOG else log
+    #preprocessed_task = preprocess_sed_task(task, variables, config=config) if not preprocessed_task else preprocessed_task  #PR: 55
+    
+    config = {True: config, False: get_config()}.get(bool(config), config)
+    log = {True: TaskLog(), False: log}.get(log==None & bool(config.LOG), log)
+    preprocessed_task = {True: preprocessed_task, False: preprocess_sed_task(task, variables, config=config)}.get(bool(preprocessed_task), preprocessed_task)
 
     model = task.model
     sim = task.simulation
@@ -267,7 +263,7 @@ def exec_sed_task(task:Task, variables:List, preprocessed_task:Optional[Dict]=No
     return variable_results, log
 
 
-def get_copasi_error_message(algorithm_kisao_id:str, details:Optional[str]=None) -> str:
+def get_copasi_error_message(algorithm_kisao_id:str, details: Optional[str] = None) -> str:
     """ Get an error message from COPASI
 
     Args:
@@ -288,7 +284,7 @@ def get_copasi_error_message(algorithm_kisao_id:str, details:Optional[str]=None)
     return error_msg
 
 
-def preprocess_sed_task(task:Task, variables:list, config:Optional[Config]=None) -> Dict:
+def preprocess_sed_task(task:Task, variables:list, config:Optional[Config] = None) -> Dict:
     """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
     repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
 
