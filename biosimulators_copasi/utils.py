@@ -287,7 +287,7 @@ def fix_copasi_generated_combine_archive(in_filename: str, out_filename: str, co
     # add SBML namespace to SED-ML file
     ns = None
     for content in archive.contents: # noqa python:S3776
-        if content.format == 'http://identifiers.org/combine.specifications/sbml': # noqa python:S3776
+        if content.format == 'https://identifiers.org/combine.specifications/sbml': # noqa python:S3776
             with open(os.path.join(archive_dirname, content.location), 'rb') as sbml: # noqa python:S3776
                 root = lxml.etree.parse(sbml)
                 # get default ns
@@ -296,7 +296,7 @@ def fix_copasi_generated_combine_archive(in_filename: str, out_filename: str, co
 
     if ns: # noqa python:S3776
         for content in archive.contents: # noqa python:S3776
-            if content.format == 'http://identifiers.org/combine.specifications/sed-ml': # noqa python:S3776
+            if content.format == 'https://identifiers.org/combine.specifications/sed-ml': # noqa python:S3776
                 sedml_file = os.path.join(archive_dirname, content.location)
                 doc = libsedml.readSedMLFromFile(sedml_file)
                 sedml_ns = doc.getSedNamespaces().getNamespaces()
