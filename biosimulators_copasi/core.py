@@ -143,11 +143,6 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
             could not be recorded
         :obj:`NotImplementedError`: if the task is not of a supported type or involves an unsuported feature
     '''
-    
-    #config = config or get_config()
-    #log = TaskLog() if not log and config.LOG else log
-    #preprocessed_task = preprocess_sed_task(task, variables, config=config) if not preprocessed_task else preprocessed_task  #PR: 55
-    
     config = {True: config, False: get_config()}.get(bool(config), config)
     log = {True: TaskLog(), False: log}.get(log==None & bool(config.LOG), log)
     preprocessed_task = {True: preprocessed_task, False: preprocess_sed_task(task, variables, config=config)}.get(bool(preprocessed_task), preprocessed_task)
@@ -263,7 +258,7 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     return variable_results, log
 
 
-def get_copasi_error_message(algorithm_kisao_id:str, details: Optional[str] = None) -> str:
+def get_copasi_error_message(algorithm_kisao_id: str, details: Optional[str] = None) -> str:
     """ Get an error message from COPASI
 
     Args:
@@ -284,7 +279,7 @@ def get_copasi_error_message(algorithm_kisao_id:str, details: Optional[str] = No
     return error_msg
 
 
-def preprocess_sed_task(task:Task, variables:list, config:Optional[Config] = None) -> Dict:
+def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Config] = None) -> Dict:
     """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
     repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
 
