@@ -13,7 +13,7 @@ from biosimulators_utils.config import get_config, Config  # noqa: F401
 from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
 from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, ReportResults  # noqa: F401   
-from biosimulators_utils.sedml.data_model import (Task, ModelLanguage, ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
+from biosimulators_utils.sedml.data_model import (Task, Model, ModelLanguage, ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
                                                   Variable, Symbol, SedDocument)
 from biosimulators_utils.sedml import validation
 from biosimulators_utils.sedml.exec import exec_sed_doc as base_exec_sed_doc
@@ -70,6 +70,7 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
     result = exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
                                         apply_xml_model_changes=True,
                                         config=config)
+    
     if fix_copasi_generated_combine_archive: # noqa python:S3776
         os.remove(temp_archive_filename)
 
@@ -147,16 +148,16 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     log = {True: TaskLog(), False: log}.get(log==None & bool(config.LOG), log)
     preprocessed_task = {True: preprocessed_task, False: preprocess_sed_task(task, variables, config=config)}.get(bool(preprocessed_task), preprocessed_task)
 
-    model = task.model
+    model = task.model #of type Model
     sim = task.simulation
     
     # initialize COPASI task
     copasi_model = preprocessed_task['model']['model']
-
+     
     # modify model
     if model.changes: # noqa python:S3776
         raise_errors_warnings(validation.validate_model_change_types(model.changes, (ModelAttributeChange,)),
-                              error_summary='Changes for model `{}` are not supported.'.format(model.id))
+                              error_summary=f'Changes for model {model.id} are not supported.')
         model_change_obj_map = preprocessed_task['model']['model_change_obj_map']
         changed_objects = COPASI.ObjectStdVector()
         for change in model.changes: # noqa python:S3776
@@ -164,7 +165,7 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
             new_value = float(change.new_value)
             model_obj_set_func(new_value)
             changed_objects.push_back(ref)
-
+        
         copasi_model.compileIfNecessary()
         copasi_model.updateInitialValues(changed_objects)
 
@@ -291,11 +292,11 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
     Returns:
         :obj:`dict`: preprocessed information about the task
     """
-    config = config or get_config() # noqa python:S3776
+    config = {True: config, False: get_config()}.get(bool(config), config) 
 
     model = task.model
     sim = task.simulation
-
+    
     if config.VALIDATE_SEDML: # noqa python:S3776
         raise_errors_warnings(validation.validate_task(task),
                               error_summary='Task `{}` is invalid.'.format(task.id))
@@ -352,20 +353,22 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
                 for key, val in change_args.items():
                     method_parameters[key] = val
             except NotImplementedError as exception: # noqa python:S3776
-                if ( # noqa python:S3776
+                unsupported_algorithm_parameters = (
                     ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
                     > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.NONE]
-                ):
+                )
+                if unsupported_algorithm_parameters:
                     warn('Unsuported algorithm parameter `{}` was ignored:\n  {}'.format(
                         change.kisao_id, str(exception).replace('\n', '\n  ')),
                         BioSimulatorsWarning)
                 else: # noqa python:S3776
                     raise
             except ValueError as exception: # noqa python:S3776
-                if ( # noqa python:S3776
+                unsupported_alogrithm_parameters = ( 
                     ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
                     > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.NONE]
-                ):
+                )
+                if unsupported_alogrithm_parameters: # noqa python:S3776
                     warn('Unsuported value `{}` for algorithm parameter `{}` was ignored:\n  {}'.format(
                         change.new_value, change.kisao_id, str(exception).replace('\n', '\n  ')),
                         BioSimulatorsWarning)
@@ -405,14 +408,16 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
             model_change_obj_map[change.target] = (set_func, ref)
 
     if invalid_changes: # noqa python:S3776
-        raise ValueError(''.join([
-            'The following change targets are invalid:\n  - {}\n\n'.format(
-                '\n  - '.join(sorted(invalid_changes)),
-            ),
-            'Targets must have one of the following ids:\n  - {}'.format(
-                '\n  - '.join(sorted(get_copasi_model_obj_sbml_ids(copasi_model))),
-            ),
-        ]))
+        invalid_change_message = '\n  - '.join(sorted(invalid_changes))
+        valid_targets = '\n  - '.join(sorted(get_copasi_model_obj_sbml_ids(copasi_model)))
+        raise ValueError(
+            ''.join(
+                [
+                    f'The following change targets are invalid:\n  - {invalid_change_message}\n\n',
+                    f'Targets must have one of the following ids:\n  - {valid_targets}',
+                ]
+            )
+        )
 
     # set up observables of the task
     # due to a COPASI bug, :obj:`COPASI.CCopasiTask.initializeRawWithOutputHandler` must be called after
@@ -444,22 +449,27 @@ def preprocess_sed_task(task:Task, variables:List[Variable], config:Optional[Con
             variable_common_name_map[(variable.target, variable.symbol)] = COPASI.CRegisteredCommonName(copasi_model_obj_common_name)
 
     if invalid_symbols: # noqa python:S3776
-        raise NotImplementedError("".join([
-            "The following variable symbols are not supported:\n  - {}\n\n".format(
-                '\n  - '.join(sorted(invalid_symbols)),
-            ),
-            "Symbols must be one of the following:\n  - {}".format(Symbol.time),
-        ]))
+        invalid_symbols_message = '\n  - '.join(sorted(invalid_symbols))
+        raise NotImplementedError(
+            "".join(
+                [
+                    f"The following variable symbols are not supported:\n  - {invalid_symbols_message}\n\n",
+                    f"Symbols must be one of the following:\n  - {Symbol.time}",
+                ]
+            )
+        )
 
     if invalid_targets: # noqa python:S3776
-        raise ValueError(''.join([
-            'The following variable targets cannot be recorded:\n  - {}\n\n'.format(
-                '\n  - '.join(sorted(invalid_targets)),
-            ),
-            'Targets must have one of the following ids:\n  - {}'.format(
-                '\n  - '.join(sorted(get_copasi_model_obj_sbml_ids(copasi_model))),
-            ),
-        ]))
+        invalid_target_message = '\n  - '.join(sorted(invalid_targets))
+        valid_targets = '\n  - '.join(sorted(get_copasi_model_obj_sbml_ids(copasi_model)))
+        raise ValueError(
+            ''.join(
+                [
+                    f'The following variable targets cannot be recorded:\n  - {invalid_target_message}\n\n',
+                    f'Targets must have one of the following ids:\n  - {valid_targets}',
+                ]
+            )
+        )
 
     # Execute simulation
     copasi_task.setScheduled(True)
