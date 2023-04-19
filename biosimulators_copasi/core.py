@@ -145,8 +145,11 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     '''
     
     config = config or get_config() # noqa python:S3776
+    
     log = TaskLog() if not log and config.LOG else log # noqa python:S3776
-    preprocessed_task = preprocess_sed_task(task, variables, config=config) if not preprocessed_task else preprocessed_task # noqa python:S3776
+    
+    if not preprocessed_task: # noqa python:S3776
+        preprocessed_task = preprocess_sed_task(task, variables, config=config) # noqa python:S3776
 
     model = task.model
     sim = task.simulation
