@@ -1,5 +1,4 @@
 """ Tests of the COPASI command-line interface
-
 :Author: Jonathan Karr <karr@mssm.edu>
 :Author: Akhil Teja <akhilmteja@gmail.com>
 :Date: 2020-12-14
