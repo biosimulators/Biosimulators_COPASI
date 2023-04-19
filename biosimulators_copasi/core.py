@@ -143,9 +143,13 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
             could not be recorded
         :obj:`NotImplementedError`: if the task is not of a supported type or involves an unsuported feature
     '''
-    config = {True: config, False: get_config()}.get(bool(config), config)
-    log = {True: TaskLog(), False: log}.get(log==None & bool(config.LOG), log)
-    preprocessed_task = {True: preprocessed_task, False: preprocess_sed_task(task, variables, config=config)}.get(bool(preprocessed_task), preprocessed_task)
+    
+    config = config or get_config() # noqa python:S3776
+    
+    log = TaskLog() if not log and config.LOG else log # noqa python:S3776
+    
+    if not preprocessed_task: # noqa python:S3776
+        preprocessed_task = preprocess_sed_task(task, variables, config=config) # noqa python:S3776
 
     model = task.model
     sim = task.simulation
