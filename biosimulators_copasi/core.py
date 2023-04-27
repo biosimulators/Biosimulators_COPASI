@@ -76,9 +76,10 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
     return result
 
 
-def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, rel_out_path: Optional[str] = None,
-                 apply_xml_model_changes: bool = True, log: Optional[SedDocumentLog] = None, indent: int = 0,
-                 pretty_print_modified_xml_models: bool = False, log_level=StandardOutputErrorCapturerLevel.c,
+def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, 
+                 rel_out_path: Optional[str] = None, apply_xml_model_changes: bool = True, 
+                 log: Optional[SedDocumentLog] = None, indent: int = 0, pretty_print_modified_xml_models: bool = False, 
+                 log_level: Optional[StandardOutputErrorCapturerLevel] = None,
                  config: Optional[Config] = None) -> Tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
@@ -109,6 +110,7 @@ def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: 
             * :obj:`ReportResults`: results of each report
             * :obj:`SedDocumentLog`: log of the document
     """
+    log_level = log_level or StandardOutputErrorCapturerLevel.c
     return base_exec_sed_doc(exec_sed_task, doc, working_dir, base_out_path,
                              rel_out_path=rel_out_path,
                              apply_xml_model_changes=apply_xml_model_changes,
