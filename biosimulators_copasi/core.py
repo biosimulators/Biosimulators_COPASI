@@ -21,8 +21,8 @@ from biosimulators_utils.simulator.utils import get_algorithm_substitution_polic
 from biosimulators_utils.utils.core import raise_errors_warnings
 from biosimulators_utils.warnings import warn, BioSimulatorsWarning
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
-from .data_model import KISAO_ALGORITHMS_MAP, Units
-from .utils import (get_algorithm_id, set_algorithm_parameter_value,
+from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP, Units
+from biosimulators_copasi.utils import (get_algorithm_id, set_algorithm_parameter_value,
                     get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids,
                     fix_copasi_generated_combine_archive as fix_copasi_generated_combine_archive_func)
 import COPASI
@@ -76,9 +76,10 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
     return result
 
 
-def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, rel_out_path: Optional[str] = None,
-                 apply_xml_model_changes: bool = True, log: Optional[SedDocumentLog] = None, indent: int = 0,
-                 pretty_print_modified_xml_models: bool = False, log_level=StandardOutputErrorCapturerLevel.c,
+def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, rel_out_path: Optional[str] = None, 
+                 apply_xml_model_changes: bool = True, log: Optional[SedDocumentLog] = None, 
+                 indent: int = 0, pretty_print_modified_xml_models: bool = False, 
+                 log_level: Optional[Union[StandardOutputErrorCapturerLevel, str]] = StandardOutputErrorCapturerLevel.c,
                  config: Optional[Config] = None) -> Tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
@@ -146,7 +147,8 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     
     config = config or get_config() # noqa python:S3776
     
-    log = TaskLog() if not log and config.LOG else log # noqa python:S3776
+    if not log and config.LOG: # noqa python:S3776
+        log = TaskLog() # noqa python:S3776
     
     if not preprocessed_task: # noqa python:S3776
         preprocessed_task = preprocess_sed_task(task, variables, config=config) # noqa python:S3776

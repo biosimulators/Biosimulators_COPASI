@@ -8,7 +8,7 @@
 
 from types import FunctionType #PR: 55 
 from typing import Dict, List, Tuple, Union, Optional #PR: 55
-from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units
+from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units
 from biosimulators_utils.combine.data_model import CombineArchiveContentFormat
 from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveWriter
 from biosimulators_utils.config import get_config, Config  # noqa: F401
