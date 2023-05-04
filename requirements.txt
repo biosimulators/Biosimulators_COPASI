@@ -2,4 +2,4 @@ biosimulators_utils[logging,smbl] >= 0.1.175
 kisao
 lxml
 numpy
-python_copasi >= 4.33.246
+python_copasi >= 4.39.272
