@@ -31,8 +31,17 @@ import math
 import numpy
 import os
 import tempfile
+import platform 
+
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
+
+CURRENT_PLATFORM = platform.system()
+try:
+    assert CURRENT_PLATFORM == "Darwin"
+    DEFAULT_LOG_LEVEL = StandardOutputErrorCapturerLevel.python
+except AssertionError as e:
+    DEFAULT_LOG_LEVEL = StandardOutputErrorCapturerLevel.c
 
 
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Optional[Config] = None,
