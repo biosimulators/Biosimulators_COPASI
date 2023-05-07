@@ -79,7 +79,7 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
 def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, rel_out_path: Optional[str] = None, 
                  apply_xml_model_changes: bool = True, log: Optional[SedDocumentLog] = None, 
                  indent: int = 0, pretty_print_modified_xml_models: bool = False, 
-                 log_level: Optional[Union[StandardOutputErrorCapturerLevel, str]] = StandardOutputErrorCapturerLevel.c,
+                 log_level: Optional[StandardOutputErrorCapturerLevel]=StandardOutputErrorCapturerLevel.python,
                  config: Optional[Config] = None) -> Tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
