@@ -36,12 +36,13 @@ import platform
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
+
 CURRENT_PLATFORM = platform.system()
 try:
     assert CURRENT_PLATFORM == "Darwin"
-    DEFAULT_LOG_LEVEL = StandardOutputErrorCapturerLevel.python
+    DEFAULT_STDOUT_LEVEL = StandardOutputErrorCapturerLevel.python
 except AssertionError as e:
-    DEFAULT_LOG_LEVEL = StandardOutputErrorCapturerLevel.c
+    DEFAULT_STDOUT_LEVEL = StandardOutputErrorCapturerLevel.c
 
 
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Optional[Config] = None,
@@ -88,7 +89,7 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
 def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, rel_out_path: Optional[str] = None, 
                  apply_xml_model_changes: bool = True, log: Optional[SedDocumentLog] = None, 
                  indent: int = 0, pretty_print_modified_xml_models: bool = False, 
-                 log_level: Optional[StandardOutputErrorCapturerLevel]=StandardOutputErrorCapturerLevel.python,
+                 log_level: Optional[StandardOutputErrorCapturerLevel]=DEFAULT_STDOUT_LEVEL,
                  config: Optional[Config] = None) -> Tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
@@ -199,8 +200,10 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     else: # noqa python:S3776
         step_number = (
             sim.number_of_points
-            * (sim.output_end_time - sim.initial_time)
-            / (sim.output_end_time - sim.output_start_time)
+            * (
+                (sim.output_end_time - sim.initial_time)
+                / (sim.output_end_time - sim.output_start_time)
+            )
         )
     if step_number != math.floor(step_number):
         raise NotImplementedError('Time course must specify an integer number of time points')
