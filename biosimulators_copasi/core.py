@@ -7,7 +7,16 @@
 :License: MIT
 """
 
+
+import lxml
+import math
+import numpy
+import os
+import tempfile
+import platform 
 from typing import Dict, List, Tuple, Union, Optional  
+import COPASI
+from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.config import get_config, Config  # noqa: F401
 from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  
@@ -20,18 +29,10 @@ from biosimulators_utils.sedml.exec import exec_sed_doc as base_exec_sed_doc
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
 from biosimulators_utils.utils.core import raise_errors_warnings
 from biosimulators_utils.warnings import warn, BioSimulatorsWarning
-from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP, Units
 from biosimulators_copasi.utils import (get_algorithm_id, set_algorithm_parameter_value,
                     get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids,
                     fix_copasi_generated_combine_archive as fix_copasi_generated_combine_archive_func)
-import COPASI
-import lxml
-import math
-import numpy
-import os
-import tempfile
-import platform 
 
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
