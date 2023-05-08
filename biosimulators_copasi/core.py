@@ -7,7 +7,15 @@
 :License: MIT
 """
 
+
+import lxml
+import math
+import numpy
+import os
+import tempfile
+import platform 
 from typing import Dict, List, Tuple, Union, Optional  
+import COPASI
 from biosimulators_utils.combine.exec import exec_sedml_docs_in_archive
 from biosimulators_utils.config import get_config, Config  # noqa: F401
 from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401  
@@ -25,13 +33,6 @@ from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP, Units
 from biosimulators_copasi.utils import (get_algorithm_id, set_algorithm_parameter_value,
                     get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids,
                     fix_copasi_generated_combine_archive as fix_copasi_generated_combine_archive_func)
-import COPASI
-import lxml
-import math
-import numpy
-import os
-import tempfile
-import platform 
 
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
