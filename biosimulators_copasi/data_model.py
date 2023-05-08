@@ -6,9 +6,10 @@
 :License: MIT
 """
 
-from biosimulators_utils.data_model import ValueType
 import collections
 import enum
+from biosimulators_utils.data_model import ValueType
+
 
 __all__ = ['Units', 'KISAO_ALGORITHMS_MAP', 'KISAO_PARAMETERS_MAP']
 

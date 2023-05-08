@@ -7,6 +7,8 @@
 :License: MIT
 """
 
+import cement
+import termcolor
 from . import get_simulator_version
 from ._version import __version__
 from .core import exec_sedml_docs_in_combine_archive
@@ -15,8 +17,7 @@ from biosimulators_utils.config import get_config
 from biosimulators_utils.simulator.cli import build_cli
 from biosimulators_utils.simulator.data_model import EnvironmentVariable
 from biosimulators_utils.simulator.environ import ENVIRONMENT_VARIABLES as DEFAULT_ENVIRONMENT_VARIABLES
-import cement
-import termcolor
+
 
 ENVIRONMENT_VARIABLES = list(DEFAULT_ENVIRONMENT_VARIABLES.values())
 ENVIRONMENT_VARIABLES.append(
