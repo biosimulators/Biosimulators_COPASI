@@ -23,8 +23,8 @@ from biosimulators_utils.warnings import warn, BioSimulatorsWarning
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP, Units
 from biosimulators_copasi.utils import (get_algorithm_id, set_algorithm_parameter_value,
-                    get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids,
-                    fix_copasi_generated_combine_archive as fix_copasi_generated_combine_archive_func)
+                                        get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids,
+                                        fix_copasi_generated_combine_archive as fix_copasi_generated_combine_archive_func)
 import COPASI
 import lxml
 import math
@@ -36,12 +36,6 @@ import platform
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
-CURRENT_PLATFORM = platform.system()
-try:
-    assert CURRENT_PLATFORM == "Darwin"
-    DEFAULT_LOG_LEVEL = StandardOutputErrorCapturerLevel.python
-except AssertionError as e:
-    DEFAULT_LOG_LEVEL = StandardOutputErrorCapturerLevel.c
 
 
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Optional[Config] = None,
@@ -199,8 +193,10 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     else: # noqa python:S3776
         step_number = (
             sim.number_of_points
-            * (sim.output_end_time - sim.initial_time)
-            / (sim.output_end_time - sim.output_start_time)
+            * (
+                (sim.output_end_time - sim.initial_time)
+              / (sim.output_end_time - sim.output_start_time)
+            )
         )
     if step_number != math.floor(step_number):
         raise NotImplementedError('Time course must specify an integer number of time points')
