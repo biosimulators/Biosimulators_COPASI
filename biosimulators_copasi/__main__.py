@@ -18,7 +18,6 @@ from biosimulators_utils.simulator.cli import build_cli
 from biosimulators_utils.simulator.data_model import EnvironmentVariable
 from biosimulators_utils.simulator.environ import ENVIRONMENT_VARIABLES as DEFAULT_ENVIRONMENT_VARIABLES
 
-
 ENVIRONMENT_VARIABLES = list(DEFAULT_ENVIRONMENT_VARIABLES.values())
 ENVIRONMENT_VARIABLES.append(
     EnvironmentVariable(
