@@ -39,11 +39,7 @@ __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task'
 
 
 CURRENT_PLATFORM = platform.system()
-try:
-    assert CURRENT_PLATFORM == "Darwin"
-    DEFAULT_STDOUT_LEVEL = StandardOutputErrorCapturerLevel.python
-except AssertionError as e:
-    DEFAULT_STDOUT_LEVEL = StandardOutputErrorCapturerLevel.c
+DEFAULT_STDOUT_LEVEL = StandardOutputErrorCapturerLevel.python if "Darwin" in CURRENT_PLATFORM else StandardOutputErrorCapturerLevel.c  # noqa python:S3776
 
 
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Optional[Config] = None,
