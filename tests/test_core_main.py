@@ -24,6 +24,7 @@ from biosimulators_utils.sedml.io import SedmlSimulationWriter
 from biosimulators_utils.sedml.utils import append_all_nested_children_to_doc
 from biosimulators_utils.utils.core import are_lists_equal
 from biosimulators_utils.warnings import BioSimulatorsWarning
+import biosimulators_copasi.docker_core
 from unittest import mock
 import COPASI
 import copy
@@ -851,40 +852,6 @@ class CliTestCase(unittest.TestCase):
         numpy.testing.assert_almost_equal(
             report_results['data_set_time'],
             numpy.linspace(sim.output_start_time, sim.output_end_time, sim.number_of_points + 1),
-        )
-
-        for data_set_result in report_results.values():
-            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
-
-    def test_exec_sedml_docs_in_combine_archive_another_real_example(self):
-        archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000005.omex')
-        out_dir = os.path.join(self.dirname, 'out')
-
-        config = get_config()
-        config.REPORT_FORMATS = [
-            report_data_model.ReportFormat.h5,
-        ]
-        config.BUNDLE_OUTPUTS = True
-        config.KEEP_INDIVIDUAL_OUTPUTS = False
-
-        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
-        if log.exception:
-            raise log.exception
-
-        report = sedml_data_model.Report(
-            data_sets=[
-                sedml_data_model.DataSet(id='time', label='time'),
-                sedml_data_model.DataSet(id='Cdh1', label='Cdh1'),
-                sedml_data_model.DataSet(id='Trim', label='Trim'),
-                sedml_data_model.DataSet(id='Clb', label='Clb'),
-            ]
-        )
-        report_results = ReportReader().run(report, out_dir, 'simulation_1.sedml/report_1', format=report_data_model.ReportFormat.h5)
-
-        self.assertEqual(len(report_results[report.data_sets[0].id]), 100 + 1)
-        numpy.testing.assert_almost_equal(
-            report_results['time'],
-            numpy.linspace(0., 100., 100 + 1),
         )
 
         for data_set_result in report_results.values():

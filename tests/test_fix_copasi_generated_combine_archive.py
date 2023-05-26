@@ -40,7 +40,7 @@ class FixCopasiGeneratedCombineArchiveTestCase(unittest.TestCase):
         self.assertEqual(log.status, Status.SUCCEEDED)
 
         results, log = biosimulators_copasi.exec_sedml_docs_in_combine_archive(
-            self.filename, self.out_dir, fix_copasi_generated_combine_archive=True)
+            self.filename, self.out_dir, should_fix_copasi_generated_combine_archive=True)
         self.assertEqual(log.status, Status.SUCCEEDED)
 
         with mock.patch.dict(os.environ, {'FIX_COPASI_GENERATED_COMBINE_ARCHIVE': '1'}):

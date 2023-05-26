@@ -4,3 +4,4 @@ lxml
 numpy
 python-libsbml
 python_copasi >= 4.33.246
+copasi-basico
