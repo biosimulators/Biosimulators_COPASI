@@ -195,7 +195,7 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
     return args
 
 
-def get_copasi_model_object_by_sbml_id(model, id, units):
+def get_copasi_model_object_by_sbml_id(model: COPASI.CModel, id: str, units: Units):
     """ Get a COPASI model object by its SBML id
 
     Args:

@@ -158,8 +158,12 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
     model: Model = task.model
     sim: Simulation = task.simulation
 
+    #basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
+
+    #####################################################
+
     # initialize COPASI task
-    copasi_model = preprocessed_task['model']['model']
+    copasi_model: COPASI.CModel = preprocessed_task['model']['model']
 
     # modify model
     if model.changes:
@@ -212,6 +216,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
             get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
 
     # Execute simulation
+    basico.set_current_model()
     result = copasi_task.processRaw(True)
     warning_details = copasi_task.getProcessWarning()
     if warning_details:
@@ -316,6 +321,17 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
                               error_summary=f'Model `{model.id}` is invalid.',
                               warning_summary=f'Model `{model.id}` may be invalid.')
 
+    # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
+    #basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
+    #if not basico_data_model:
+        #copasi_error_message = get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")
+        #raise ValueError(f"`{model.source}` could not be imported.")
+    #basico.set_model_name(f"{model.name}_{task.name}")
+
+    # determine the algorithm to execute
+
+
+################################################################
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
     copasi_data_model: COPASI.CDataModel = COPASI.CRootContainer.addDatamodel()
     if not copasi_data_model.importSBML(model.source):
@@ -485,9 +501,9 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
         },
     }
 
-    with open(r"C:\Users\drescher\COPASI\output.txt", "w") as file:
-        file.write(str(preprocessed_info).replace(", ", ", \n"))
-        file.write("\n")
+    #basico.set_current_model(copasi_data_model)
+    #basico.save_model(r"C:\Users\drescher\COPASI\model.txt")
+
     return preprocessed_info
 
 

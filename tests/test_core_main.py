@@ -24,7 +24,6 @@ from biosimulators_utils.sedml.io import SedmlSimulationWriter
 from biosimulators_utils.sedml.utils import append_all_nested_children_to_doc
 from biosimulators_utils.utils.core import are_lists_equal
 from biosimulators_utils.warnings import BioSimulatorsWarning
-import biosimulators_copasi.docker_core
 from unittest import mock
 import COPASI
 import copy
@@ -853,6 +852,42 @@ class CliTestCase(unittest.TestCase):
             report_results['data_set_time'],
             numpy.linspace(sim.output_start_time, sim.output_end_time, sim.number_of_points + 1),
         )
+
+        for data_set_result in report_results.values():
+            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
+
+    def test_exec_combine_archive_from_docker_entry_point_example(self):
+        archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000005.omex')
+        out_dir = os.path.join(self.dirname, 'out')
+
+        config = get_config()
+        config.REPORT_FORMATS = [
+            report_data_model.ReportFormat.h5,
+        ]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = False
+
+        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+        if log.exception:
+            raise log.exception
+
+        report = sedml_data_model.Report(
+            data_sets=[
+                sedml_data_model.DataSet(id='autogen_time_for_task1', label='Time'),
+                sedml_data_model.DataSet(id='autogen_task1_YT', label='YT'),
+                sedml_data_model.DataSet(id='autogen_task1_M', label='M'),
+            ]
+        )
+        path_in_hdf5: str = 'BIOMD0000000005.sedml/autogen_report_for_task1'
+        report_results = ReportReader().run(report, out_dir, path_in_hdf5, format=report_data_model.ReportFormat.h5)
+
+        self.assertEqual(len(report_results[report.data_sets[0].id]), 1000 + 1)
+        numpy.testing.assert_almost_equal(report_results['autogen_time_for_task1'], numpy.linspace(0., 100., 1000 + 1),)
+        truth_array = numpy.not_equal(report_results['autogen_task1_YT'], numpy.linspace(0.25, 0.25, 1000 + 1))
+        try:
+            self.assertTrue(numpy.any(truth_array))
+        except AssertionError:
+            raise AssertionError("'YT' is constant, when it should vary!")
 
         for data_set_result in report_results.values():
             self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
