@@ -1,7 +1,13 @@
 biosimulators_utils[logging,sbml] >= 0.1.128
-kisao
-lxml
-numpy
+kisao~=2.30
+lxml~=4.9.2
+numpy~=1.24.3
 python-libsbml
 python_copasi >= 4.33.246
 copasi-basico
+docker
+
+python-dateutil~=2.8.2
+setuptools==67.8.0
+cement~=3.0.8
+termcolor~=2.3.0

@@ -11,15 +11,19 @@ import unittest
 
 class UtilsTestCase(unittest.TestCase):
     def test_get_algorithm_id(self):
-        self.assertEqual(utils.get_algorithm_id('KISAO_0000027'), ('KISAO_0000027', COPASI.CTaskEnum.Method_stochastic))
+        self.assertEqual(utils.get_algorithm_id('KISAO_0000027'),
+                         ('KISAO_0000027', COPASI.CTaskEnum.Method_stochastic, "stochastic"))
 
-        self.assertEqual(utils.get_algorithm_id('KISAO_0000560'), ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic))
+        self.assertEqual(utils.get_algorithm_id('KISAO_0000560'),
+                         ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
 
         with self.assertWarns(AlgorithmSubstitutedWarning):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000088'), ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic))
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000088'),
+                             ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
 
         with self.assertWarns(AlgorithmSubstitutedWarning):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000089'), ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic))
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000089'),
+                             ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
 
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'NONE'}):
             with self.assertRaises(AlgorithmCannotBeSubstitutedException):

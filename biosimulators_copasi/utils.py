@@ -32,6 +32,46 @@ __all__ = [
 ]
 
 
+def basico_get_algorithm_id(kisao_id, events=False, config=None):
+    """ Get the COPASI id for an algorithm
+
+    Args:
+        kisao_id (:obj:`str`): KiSAO algorithm id
+        events (:obj:`bool`, optional): whether an algorithm that supports
+            events is needed
+        config (:obj:`Config`, optional): configuration
+
+    Returns:
+        :obj:`tuple`:
+
+            * :obj:`str`: KiSAO id of algorithm to execute
+            * :obj:`int`: COPASI id for algorithm
+    """
+    possible_alg_kisao_ids = [
+        target_id for target_id, props in KISAO_ALGORITHMS_MAP.items() if not events or props['supports_events']
+    ]
+
+    substitution_policy = get_algorithm_substitution_policy(config=config)
+    try:
+        exec_kisao_id = get_preferred_substitute_algorithm_by_ids(
+            kisao_id, possible_alg_kisao_ids,
+            substitution_policy=substitution_policy)
+    except NotImplementedError:
+        if (
+            events
+            and kisao_id in ['KISAO_0000561', 'KISAO_0000562']
+            and (
+                ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy] >=
+                ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SIMILAR_APPROXIMATIONS]
+            )
+        ):
+            exec_kisao_id = 'KISAO_0000563'  # Pahle hybrid Gibson-Bruck Next Reaction method/RK-45
+        else:
+            exec_kisao_id = kisao_id
+
+    alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
+    return (exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']))
+
 def get_algorithm_id(kisao_id, events=False, config=None):
     """ Get the COPASI id for an algorithm
 
@@ -72,7 +112,7 @@ def get_algorithm_id(kisao_id, events=False, config=None):
             exec_kisao_id = kisao_id
 
     alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
-    return (exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']))
+    return exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']), alg['id']
 
 
 def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parameter_kisao_id, value):
@@ -91,8 +131,10 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
 
     parameter_attrs = KISAO_PARAMETERS_MAP.get(parameter_kisao_id, None)
     if parameter_attrs is None:
-        raise NotImplementedError("Parameter '{}' is not supported. COPASI supports the following parameters:\n  - {}".format(
-            parameter_kisao_id, '\n  - '.join(sorted('{}: {}'.format(id, val['name']) for id, val in KISAO_PARAMETERS_MAP.items()))))
+        param_map_string = '\n  - '.join(sorted('{}: {}'.format(id_str, val['name'])
+                                                for id_str, val in KISAO_PARAMETERS_MAP.items()))
+        raise NotImplementedError(f"Parameter '{parameter_kisao_id}' is not supported. COPASI supports the "
+                                  + f"following parameters:\n  - {param_map_string}")
 
     if isinstance(parameter_attrs['name'], str):
         parameter_name = parameter_attrs['name']
@@ -103,14 +145,13 @@ def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parame
         alg_params = []
         for param_id, param_props in KISAO_PARAMETERS_MAP.items():
             if algorithm_kisao_id in param_props['algorithms']:
-                alg_params.append('{}: {}'.format(param_id, param_props['name']))
+                alg_params.append(f"{param_id}: {param_props['name']}")
 
+        alg_params_str = '\n  - '.join(sorted(alg_params))
         raise NotImplementedError("".join([
-            "Algorithm {} ({}) does not support parameter {} ({}). ".format(
-                algorithm_kisao_id, algorithm_name,
-                parameter_kisao_id, parameter_name),
-            "The algorithm supports the following parameters:\n  - {}".format(
-                "\n  - ".join(sorted(alg_params))),
+            f"Algorithm {algorithm_kisao_id} ({algorithm_name}) ",
+            f"does not support parameter {parameter_kisao_id} ({parameter_name}). ",
+            f"The algorithm supports the following parameters:\n  - {alg_params_str}",
         ]))
 
     if parameter_attrs['type'] == ValueType.boolean:
@@ -225,6 +266,49 @@ def get_copasi_model_object_by_sbml_id(model: COPASI.CModel, id: str, units: Uni
     for object in model.getReactions():
         if object.getSBMLId() == id:
             return object.getFluxReference()
+
+    return None
+
+def pre_process_changes(model: COPASI.CModel, sbml_ids: list[str], units: Units) -> COPASI.CDataObject:
+    """ Get a COPASI model object by its SBML id
+
+    Args:
+        model (:obj:`COPASI.CModel`): model
+        sbml_ids (:obj:`list` of :obj:`str`): SBML ids
+        units (:obj:`Units`): desired units for the object
+
+    Returns:
+        :obj:`COPASI.CCompartment`, :obj:`COPASI.CMetab`, :obj:`COPASI.CModelValue`, or :obj:`COPASI.CReaction`:
+            model object
+    """
+
+    metabolites = model.getMetabolites()
+    model_vals = model.getModelValues()
+    compartments = model.getCompartments()
+    reactions = model.getReactions()
+
+    entity: COPASI.CModelEntity
+    metabolite_map: dict[str, COPASI.CMetab] = {entity.getSBMLId(): entity for entity in metabolites}
+    model_val_map: dict[str, COPASI.CModelValue] = {entity.getSBMLId(): entity for entity in model_vals}
+    compartment_map: dict[str, COPASI.CCompartment] = {entity.getSBMLId(): entity for entity in compartments}
+    reaction_map: dict[str, COPASI.CReaction] = {entity.getSBMLId(): entity for entity in reactions}
+
+    for sbml_id in sbml_ids:
+        if sbml_id in metabolite_map.keys():
+            entity: COPASI.CMetab = metabolite_map[sbml_id]
+            return entity.getValueReference() if units == Units.discrete else entity.getConcentrationReference()
+
+        if sbml_id in model_val_map.keys():
+            entity: COPASI.CModelValue = model_val_map[sbml_id]
+            return entity.getValueReference()
+
+        if sbml_id in compartment_map.keys():
+            entity: COPASI.CCompartment = compartment_map[sbml_id]
+            return entity.getValueReference()
+
+        if sbml_id in reaction_map.keys():
+            entity: COPASI.CReaction = reaction_map[sbml_id]
+            return entity.getFluxReference()
 
     return None
 

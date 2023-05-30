@@ -20,14 +20,14 @@ from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, \
     StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
 from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults  # noqa: F401
-from biosimulators_utils.sedml.data_model import (Task, Model, Simulation, ModelLanguage, ModelAttributeChange,
-                                                  UniformTimeCourseSimulation,  # noqa: F401
+from biosimulators_utils.sedml.data_model import (Task, Model, Simulation, ModelLanguage, ModelChange,
+                                                  ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
                                                   Variable, Symbol, SedDocument)
 from biosimulators_utils.sedml import validation
 from biosimulators_utils.utils.core import raise_errors_warnings
 from biosimulators_utils.warnings import warn, BioSimulatorsWarning
 from kisao.data_model import AlgorithmSubstitutionPolicy as AlgSubPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
-from .data_model import KISAO_ALGORITHMS_MAP, Units
+from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP, Units
 
 #from .utils import (get_algorithm_id, set_algorithm_parameter_value, get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids)
 import basico
@@ -40,7 +40,7 @@ import tempfile
 
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
-
+proper_args: dict = {}
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Config = None,
                                        should_fix_copasi_generated_combine_archive: bool = None) -> tuple:
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
@@ -70,6 +70,12 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
 
     if should_fix_copasi_generated_combine_archive:
         archive_filename = _get_copasi_fixed_archive(archive_filename)
+
+    basico.load_model(archive_filename)
+    for task in basico.get_scheduled_tasks():
+        proper_args[task] = basico.get_task_settings(task)
+
+    param_sets = basico.get_parameter_sets()
 
     result = bsu_combine.exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
                                                     apply_xml_model_changes=True, config=config)
@@ -152,13 +158,51 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
     if config.LOG and not log:
         log: TaskLog = TaskLog()
 
-    if preprocessed_task is None:
-        preprocessed_task = preprocess_sed_task(task, variables, config=config)
-
     model: Model = task.model
     sim: Simulation = task.simulation
 
-    #basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
+    # Validate provided simulation description
+    if config.VALIDATE_SEDML:
+        _validate_sedml(task, model, sim, variables)
+
+    model_etree = lxml.etree.parse(model.source)
+    model_change_target_sbml_id_map: dict = validation.validate_target_xpaths(model.changes, model_etree, attr='id')
+    variable_target_sbml_id_map: dict = validation.validate_target_xpaths(variables, model_etree, attr='id')
+
+    if config.VALIDATE_SEDML_MODELS:
+        raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
+                              error_summary=f'Model `{model.id}` is invalid.',
+                              warning_summary=f'Model `{model.id}` may be invalid.')
+
+    # instantiate model
+    basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
+
+    # process solution algorithm
+    alg_kisao_id: str = sim.algorithm.kisao_id
+    has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
+    exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, events=has_events,
+                                                                                 config=config)
+
+    # process model changes
+    if model.changes:
+        # check if there's anything but ChangeAttribute type changes
+        model_change: ModelAttributeChange
+        error_message = f'Changes for model `{model.id}` are not supported.'
+        change_validation_errors = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
+        raise_errors_warnings(change_validation_errors, error_summary=error_message)
+
+        legal_changes = [change for change in model.changes if isinstance(change, ModelAttributeChange)]
+
+        invalid_changes = []
+        units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
+        c_model = basico_data_model.getModel()
+        for model_change in legal_changes:
+            target_sbml_id = model_change_target_sbml_id_map[model_change.target]
+            copasi_model_obj = utils.get_copasi_model_object_by_sbml_id(c_model, target_sbml_id, units)
+            if copasi_model_obj is None:
+                invalid_changes.append(model_change.target)
+            else:
+                model_obj_parent = copasi_model_obj.getObjectParent()
 
     #####################################################
 
@@ -167,8 +211,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
 
     # modify model
     if model.changes:
-        raise_errors_warnings(validation.validate_model_change_types(model.changes, (ModelAttributeChange,)),
-                              error_summary='Changes for model `{}` are not supported.'.format(model.id))
+
         model_change_obj_map = preprocessed_task['model']['model_change_obj_map']
         changed_objects = COPASI.ObjectStdVector()
         for change in model.changes:
@@ -216,7 +259,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
             get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
 
     # Execute simulation
-    basico.set_current_model()
+    #basico.set_current_model()
     result = copasi_task.processRaw(True)
     warning_details = copasi_task.getProcessWarning()
     if warning_details:
@@ -322,29 +365,35 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
                               warning_summary=f'Model `{model.id}` may be invalid.')
 
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
-    #basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
-    #if not basico_data_model:
+    basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
+    if not basico_data_model:
         #copasi_error_message = get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")
-        #raise ValueError(f"`{model.source}` could not be imported.")
-    #basico.set_model_name(f"{model.name}_{task.name}")
+        raise ValueError(f"`{model.source}` could not be imported.")
+    basico.set_model_name(f"{model.name}_{task.name}")
+    reactions = basico.get_reactions()
 
     # determine the algorithm to execute
-
+    alg_kisao_id: str = sim.algorithm.kisao_id
+    has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
+    _, _, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, events=has_events, config=config)
 
 ################################################################
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
-    copasi_data_model: COPASI.CDataModel = COPASI.CRootContainer.addDatamodel()
-    if not copasi_data_model.importSBML(model.source):
-        copasi_error_message = get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")
-        raise ValueError(f"`{model.source}` could not be imported:\n\n  {copasi_error_message}")
-    copasi_model: COPASI.CModel = copasi_data_model.getModel()
+    #copasi_data_model: COPASI.CDataModel = COPASI.CRootContainer.addDatamodel()
+    #if not copasi_data_model.importSBML(model.source):
+        #copasi_error_message = get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")
+        #raise ValueError(f"`{model.source}` could not be imported:\n\n  {copasi_error_message}")
+    #copasi_model: COPASI.CModel = copasi_data_model.getModel()
 
+    copasi_data_model = basico_data_model  # Since basico and python-copasi both access the C++ api, this should work
+    copasi_model: COPASI.CModel = copasi_data_model.getModel()
     # determine the algorithm to execute
     exec_alg_kisao_id: str
     alg_copasi_id: int
     alg_kisao_id: str = sim.algorithm.kisao_id
     has_events: bool = copasi_model.getNumEvents() >= 1
-    exec_alg_kisao_id, alg_copasi_id = utils.get_algorithm_id(alg_kisao_id, events=has_events, config=config)
+    exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id,
+                                                                                 events=has_events, config=config)
 
     # initialize COPASI task
     copasi_task: COPASI.CCopasiTask = copasi_data_model.getTask('Time-Course')
@@ -362,7 +411,7 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
         for change in sim.algorithm.changes:
             try:
                 change_args = utils.set_algorithm_parameter_value(exec_alg_kisao_id, copasi_method,
-                                                            change.kisao_id, change.new_value)
+                                                                  change.kisao_id, change.new_value)
                 for key, val in change_args.items():
                     method_parameters[key] = val
             except NotImplementedError as exception:
@@ -505,7 +554,6 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     #basico.save_model(r"C:\Users\drescher\COPASI\model.txt")
 
     return preprocessed_info
-
 
 def _get_copasi_fixed_archive(archive_filename: bytes | str):
     temp_archive_file: int
