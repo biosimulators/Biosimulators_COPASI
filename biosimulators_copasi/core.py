@@ -183,6 +183,30 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
     exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, events=has_events,
                                                                                  config=config)
 
+    # Initialize solver settings
+    use_initial_values_arg: bool = True
+    update_model_arg: bool = False  # performs a model reset
+    method_arg = alg_copasi_str_id
+    if not isinstance(sim, UniformTimeCourseSimulation):
+        raise ValueError("COPASI can only handle UTC Simulations in this API for the time being")
+    utc_sim: UniformTimeCourseSimulation = sim
+    duration_arg: float = sim.output_end_time - sim.initial_time
+    start_time_arg: float = utc_sim.output_start_time
+
+    step_number_arg: int
+    try:
+        step_number_arg = sim.number_of_points * duration_arg / (sim.output_end_time - sim.output_start_time)
+    except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
+        if sim.output_start_time != sim.initial_time:
+            raise ValueError('Output end time must be greater than the output start time.')
+        step_number_arg = sim.number_of_points
+
+    if step_number_arg != math.floor(step_number_arg):
+        raise TypeError('Time course must specify an integer number of time points')
+
+    step_number_arg = int(step_number_arg)
+
+
     # process model changes
     if model.changes:
         # check if there's anything but ChangeAttribute type changes
@@ -204,84 +228,17 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
             else:
                 model_obj_parent = copasi_model_obj.getObjectParent()
 
-    #####################################################
+    # Preprocess output variables
+    #variables_to_collect: list[Variable] = []
+    variables_to_collect = [variable for variable in variables if variable.name != 'time']
+    variables_to_collect += [_fix_time_name(variable, 'Time') for variable in variables if variable.name == 'time']
+    output_selection_arg = [variable.name for variable in variables_to_collect]
 
-    # initialize COPASI task
-    copasi_model: COPASI.CModel = preprocessed_task['model']['model']
-
-    # modify model
-    if model.changes:
-
-        model_change_obj_map = preprocessed_task['model']['model_change_obj_map']
-        changed_objects = COPASI.ObjectStdVector()
-        for change in model.changes:
-            model_obj_set_func, ref = model_change_obj_map[change.target]
-            new_value = float(change.new_value)
-            model_obj_set_func(new_value)
-            changed_objects.push_back(ref)
-
-        copasi_model.compileIfNecessary()
-        copasi_model.updateInitialValues(changed_objects)
-
-    # initialize simulation
-    copasi_model.setInitialTime(sim.initial_time)
-    copasi_model.forceCompile()
-
-    copasi_task = preprocessed_task['task']
-    copasi_problem = copasi_task.getProblem()
-    copasi_problem.setOutputStartTime(sim.output_start_time)
-    copasi_problem.setDuration(sim.output_end_time - sim.initial_time)
-    if sim.output_end_time == sim.output_start_time:
-        if sim.output_start_time == sim.initial_time:
-            step_number = sim.number_of_points
-        else:
-            raise NotImplementedError('Output end time must be greater than the output start time.')
-    else:
-        step_number = (
-                sim.number_of_points
-                * (sim.output_end_time - sim.initial_time)
-                / (sim.output_end_time - sim.output_start_time)
-        )
-    if step_number != math.floor(step_number):
-        raise NotImplementedError('Time course must specify an integer number of time points')
-    else:
-        step_number = int(step_number)
-    copasi_problem.setStepNumber(step_number)
-
-    # setup data handler
-    copasi_data_handler = COPASI.CDataHandler()
-    variable_common_name_map = preprocessed_task['model']['variable_common_name_map']
-    for variable in variables:
-        common_name = variable_common_name_map[(variable.target, variable.symbol)]
-        copasi_data_handler.addDuringName(common_name)
-    if not copasi_task.initializeRawWithOutputHandler(COPASI.CCopasiTask.OUTPUT_DURING, copasi_data_handler):
-        raise RuntimeError("Output handler could not be initialized:\n\n  {}".format(
-            get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
-
-    # Execute simulation
-    #basico.set_current_model()
-    result = copasi_task.processRaw(True)
-    warning_details = copasi_task.getProcessWarning()
-    if warning_details:
-        alg_kisao_id = preprocessed_task['simulation']['algorithm_kisao_id']
-        warn(get_copasi_error_message(alg_kisao_id, warning_details), BioSimulatorsWarning)
-    if not result:
-        alg_kisao_id = preprocessed_task['simulation']['algorithm_kisao_id']
-        error_details = copasi_task.getProcessError()
-        raise RuntimeError(get_copasi_error_message(alg_kisao_id, error_details))
-
-    # collect simulation predictions
-    number_of_recorded_points = copasi_data_handler.getNumRowsDuring()
-
-    if (
-            variables
-            and number_of_recorded_points != (sim.number_of_points + 1)
-            and (sim.output_end_time != sim.output_start_time or sim.output_start_time != sim.initial_time)
-    ):
-        raise RuntimeError('Simulation produced {} rather than {} time points'.format(
-            number_of_recorded_points, sim.number_of_points)
-        )  # pragma: no cover # unreachable because COPASI produces the correct number of outputs
-
+    # Execute Simulation
+    data = basico.run_time_course_with_output(output_selection=output_selection_arg,
+                                              use_initial_values=use_initial_values_arg, update_model=update_model_arg,
+                                              method=method_arg, duration=duration_arg, start_time=start_time_arg,
+                                              step_number=step_number_arg)
     variable_results = VariableResults()
     for variable in variables:
         variable_results[variable.id] = numpy.full((number_of_recorded_points,), numpy.nan)
@@ -298,20 +255,125 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
                 numpy.full((sim.number_of_points,), variable_results[variable.id][1]),
             ))
 
-    copasi_data_handler.cleanup()
-    copasi_data_handler.close()
-
     # log action
     if config.LOG:
-        log.algorithm = preprocessed_task['simulation']['algorithm_kisao_id']
+        log.algorithm = exec_alg_kisao_id
         log.simulator_details = {
-            'methodName': preprocessed_task['simulation']['method_name'],
-            'methodCode': preprocessed_task['simulation']['algorithm_copasi_id'],
-            'parameters': preprocessed_task['simulation']['method_parameters'],
+            'methodName': alg_copasi_str_id,
+            'methodCode': alg_copasi_id,
+            'parameters': None,
         }
 
     # return results and log
     return variable_results, log
+    #####################################################
+
+    # # initialize COPASI task
+    # copasi_model: COPASI.CModel = preprocessed_task['model']['model']
+    #
+    # # modify model
+    # if model.changes:
+    #
+    #     model_change_obj_map = preprocessed_task['model']['model_change_obj_map']
+    #     changed_objects = COPASI.ObjectStdVector()
+    #     for change in model.changes:
+    #         model_obj_set_func, ref = model_change_obj_map[change.target]
+    #         new_value = float(change.new_value)
+    #         model_obj_set_func(new_value)
+    #         changed_objects.push_back(ref)
+    #
+    #     copasi_model.compileIfNecessary()
+    #     copasi_model.updateInitialValues(changed_objects)
+    #
+    # # initialize simulation
+    # copasi_model.setInitialTime(sim.initial_time)
+    # copasi_model.forceCompile()
+    #
+    # copasi_task = preprocessed_task['task']
+    # copasi_problem = copasi_task.getProblem()
+    # copasi_problem.setOutputStartTime(sim.output_start_time)
+    # copasi_problem.setDuration(sim.output_end_time - sim.initial_time)
+    # if sim.output_end_time == sim.output_start_time:
+    #     if sim.output_start_time == sim.initial_time:
+    #         step_number = sim.number_of_points
+    #     else:
+    #         raise NotImplementedError('Output end time must be greater than the output start time.')
+    # else:
+    #     step_number = (
+    #             sim.number_of_points
+    #             * (sim.output_end_time - sim.initial_time)
+    #             / (sim.output_end_time - sim.output_start_time)
+    #     )
+    # if step_number != math.floor(step_number):
+    #     raise NotImplementedError('Time course must specify an integer number of time points')
+    # else:
+    #     step_number = int(step_number)
+    # copasi_problem.setStepNumber(step_number)
+    #
+    # # setup data handler
+    # copasi_data_handler = COPASI.CDataHandler()
+    # variable_common_name_map = preprocessed_task['model']['variable_common_name_map']
+    # for variable in variables:
+    #     common_name = variable_common_name_map[(variable.target, variable.symbol)]
+    #     copasi_data_handler.addDuringName(common_name)
+    # if not copasi_task.initializeRawWithOutputHandler(COPASI.CCopasiTask.OUTPUT_DURING, copasi_data_handler):
+    #     raise RuntimeError("Output handler could not be initialized:\n\n  {}".format(
+    #         get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
+    #
+    # # Execute simulation
+    # result = copasi_task.processRaw(True)
+    # warning_details = copasi_task.getProcessWarning()
+    # if warning_details:
+    #     alg_kisao_id = preprocessed_task['simulation']['algorithm_kisao_id']
+    #     warn(get_copasi_error_message(alg_kisao_id, warning_details), BioSimulatorsWarning)
+    # if not result:
+    #     alg_kisao_id = preprocessed_task['simulation']['algorithm_kisao_id']
+    #     error_details = copasi_task.getProcessError()
+    #     raise RuntimeError(get_copasi_error_message(alg_kisao_id, error_details))
+    #
+    # # collect simulation predictions
+    # number_of_recorded_points = copasi_data_handler.getNumRowsDuring()
+    #
+    # if (
+    #         variables
+    #         and number_of_recorded_points != (sim.number_of_points + 1)
+    #         and (sim.output_end_time != sim.output_start_time or sim.output_start_time != sim.initial_time)
+    # ):
+    #     raise RuntimeError('Simulation produced {} rather than {} time points'.format(
+    #         number_of_recorded_points, sim.number_of_points)
+    #     )  # pragma: no cover # unreachable because COPASI produces the correct number of outputs
+    #
+    # variable_results = VariableResults()
+    # for variable in variables:
+    #     variable_results[variable.id] = numpy.full((number_of_recorded_points,), numpy.nan)
+    #
+    # for i_step in range(number_of_recorded_points):
+    #     step_values = copasi_data_handler.getNthRow(i_step)
+    #     for variable, value in zip(variables, step_values):
+    #         variable_results[variable.id][i_step] = value
+    #
+    # if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:
+    #     for variable in variables:
+    #         variable_results[variable.id] = numpy.concatenate((
+    #             variable_results[variable.id][0:1],
+    #             numpy.full((sim.number_of_points,), variable_results[variable.id][1]),
+    #         ))
+    #
+    # copasi_data_handler.cleanup()
+    # copasi_data_handler.close()
+    #
+    # # log action
+    # if config.LOG:
+    #     log.algorithm = preprocessed_task['simulation']['algorithm_kisao_id']
+    #     log.simulator_details = {
+    #         'methodName': preprocessed_task['simulation']['method_name'],
+    #         'methodCode': preprocessed_task['simulation']['algorithm_copasi_id'],
+    #         'parameters': preprocessed_task['simulation']['method_parameters'],
+    #     }
+    #
+    # # return results and log
+    # return variable_results, log
+    return None, log
 
 
 def get_copasi_error_message(algorithm_kisao_id, details=None):
@@ -465,6 +527,14 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
                     set_func = model_obj_parent.setInitialConcentration
                     ref = model_obj_parent.getInitialConcentrationReference()
 
+            elif isinstance(model_obj_parent, COPASI.CReaction):
+                if units == Units.discrete:
+                    set_func = model_obj_parent.setInitialValue
+                    ref = model_obj_parent.getInitialValueReference()
+                else:
+                    set_func = model_obj_parent.setInitialConcentration
+                    ref = model_obj_parent.getInitialConcentrationReference()
+
             model_change_obj_map[change.target] = (set_func, ref)
 
     if invalid_changes:
@@ -554,6 +624,13 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     #basico.save_model(r"C:\Users\drescher\COPASI\model.txt")
 
     return preprocessed_info
+
+
+def _fix_time_name(var: Variable, new_name: str) -> Variable:
+    list_args = list(var.to_tuple())
+    list_args[1] = new_name
+    args = tuple(list_args)
+    return Variable(*args)
 
 def _get_copasi_fixed_archive(archive_filename: bytes | str):
     temp_archive_file: int
