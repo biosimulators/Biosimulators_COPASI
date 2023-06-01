@@ -230,12 +230,36 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
 
     # Preprocess output variables
     #variables_to_collect: list[Variable] = []
+
+    # Copasi uses SBML names, but we have SED-ML variables; good news, COPASI keeps the sbml id, so we can map target to id!
+    sbml_name_to_sbml_id_map = {}
+    copasi_to_sedml_map = {}
+
+    symbols = [str(variable.symbol) for variable in variables if variable.symbol is not None]
+    raw_targets = [str(list(variable.to_tuple())[2]) for variable in variables if list(variable.to_tuple())[2] is not None]
+    targets = [target[(target.find('@id=\'') + 5):target.find('\']')] for target in raw_targets]
+
+    comparts = basico.get_compartments()
+    for row in comparts.index:
+        sbml_name_to_sbml_id_map[str(row)] = comparts.at[row, "sbml_id"]
+
+    metabs = basico.get_species()
+    for row in metabs.index:
+        sbml_name_to_sbml_id_map[str(row)] = metabs.at[row, "sbml_id"]
+
+    reacts = basico.get_reactions()
+    for row in reacts.index:
+        sbml_name_to_sbml_id_map[str(row)] = reacts.at[row, "sbml_id"]
+
     variables_to_collect = [variable for variable in variables if variable.name != 'time']
     variables_to_collect += [_fix_time_name(variable, 'Time') for variable in variables if variable.name == 'time']
     output_selection_arg = [variable.name for variable in variables_to_collect]
 
     # Execute Simulation
-    data = basico.run_time_course_with_output(output_selection=output_selection_arg,
+    data = basico.run_time_course(use_initial_values=use_initial_values_arg, update_model=update_model_arg,
+                                  method=method_arg, duration=duration_arg, start_time=start_time_arg,
+                                  step_number=step_number_arg)
+    data2 = basico.run_time_course_with_output(output_selection=output_selection_arg,
                                               use_initial_values=use_initial_values_arg, update_model=update_model_arg,
                                               method=method_arg, duration=duration_arg, start_time=start_time_arg,
                                               step_number=step_number_arg)
