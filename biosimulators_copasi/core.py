@@ -7,6 +7,7 @@
 :License: MIT
 """
 from __future__ import annotations
+import typing
 
 import biosimulators_utils.combine.exec as bsu_combine
 import biosimulators_utils.sedml.exec as bsu_exec
@@ -70,12 +71,6 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
 
     if should_fix_copasi_generated_combine_archive:
         archive_filename = _get_copasi_fixed_archive(archive_filename)
-
-    basico.load_model(archive_filename)
-    for task in basico.get_scheduled_tasks():
-        proper_args[task] = basico.get_task_settings(task)
-
-    param_sets = basico.get_parameter_sets()
 
     result = bsu_combine.exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
                                                     apply_xml_model_changes=True, config=config)
@@ -232,33 +227,68 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
     #variables_to_collect: list[Variable] = []
 
     # Copasi uses SBML names, but we have SED-ML variables; good news, COPASI keeps the sbml id, so we can map target to id!
-    sbml_name_to_sbml_id_map = {}
-    copasi_to_sedml_map = {}
 
-    symbols = [str(variable.symbol) for variable in variables if variable.symbol is not None]
-    raw_targets = [str(list(variable.to_tuple())[2]) for variable in variables if list(variable.to_tuple())[2] is not None]
-    targets = [target[(target.find('@id=\'') + 5):target.find('\']')] for target in raw_targets]
+    sedml_var_to_sbml_id: dict[Variable, str]  # Usually, copasi_name == sbml_name, with exceptions like 'time'
+    symbol_mappings = {"kisao:0000832": "Time", "urn:sedml:symbol:time": "Time"}
+
+    symbolic_variables: list[Variable] = \
+        [variable for variable in variables if variable.symbol is not None]
+    raw_symbols: list[str] = \
+        [str(variable.symbol).lower() for variable in variables if variable.symbol is not None]
+    symbols: list[typing.Union[str, None]] = \
+        [symbol_mappings.get(variable, None) for variable in raw_symbols]
+    if None in symbols:
+        raise ValueError(f"BioSim COPASI is unable to interpret symbol '{raw_symbols[symbols.index(None)]}'")
+    sedml_var_to_sbml_id_symbols: dict[Variable, str] = \
+        {sedml_var:copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
+
+    targetable_variables: list[Variable] = \
+        [variable for variable in variables if list(variable.to_tuple())[2] is not None]
+    raw_targets: list[str] = \
+        [str(list(variable.to_tuple())[2]) for variable in targetable_variables ]
+    targets: list[str] = \
+        [target[(target.find('@id=\'') + 5):target.find('\']')] for target in raw_targets]
+    sedml_var_to_sbml_id_targets: dict[Variable, str] = \
+        {sedml_var:copasi_name for sedml_var, copasi_name in zip(targetable_variables, targets)}
+
+    sedml_var_to_sbml_id: dict[Variable, str] = {}
+    sedml_var_to_sbml_id.update(sedml_var_to_sbml_id_symbols)
+    sedml_var_to_sbml_id.update(sedml_var_to_sbml_id_targets)
+
+    sbml_id_to_sbml_name_map: dict[str, str] = {"Time": "Time"}
 
     comparts = basico.get_compartments()
     for row in comparts.index:
-        sbml_name_to_sbml_id_map[str(row)] = comparts.at[row, "sbml_id"]
+        sbml_id_to_sbml_name_map[comparts.at[row, "sbml_id"]] = str(row)
 
     metabs = basico.get_species()
     for row in metabs.index:
-        sbml_name_to_sbml_id_map[str(row)] = metabs.at[row, "sbml_id"]
+        sbml_id_to_sbml_name_map[metabs.at[row, "sbml_id"]] = f"[{str(row)}]"
 
     reacts = basico.get_reactions()
-    for row in reacts.index:
-        sbml_name_to_sbml_id_map[str(row)] = reacts.at[row, "sbml_id"]
+    c_model: COPASI.CModel = basico_data_model.getModel()
+    reaction_vector: COPASI.ReactionVectorNS = c_model.getReactions()
+    reaction_list: list[COPASI.CDataObject] = [ reaction_vector.get(i) for i in range(reaction_vector.size())]
+    #basico_react_list = [basico.get_reactions(basico.get_cn(reaction)) for reaction in reaction_list]
+    react_disp_to_cn: dict[str, COPASI.CCommonName] = \
+        {str(reaction.getObjectDisplayName())[1:-1]: reaction.getCN() for reaction in reaction_list}
+    react_disp_to_cn: dict[str, str] = \
+        {key:str(react_disp_to_cn[key].getString()) for key in react_disp_to_cn}
 
-    variables_to_collect = [variable for variable in variables if variable.name != 'time']
-    variables_to_collect += [_fix_time_name(variable, 'Time') for variable in variables if variable.name == 'time']
-    output_selection_arg = [variable.name for variable in variables_to_collect]
+    for row in reacts.index:
+        #sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = basico.get_cn(str(row))
+        sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = react_disp_to_cn[str(row)]
+
+    sedml_var_to_copasi_name: dict[Variable, str] = \
+        {sedml_var: sbml_id_to_sbml_name_map[sedml_var_to_sbml_id[sedml_var]] for sedml_var in sedml_var_to_sbml_id}
+
+    output_selection_arg = list(sedml_var_to_copasi_name.values())
 
     # Execute Simulation
-    data = basico.run_time_course(use_initial_values=use_initial_values_arg, update_model=update_model_arg,
-                                  method=method_arg, duration=duration_arg, start_time=start_time_arg,
-                                  step_number=step_number_arg)
+    data1 = basico.run_time_course(use_initial_values=use_initial_values_arg, update_model=update_model_arg,
+                                   method=method_arg, duration=duration_arg, start_time=start_time_arg,
+                                   step_number=step_number_arg)
+
     data2 = basico.run_time_course_with_output(output_selection=output_selection_arg,
                                               use_initial_values=use_initial_values_arg, update_model=update_model_arg,
                                               method=method_arg, duration=duration_arg, start_time=start_time_arg,
