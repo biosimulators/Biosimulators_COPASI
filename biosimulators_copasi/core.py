@@ -269,15 +269,16 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
     c_model: COPASI.CModel = basico_data_model.getModel()
     reaction_vector: COPASI.ReactionVectorNS = c_model.getReactions()
     reaction_list: list[COPASI.CDataObject] = [ reaction_vector.get(i) for i in range(reaction_vector.size())]
-    #basico_react_list = [basico.get_reactions(basico.get_cn(reaction)) for reaction in reaction_list]
     react_disp_to_cn: dict[str, COPASI.CCommonName] = \
         {str(reaction.getObjectDisplayName())[1:-1]: reaction.getCN() for reaction in reaction_list}
-    react_disp_to_cn: dict[str, str] = \
-        {key:str(react_disp_to_cn[key].getString()) for key in react_disp_to_cn}
+    react_disp_to_cn: dict[str, str] = {key:str(react_disp_to_cn[key].getString()) for key in react_disp_to_cn}
 
     for row in reacts.index:
-        #sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = basico.get_cn(str(row))
-        sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = react_disp_to_cn[str(row)]
+        params = basico.get_reaction_parameters()
+        sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = f"({str(row)})"
+        #sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = react_disp_to_cn[str(row)]
+        #sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = f"{reacts.at[row, 'key']}"
+        pass
 
     sedml_var_to_copasi_name: dict[Variable, str] = \
         {sedml_var: sbml_id_to_sbml_name_map[sedml_var_to_sbml_id[sedml_var]] for sedml_var in sedml_var_to_sbml_id}
@@ -285,9 +286,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
     output_selection_arg = list(sedml_var_to_copasi_name.values())
 
     # Execute Simulation
-    data1 = basico.run_time_course(use_initial_values=use_initial_values_arg, update_model=update_model_arg,
-                                   method=method_arg, duration=duration_arg, start_time=start_time_arg,
-                                   step_number=step_number_arg)
+    #data1 = basico.run_time_course(use_initial_values=use_initial_values_arg, update_model=update_model_arg, method=method_arg, duration=duration_arg, start_time=start_time_arg, step_number=step_number_arg)
 
     data2 = basico.run_time_course_with_output(output_selection=output_selection_arg,
                                               use_initial_values=use_initial_values_arg, update_model=update_model_arg,
