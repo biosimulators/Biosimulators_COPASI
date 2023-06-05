@@ -14,6 +14,8 @@ import biosimulators_utils.sedml.exec as bsu_exec
 import biosimulators_utils.config as bsu_config
 import biosimulators_utils.simulator.utils as bsu_sim_utils
 import biosimulators_utils.utils.core as bsu_util_core
+import pandas
+
 import biosimulators_copasi.utils as utils
 
 from biosimulators_utils.config import get_config, Config  # noqa: F401
@@ -153,280 +155,47 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
     if config.LOG and not log:
         log: TaskLog = TaskLog()
 
-    model: Model = task.model
-    sim: Simulation = task.simulation
-
-    # Validate provided simulation description
-    if config.VALIDATE_SEDML:
-        _validate_sedml(task, model, sim, variables)
-
-    model_etree = lxml.etree.parse(model.source)
-    model_change_target_sbml_id_map: dict = validation.validate_target_xpaths(model.changes, model_etree, attr='id')
-    variable_target_sbml_id_map: dict = validation.validate_target_xpaths(variables, model_etree, attr='id')
-
-    if config.VALIDATE_SEDML_MODELS:
-        raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
-                              error_summary=f'Model `{model.id}` is invalid.',
-                              warning_summary=f'Model `{model.id}` may be invalid.')
-
-    # instantiate model
-    basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
-
-    # process solution algorithm
-    alg_kisao_id: str = sim.algorithm.kisao_id
-    has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
-    exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, events=has_events,
-                                                                                 config=config)
-
-    # Initialize solver settings
-    use_initial_values_arg: bool = True
-    update_model_arg: bool = False  # performs a model reset
-    method_arg = alg_copasi_str_id
-    if not isinstance(sim, UniformTimeCourseSimulation):
-        raise ValueError("COPASI can only handle UTC Simulations in this API for the time being")
-    utc_sim: UniformTimeCourseSimulation = sim
-    duration_arg: float = sim.output_end_time - sim.initial_time
-    start_time_arg: float = utc_sim.output_start_time
-
-    step_number_arg: int
-    try:
-        step_number_arg = sim.number_of_points * duration_arg / (sim.output_end_time - sim.output_start_time)
-    except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
-        if sim.output_start_time != sim.initial_time:
-            raise ValueError('Output end time must be greater than the output start time.')
-        step_number_arg = sim.number_of_points
-
-    if step_number_arg != math.floor(step_number_arg):
-        raise TypeError('Time course must specify an integer number of time points')
-
-    step_number_arg = int(step_number_arg)
-
-
-    # process model changes
-    if model.changes:
-        # check if there's anything but ChangeAttribute type changes
-        model_change: ModelAttributeChange
-        error_message = f'Changes for model `{model.id}` are not supported.'
-        change_validation_errors = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
-        raise_errors_warnings(change_validation_errors, error_summary=error_message)
-
-        legal_changes = [change for change in model.changes if isinstance(change, ModelAttributeChange)]
-
-        invalid_changes = []
-        units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
-        c_model = basico_data_model.getModel()
-        for model_change in legal_changes:
-            target_sbml_id = model_change_target_sbml_id_map[model_change.target]
-            copasi_model_obj = utils.get_copasi_model_object_by_sbml_id(c_model, target_sbml_id, units)
-            if copasi_model_obj is None:
-                invalid_changes.append(model_change.target)
-            else:
-                model_obj_parent = copasi_model_obj.getObjectParent()
-
-    # Preprocess output variables
-    #variables_to_collect: list[Variable] = []
-
-    # Copasi uses SBML names, but we have SED-ML variables; good news, COPASI keeps the sbml id, so we can map target to id!
-
-    sedml_var_to_sbml_id: dict[Variable, str]  # Usually, copasi_name == sbml_name, with exceptions like 'time'
-    symbol_mappings = {"kisao:0000832": "Time", "urn:sedml:symbol:time": "Time"}
-
-    symbolic_variables: list[Variable] = \
-        [variable for variable in variables if variable.symbol is not None]
-    raw_symbols: list[str] = \
-        [str(variable.symbol).lower() for variable in variables if variable.symbol is not None]
-    symbols: list[typing.Union[str, None]] = \
-        [symbol_mappings.get(variable, None) for variable in raw_symbols]
-    if None in symbols:
-        raise ValueError(f"BioSim COPASI is unable to interpret symbol '{raw_symbols[symbols.index(None)]}'")
-    sedml_var_to_sbml_id_symbols: dict[Variable, str] = \
-        {sedml_var:copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
-
-    targetable_variables: list[Variable] = \
-        [variable for variable in variables if list(variable.to_tuple())[2] is not None]
-    raw_targets: list[str] = \
-        [str(list(variable.to_tuple())[2]) for variable in targetable_variables ]
-    targets: list[str] = \
-        [target[(target.find('@id=\'') + 5):target.find('\']')] for target in raw_targets]
-    sedml_var_to_sbml_id_targets: dict[Variable, str] = \
-        {sedml_var:copasi_name for sedml_var, copasi_name in zip(targetable_variables, targets)}
-
-    sedml_var_to_sbml_id: dict[Variable, str] = {}
-    sedml_var_to_sbml_id.update(sedml_var_to_sbml_id_symbols)
-    sedml_var_to_sbml_id.update(sedml_var_to_sbml_id_targets)
-
-    sbml_id_to_sbml_name_map: dict[str, str] = {"Time": "Time"}
-
-    comparts = basico.get_compartments()
-    for row in comparts.index:
-        sbml_id_to_sbml_name_map[comparts.at[row, "sbml_id"]] = str(row)
-
-    metabs = basico.get_species()
-    for row in metabs.index:
-        sbml_id_to_sbml_name_map[metabs.at[row, "sbml_id"]] = f"[{str(row)}]"
-
-    reacts = basico.get_reactions()
-    c_model: COPASI.CModel = basico_data_model.getModel()
-    reaction_vector: COPASI.ReactionVectorNS = c_model.getReactions()
-    reaction_list: list[COPASI.CDataObject] = [ reaction_vector.get(i) for i in range(reaction_vector.size())]
-    react_disp_to_cn: dict[str, COPASI.CCommonName] = \
-        {str(reaction.getObjectDisplayName())[1:-1]: reaction.getCN() for reaction in reaction_list}
-    react_disp_to_cn: dict[str, str] = {key:str(react_disp_to_cn[key].getString()) for key in react_disp_to_cn}
-
-    for row in reacts.index:
-        params = basico.get_reaction_parameters()
-        sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = f"({str(row)})"
-        #sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = react_disp_to_cn[str(row)]
-        #sbml_id_to_sbml_name_map[reacts.at[row, "sbml_id"]] = f"{reacts.at[row, 'key']}"
-        pass
-
-    sedml_var_to_copasi_name: dict[Variable, str] = \
-        {sedml_var: sbml_id_to_sbml_name_map[sedml_var_to_sbml_id[sedml_var]] for sedml_var in sedml_var_to_sbml_id}
-
-    output_selection_arg = list(sedml_var_to_copasi_name.values())
+    if preprocessed_task is None:
+        preprocessed_task = alt_preprocess_sed_task(task, variables, config)
 
     # Execute Simulation
-    #data1 = basico.run_time_course(use_initial_values=use_initial_values_arg, update_model=update_model_arg, method=method_arg, duration=duration_arg, start_time=start_time_arg, step_number=step_number_arg)
+    settings_map: dict = preprocessed_task.get_simulation_configuration()
+    data: pandas.DataFrame = basico.run_time_course_with_output(**settings_map)
 
-    data2 = basico.run_time_course_with_output(output_selection=output_selection_arg,
-                                              use_initial_values=use_initial_values_arg, update_model=update_model_arg,
-                                              method=method_arg, duration=duration_arg, start_time=start_time_arg,
-                                              step_number=step_number_arg)
+    # Process output 'data'
+    actual_output_length, _ = data.shape
+    expected_output_length = preprocessed_task.get_expected_output_length()
+    if (expected_output_length != actual_output_length):
+        msg = f"Length of output does not match expected amount: {actual_output_length} (vs {expected_output_length})"
+        raise RuntimeError(msg)
+
     variable_results = VariableResults()
     for variable in variables:
-        variable_results[variable.id] = numpy.full((number_of_recorded_points,), numpy.nan)
+        variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
+        data_target = preprocessed_task.get_COPASI_name(variable)
+        series: pandas.Series = data.loc[:, data_target]
+        for index, value in enumerate(series):
+            variable_results[variable.id][index] = value
 
-    for i_step in range(number_of_recorded_points):
-        step_values = copasi_data_handler.getNthRow(i_step)
-        for variable, value in zip(variables, step_values):
-            variable_results[variable.id][i_step] = value
-
-    if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:
-        for variable in variables:
-            variable_results[variable.id] = numpy.concatenate((
-                variable_results[variable.id][0:1],
-                numpy.full((sim.number_of_points,), variable_results[variable.id][1]),
-            ))
+    # # We need this stuff, but we'll figure out what it's doing first...
+    # if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:
+    #    for variable in variables:
+    #        variable_results[variable.id] = numpy.concatenate((
+    #            variable_results[variable.id][0:1],
+    #            numpy.full((sim.number_of_points,), variable_results[variable.id][1]),
+    #        ))
 
     # log action
     if config.LOG:
-        log.algorithm = exec_alg_kisao_id
+        log.algorithm = preprocessed_task.get_KiSAO_id_for_KiSAO_algorithm()
         log.simulator_details = {
-            'methodName': alg_copasi_str_id,
-            'methodCode': alg_copasi_id,
+            'methodName': preprocessed_task.get_COPASI_algorithm_name(),
+            'methodCode': preprocessed_task.get_COPASI_algorithm_code(),
             'parameters': None,
         }
 
     # return results and log
     return variable_results, log
-    #####################################################
-
-    # # initialize COPASI task
-    # copasi_model: COPASI.CModel = preprocessed_task['model']['model']
-    #
-    # # modify model
-    # if model.changes:
-    #
-    #     model_change_obj_map = preprocessed_task['model']['model_change_obj_map']
-    #     changed_objects = COPASI.ObjectStdVector()
-    #     for change in model.changes:
-    #         model_obj_set_func, ref = model_change_obj_map[change.target]
-    #         new_value = float(change.new_value)
-    #         model_obj_set_func(new_value)
-    #         changed_objects.push_back(ref)
-    #
-    #     copasi_model.compileIfNecessary()
-    #     copasi_model.updateInitialValues(changed_objects)
-    #
-    # # initialize simulation
-    # copasi_model.setInitialTime(sim.initial_time)
-    # copasi_model.forceCompile()
-    #
-    # copasi_task = preprocessed_task['task']
-    # copasi_problem = copasi_task.getProblem()
-    # copasi_problem.setOutputStartTime(sim.output_start_time)
-    # copasi_problem.setDuration(sim.output_end_time - sim.initial_time)
-    # if sim.output_end_time == sim.output_start_time:
-    #     if sim.output_start_time == sim.initial_time:
-    #         step_number = sim.number_of_points
-    #     else:
-    #         raise NotImplementedError('Output end time must be greater than the output start time.')
-    # else:
-    #     step_number = (
-    #             sim.number_of_points
-    #             * (sim.output_end_time - sim.initial_time)
-    #             / (sim.output_end_time - sim.output_start_time)
-    #     )
-    # if step_number != math.floor(step_number):
-    #     raise NotImplementedError('Time course must specify an integer number of time points')
-    # else:
-    #     step_number = int(step_number)
-    # copasi_problem.setStepNumber(step_number)
-    #
-    # # setup data handler
-    # copasi_data_handler = COPASI.CDataHandler()
-    # variable_common_name_map = preprocessed_task['model']['variable_common_name_map']
-    # for variable in variables:
-    #     common_name = variable_common_name_map[(variable.target, variable.symbol)]
-    #     copasi_data_handler.addDuringName(common_name)
-    # if not copasi_task.initializeRawWithOutputHandler(COPASI.CCopasiTask.OUTPUT_DURING, copasi_data_handler):
-    #     raise RuntimeError("Output handler could not be initialized:\n\n  {}".format(
-    #         get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")))
-    #
-    # # Execute simulation
-    # result = copasi_task.processRaw(True)
-    # warning_details = copasi_task.getProcessWarning()
-    # if warning_details:
-    #     alg_kisao_id = preprocessed_task['simulation']['algorithm_kisao_id']
-    #     warn(get_copasi_error_message(alg_kisao_id, warning_details), BioSimulatorsWarning)
-    # if not result:
-    #     alg_kisao_id = preprocessed_task['simulation']['algorithm_kisao_id']
-    #     error_details = copasi_task.getProcessError()
-    #     raise RuntimeError(get_copasi_error_message(alg_kisao_id, error_details))
-    #
-    # # collect simulation predictions
-    # number_of_recorded_points = copasi_data_handler.getNumRowsDuring()
-    #
-    # if (
-    #         variables
-    #         and number_of_recorded_points != (sim.number_of_points + 1)
-    #         and (sim.output_end_time != sim.output_start_time or sim.output_start_time != sim.initial_time)
-    # ):
-    #     raise RuntimeError('Simulation produced {} rather than {} time points'.format(
-    #         number_of_recorded_points, sim.number_of_points)
-    #     )  # pragma: no cover # unreachable because COPASI produces the correct number of outputs
-    #
-    # variable_results = VariableResults()
-    # for variable in variables:
-    #     variable_results[variable.id] = numpy.full((number_of_recorded_points,), numpy.nan)
-    #
-    # for i_step in range(number_of_recorded_points):
-    #     step_values = copasi_data_handler.getNthRow(i_step)
-    #     for variable, value in zip(variables, step_values):
-    #         variable_results[variable.id][i_step] = value
-    #
-    # if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:
-    #     for variable in variables:
-    #         variable_results[variable.id] = numpy.concatenate((
-    #             variable_results[variable.id][0:1],
-    #             numpy.full((sim.number_of_points,), variable_results[variable.id][1]),
-    #         ))
-    #
-    # copasi_data_handler.cleanup()
-    # copasi_data_handler.close()
-    #
-    # # log action
-    # if config.LOG:
-    #     log.algorithm = preprocessed_task['simulation']['algorithm_kisao_id']
-    #     log.simulator_details = {
-    #         'methodName': preprocessed_task['simulation']['method_name'],
-    #         'methodCode': preprocessed_task['simulation']['algorithm_copasi_id'],
-    #         'parameters': preprocessed_task['simulation']['method_parameters'],
-    #     }
-    #
-    # # return results and log
-    # return variable_results, log
-    return None, log
 
 
 def get_copasi_error_message(algorithm_kisao_id, details=None):
@@ -449,6 +218,89 @@ def get_copasi_error_message(algorithm_kisao_id, details=None):
         error_msg += ':\n\n  ' + details.replace('\n', '\n  ')
     return error_msg
 
+
+def alt_preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None) -> utils.BasicoInitialization:
+    """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
+    repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
+
+    Args:
+        task (:obj:`Task`): task
+        variables (:obj:`list` of :obj:`Variable`): variables that should be recorded
+        config (:obj:`Config`, optional): BioSimulators common configuration
+
+    Returns:
+        :obj:`dict`: preprocessed information about the task
+    """
+    config: Config = config or bsu_config.get_config()
+
+    # Get model and simulation
+    model: Model = task.model
+    sim: Simulation = task.simulation
+
+    # Validate provided simulation description
+    if config.VALIDATE_SEDML:
+        _validate_sedml(task, model, sim, variables)
+
+    model_etree = lxml.etree.parse(model.source)
+    model_change_target_sbml_id_map: dict = validation.validate_target_xpaths(model.changes, model_etree, attr='id')
+    variable_target_sbml_id_map: dict = validation.validate_target_xpaths(variables, model_etree, attr='id')
+
+    if config.VALIDATE_SEDML_MODELS:
+        raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
+                              error_summary=f'Model `{model.id}` is invalid.',
+                              warning_summary=f'Model `{model.id}` may be invalid.')
+
+    # instantiate model
+    basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
+
+    # process solution algorithm
+    exec_alg_kisao_id: str
+    alg_copasi_id: int
+    alg_copasi_str_id: str
+    alg_kisao_id: str = sim.algorithm.kisao_id
+    has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
+    exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, has_events, config)
+
+    # Initialize solver settings
+    use_initial_values_arg: bool = True
+    update_model_arg: bool = False  # performs a model reset
+    method_arg = alg_copasi_str_id
+    if not isinstance(sim, UniformTimeCourseSimulation):
+        raise ValueError("BioSimulators-COPASI can only handle UTC Simulations in this API for the time being")
+    utc_sim: UniformTimeCourseSimulation = sim
+    duration_arg: float = sim.output_end_time - sim.initial_time
+    start_time_arg: float = utc_sim.output_start_time
+    step_number_arg: int = _calc_number_of_simulation_steps(sim, duration_arg)
+
+    # process model changes
+    _apply_model_changes(model, basico_data_model, model_change_target_sbml_id_map, exec_alg_kisao_id)
+
+    # Preprocess output variables
+    sedml_var_to_copasi_name: dict[Variable, str] = _map_sedml_to_copasi(variables)
+
+    # Create simulation settings
+    settings_map = {
+        "output_selection": list(sedml_var_to_copasi_name.values()),
+        "use_initial_values": use_initial_values_arg,
+        "update_model": update_model_arg,
+        "method": method_arg,
+        "duration": duration_arg,
+        "start_time": start_time_arg,
+        "step_number": step_number_arg
+    }
+
+    # return preprocessed info
+    preprocessed_info = {
+        'task': "",
+        'model': {
+
+        },
+        'simulation': {
+
+        },
+    }
+    preprocessed_info = utils.BasicoInitialization()
+    return preprocessed_info
 
 def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None):
     """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
@@ -673,9 +525,6 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
         },
     }
 
-    #basico.set_current_model(copasi_data_model)
-    #basico.save_model(r"C:\Users\drescher\COPASI\model.txt")
-
     return preprocessed_info
 
 
@@ -721,3 +570,102 @@ def _validate_sedml(task: Task, model: Model, sim: Simulation, variables: list[V
     bsu_util_core.raise_errors_warnings(simulation_type_errors, error_summary=invalid_sim_type)
     bsu_util_core.raise_errors_warnings(*simulation_errors_list, error_summary=invalid_sim)
     bsu_util_core.raise_errors_warnings(*data_generator_errors_list, error_summary=invalid_data_gen)
+
+
+def _map_sedml_to_copasi(variables: list[Variable]) -> dict[Variable, str]:
+    sed_to_id: dict[Variable, str]
+    id_to_name: dict[str, str]
+
+    sed_to_id = _map_sedml_to_sbml_ids(variables)
+    id_to_name = _map_sbml_id_to_copasi_name()
+    return {sedml_var: id_to_name[sed_to_id[sedml_var]] for sedml_var in sed_to_id}
+
+def _map_sedml_to_sbml_ids(variables: list[Variable]) -> dict[Variable, str]:
+    sedml_var_to_sbml_id: dict[Variable, str] = {}
+    sedml_var_to_sbml_id.update(_map_sedml_symbol_to_sbml_id(variables))
+    sedml_var_to_sbml_id.update(_map_sedml_target_to_sbml_id(variables))
+    return sedml_var_to_sbml_id
+
+def _map_sbml_id_to_copasi_name() -> dict[str, str]:
+    # NB: usually, sbml_id == copasi name, with exceptions like "Time"
+    compartments: pandas.DataFrame = basico.get_compartments()
+    metabolites: pandas.DataFrame = basico.get_species()
+    reactions: pandas.DataFrame = basico.get_reactions()
+    compartment_mapping: dict[str, str]
+    metabolites_mapping: dict[str, str]
+    reactions_mapping: dict[str, str]
+    sbml_id_to_sbml_name_map: dict[str, str]
+
+    # Create mapping
+    compartment_mapping = {compartments.at[row, "sbml_id"]: f"Compartments[{str(row)}]" for row in compartments.index}
+    metabolites_mapping = {metabolites.at[row, "sbml_id"]: f"[{str(row)}]" for row in metabolites.index}
+    reactions_mapping = {reactions.at[row, "sbml_id"]: f"({str(row)}).Flux" for row in reactions.index}
+
+    # Combine mappings
+    sbml_id_to_sbml_name_map = {"Time": "Time"}
+    sbml_id_to_sbml_name_map.update(compartment_mapping)
+    sbml_id_to_sbml_name_map.update(metabolites_mapping)
+    sbml_id_to_sbml_name_map.update(reactions_mapping)
+    return sbml_id_to_sbml_name_map
+
+def _map_sedml_symbol_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
+    symbol_mappings = {"kisao:0000832": "Time", "urn:sedml:symbol:time": "Time"}
+    symbolic_variables: list[Variable]
+    raw_symbols: list[str]
+    symbols: list[typing.Union[str, None]]
+
+    # Process the variables
+    symbolic_variables = [variable for variable in variables if variable.symbol is not None]
+    raw_symbols = [str(variable.symbol).lower() for variable in variables if variable.symbol is not None]
+    symbols = [symbol_mappings.get(variable, None) for variable in raw_symbols]
+
+    if None in symbols:
+        raise ValueError(f"BioSim COPASI is unable to interpret symbol '{raw_symbols[symbols.index(None)]}'")
+
+    return {sedml_var:copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
+
+def _map_sedml_target_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
+    targetable_variables: list[Variable]
+    raw_targets: list[str]
+    targets: list[str]
+
+    targetable_variables = [variable for variable in variables if list(variable.to_tuple())[2] is not None]
+    raw_targets = [str(list(variable.to_tuple())[2]) for variable in targetable_variables]
+    targets = [target[(target.find('@id=\'') + 5):target.find('\']')] for target in raw_targets]
+
+    return {sedml_var:copasi_name for sedml_var, copasi_name in zip(targetable_variables, targets)}
+
+def _calc_number_of_simulation_steps(sim: Simulation, duration: int) -> int:
+    try:
+        step_number_arg = sim.number_of_points * duration / (sim.output_end_time - sim.output_start_time)
+    except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
+        if sim.output_start_time != sim.initial_time:
+            raise ValueError('Output end time must be greater than the output start time.')
+        step_number_arg = sim.number_of_points
+
+    if step_number_arg != math.floor(step_number_arg):
+        raise TypeError('Time course must specify an integer number of time points')
+
+    return int(step_number_arg)
+
+def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel,
+                         model_change_target_sbml_id_map: dict, exec_alg_kisao_id: str):
+    if model.changes:
+        # check if there's anything but ChangeAttribute type changes
+        model_change: ModelAttributeChange
+        error_message = f'Changes for model `{model.id}` are not supported.'
+        change_validation_errors = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
+        raise_errors_warnings(change_validation_errors, error_summary=error_message)
+
+        legal_changes = [change for change in model.changes if isinstance(change, ModelAttributeChange)]
+
+        invalid_changes = []
+        units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
+        c_model = basico_data_model.getModel()
+        for model_change in legal_changes:
+            target_sbml_id = model_change_target_sbml_id_map[model_change.target]
+            copasi_model_obj = utils.get_copasi_model_object_by_sbml_id(c_model, target_sbml_id, units)
+            if copasi_model_obj is None:
+                invalid_changes.append(model_change.target)
+            else:
+                model_obj_parent = copasi_model_obj.getObjectParent()

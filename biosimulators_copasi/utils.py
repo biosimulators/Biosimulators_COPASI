@@ -12,6 +12,7 @@ from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveW
 from biosimulators_utils.config import get_config, Config  # noqa: F401
 from biosimulators_utils.data_model import ValueType
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
+from biosimulators_utils.sedml.data_model import Variable
 from biosimulators_utils.utils.core import validate_str_value, parse_value
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from kisao.utils import get_preferred_substitute_algorithm_by_ids
@@ -23,6 +24,8 @@ import os
 import shutil
 import tempfile
 
+
+
 __all__ = [
     'get_algorithm_id',
     'set_algorithm_parameter_value',
@@ -31,8 +34,31 @@ __all__ = [
     'fix_copasi_generated_combine_archive',
 ]
 
+class BasicoInitialization:
+    def __init__(self):
+        self.number_of_steps
+        pass
 
-def basico_get_algorithm_id(kisao_id, events=False, config=None):
+    def get_simulation_configuration(self) -> dict:
+        pass
+    def get_expected_output_length(self) -> int:
+        return self.number_of_steps + 1
+
+    def get_COPASI_name(self, sedml_var: Variable) -> str:
+        pass
+
+    def get_KiSAO_id_for_KiSAO_algorithm(self) -> str:
+        pass
+
+    def get_COPASI_algorithm_name(self) -> str:
+        pass
+
+    def get_COPASI_algorithm_code(self) -> int:
+        pass
+
+
+
+def get_algorithm_id(kisao_id, events=False, config=None) -> tuple:
     """ Get the COPASI id for an algorithm
 
     Args:
@@ -46,46 +72,7 @@ def basico_get_algorithm_id(kisao_id, events=False, config=None):
 
             * :obj:`str`: KiSAO id of algorithm to execute
             * :obj:`int`: COPASI id for algorithm
-    """
-    possible_alg_kisao_ids = [
-        target_id for target_id, props in KISAO_ALGORITHMS_MAP.items() if not events or props['supports_events']
-    ]
-
-    substitution_policy = get_algorithm_substitution_policy(config=config)
-    try:
-        exec_kisao_id = get_preferred_substitute_algorithm_by_ids(
-            kisao_id, possible_alg_kisao_ids,
-            substitution_policy=substitution_policy)
-    except NotImplementedError:
-        if (
-            events
-            and kisao_id in ['KISAO_0000561', 'KISAO_0000562']
-            and (
-                ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy] >=
-                ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SIMILAR_APPROXIMATIONS]
-            )
-        ):
-            exec_kisao_id = 'KISAO_0000563'  # Pahle hybrid Gibson-Bruck Next Reaction method/RK-45
-        else:
-            exec_kisao_id = kisao_id
-
-    alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
-    return (exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']))
-
-def get_algorithm_id(kisao_id, events=False, config=None):
-    """ Get the COPASI id for an algorithm
-
-    Args:
-        kisao_id (:obj:`str`): KiSAO algorithm id
-        events (:obj:`bool`, optional): whether an algorithm that supports
-            events is needed
-        config (:obj:`Config`, optional): configuration
-
-    Returns:
-        :obj:`tuple`:
-
-            * :obj:`str`: KiSAO id of algorithm to execute
-            * :obj:`int`: COPASI id for algorithm
+             * :obj:`str`: COPASI string name for algorithm
     """
     possible_alg_kisao_ids = [
         id
