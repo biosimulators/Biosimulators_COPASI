@@ -24,7 +24,7 @@ from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, \
     StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
 from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults  # noqa: F401
-from biosimulators_utils.sedml.data_model import (Task, Model, Simulation, ModelLanguage, ModelChange,
+from biosimulators_utils.sedml.data_model import (Algorithm, Task, Model, Simulation, ModelLanguage, ModelChange,
                                                   ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
                                                   Variable, Symbol, SedDocument)
 from biosimulators_utils.sedml import validation
@@ -127,7 +127,7 @@ def exec_sed_doc(doc: SedDocument | str, working_dir: str, base_out_path: str, r
                                  config=config)
 
 
-def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict = None,
+def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: utils.BasicoInitialization = None,
                   log: TaskLog = None, config: Config = None):
     ''' Execute a task and save its results
 
@@ -157,7 +157,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
         log: TaskLog = TaskLog()
 
     if preprocessed_task is None:
-        preprocessed_task = alt_preprocess_sed_task(task, variables, config)
+        preprocessed_task: utils.BasicoInitialization = preprocess_sed_task(task, variables, config)
 
     # Execute Simulation
     settings_map: dict = preprocessed_task.get_simulation_configuration()
@@ -220,7 +220,7 @@ def get_copasi_error_message(algorithm_kisao_id, details=None):
     return error_msg
 
 
-def alt_preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None) -> utils.BasicoInitialization:
+def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None) -> utils.BasicoInitialization:
     """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
     repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
 
@@ -258,49 +258,25 @@ def alt_preprocess_sed_task(task: Task, variables: list[Variable], config: Confi
     basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
 
     # process solution algorithm
-    exec_alg_kisao_id: str
-    alg_copasi_id: int
-    alg_copasi_str_id: str
-    alg_kisao_id: str = sim.algorithm.kisao_id
     has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
-    #exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, has_events, config)
-    algorithm_info = utils.get_algorithm_id(alg_kisao_id, has_events, config)
+    algorithm_info = utils.get_algorithm_id(sim.algorithm.kisao_id, has_events, config)
+
+    basico.set_task_settings(basico.T.TIME_COURSE, {"scheduled": True})
+    myList = basico.get_scheduled_tasks()
 
     # process model changes
     _apply_model_changes(model, basico_data_model, model_change_target_sbml_id_map, algorithm_info.kisao_id)
 
-    # Initialize solver settings
-    method_arg = algorithm_info.copasi_algorithm_name
+    # Confirm UTC Simulation
     if not isinstance(sim, UniformTimeCourseSimulation):
         raise ValueError("BioSimulators-COPASI can only handle UTC Simulations in this API for the time being")
     utc_sim: UniformTimeCourseSimulation = sim
-    duration_arg: float = sim.output_end_time - sim.initial_time
 
-    # Create simulation settings
-    settings_map = {
-        #"output_selection": list(sedml_var_to_copasi_name.values()),
-        "use_initial_values": True,
-        "update_model": False,
-        "method": method_arg,
-        "duration": duration_arg,
-        "start_time": utc_sim.output_start_time,
-        "step_number": _calc_number_of_simulation_steps(sim, duration_arg)
-    }
-
-    # return preprocessed info
-    preprocessed_info = {
-        'task': "",
-        'model': {
-
-        },
-        'simulation': {
-
-        },
-    }
-    preprocessed_info = utils.BasicoInitialization()
+    # Create and return preprocessed simulation settings
+    preprocessed_info = utils.BasicoInitialization(utc_sim, algorithm_info, variables)
     return preprocessed_info
 
-def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None):
+def old_preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None):
     """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
     repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
 
@@ -330,35 +306,17 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
                               warning_summary=f'Model `{model.id}` may be invalid.')
 
     # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
-    basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
-    if not basico_data_model:
-        #copasi_error_message = get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")
-        raise ValueError(f"`{model.source}` could not be imported.")
-    basico.set_model_name(f"{model.name}_{task.name}")
-    reactions = basico.get_reactions()
-
-    # determine the algorithm to execute
-    alg_kisao_id: str = sim.algorithm.kisao_id
-    has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
-    _, _, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, events=has_events, config=config)
-
-################################################################
-    # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
-    #copasi_data_model: COPASI.CDataModel = COPASI.CRootContainer.addDatamodel()
-    #if not copasi_data_model.importSBML(model.source):
-        #copasi_error_message = get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")
-        #raise ValueError(f"`{model.source}` could not be imported:\n\n  {copasi_error_message}")
-    #copasi_model: COPASI.CModel = copasi_data_model.getModel()
-
-    copasi_data_model = basico_data_model  # Since basico and python-copasi both access the C++ api, this should work
+    copasi_data_model: COPASI.CDataModel = COPASI.CRootContainer.addDatamodel()
+    if not copasi_data_model.importSBML(model.source):
+        copasi_error_message = get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")
+        raise ValueError(f"`{model.source}` could not be imported:\n\n  {copasi_error_message}")
     copasi_model: COPASI.CModel = copasi_data_model.getModel()
+
     # determine the algorithm to execute
-    exec_alg_kisao_id: str
-    alg_copasi_id: int
     alg_kisao_id: str = sim.algorithm.kisao_id
     has_events: bool = copasi_model.getNumEvents() >= 1
-    exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id,
-                                                                                 events=has_events, config=config)
+    exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = \
+        utils.get_algorithm_id(alg_kisao_id, events=has_events, config=config).to_tuple()
 
     # initialize COPASI task
     copasi_task: COPASI.CCopasiTask = copasi_data_model.getTask('Time-Course')
@@ -369,7 +327,7 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
         # pragma: no cover # unreachable because :obj:`get_algorithm_id` returns valid COPASI method ids
     copasi_method: COPASI.CCopasiMethod = copasi_task.getMethod()
 
-    # Apply the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
+    # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     method_parameters = {}
     algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
     if exec_alg_kisao_id == alg_kisao_id:
@@ -570,20 +528,6 @@ def _validate_sedml(task: Task, model: Model, sim: Simulation, variables: list[V
     bsu_util_core.raise_errors_warnings(*data_generator_errors_list, error_summary=invalid_data_gen)
 
 
-def _calc_number_of_simulation_steps(sim: UniformTimeCourseSimulation, duration: float) -> int:
-    try:
-        step_number_arg = sim.number_of_points * duration / (sim.output_end_time - sim.output_start_time)
-    except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
-        if sim.output_start_time != sim.initial_time:
-            raise ValueError('Output end time must be greater than the output start time.')
-        step_number_arg = sim.number_of_points
-
-    if step_number_arg != math.floor(step_number_arg):
-        raise TypeError('Time course must specify an integer number of time points')
-
-    return int(step_number_arg)
-
-
 def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel, model_change_target_sbml_id_map: dict,
                          exec_alg_kisao_id: str) -> tuple[list[ModelAttributeChange], list[ModelChange]]:
 
@@ -610,3 +554,39 @@ def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel, mod
             illegal_changes.append(model_change.target)
 
     return legal_changes, illegal_changes
+
+
+def _load_algorithm_parameters(sim: Simulation, alg_info: utils.CopasiAlgorithm, config: Config = None):
+    # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
+    method_parameters = {}
+    algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
+    requested_algorithm: Algorithm = sim.algorithm
+    if alg_info.kisao_id != requested_algorithm.kisao_id:
+        return
+
+    for change in requested_algorithm.changes:
+        try:
+            change_args = utils.set_algorithm_parameter_value(alg_info.kisao_id, copasi_method,
+                                                              change.kisao_id, change.new_value)
+            for key, val in change_args.items():
+                method_parameters[key] = val
+        except NotImplementedError as exception:
+            if (
+                    ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
+                    > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
+            ):
+                warn('Unsupported algorithm parameter `{}` was ignored:\n  {}'.format(
+                    change.kisao_id, str(exception).replace('\n', '\n  ')),
+                    BioSimulatorsWarning)
+            else:
+                raise
+        except ValueError as exception:
+            if (
+                    ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
+                    > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
+            ):
+                warn('Unsuported value `{}` for algorithm parameter `{}` was ignored:\n  {}'.format(
+                    change.new_value, change.kisao_id, str(exception).replace('\n', '\n  ')),
+                    BioSimulatorsWarning)
+            else:
+                raise

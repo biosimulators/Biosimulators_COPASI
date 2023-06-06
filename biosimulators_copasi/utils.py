@@ -7,6 +7,9 @@
 """
 
 from __future__ import annotations
+
+import math
+import types
 from typing import Union
 from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units
 from biosimulators_utils.combine.data_model import CombineArchiveContentFormat
@@ -14,7 +17,7 @@ from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveW
 from biosimulators_utils.config import get_config, Config  # noqa: F401
 from biosimulators_utils.data_model import ValueType
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
-from biosimulators_utils.sedml.data_model import Variable
+from biosimulators_utils.sedml.data_model import Variable, UniformTimeCourseSimulation
 from biosimulators_utils.utils.core import validate_str_value, parse_value
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from kisao.utils import get_preferred_substitute_algorithm_by_ids
@@ -50,13 +53,23 @@ class CopasiAlgorithm:
 
 
 class BasicoInitialization:
-    def __init__(self, num_steps: int, algorithm_info: CopasiAlgorithm, variables: list[Variable]):
-        self.number_of_steps = num_steps
+    def __init__(self, sim: UniformTimeCourseSimulation, algorithm_info: CopasiAlgorithm, variables: list[Variable]):
         self.algorithm_info = algorithm_info
         self._sedml_var_to_copasi_name: dict[Variable, str] = _map_sedml_to_copasi(variables)
+        self._sim = sim
+        self._duration_arg: float = self._sim.output_end_time - self._sim.initial_time
+        self.number_of_steps = _calc_number_of_simulation_steps(self._sim, self._duration_arg)
 
     def get_simulation_configuration(self) -> dict:
-        pass
+        return {
+            "output_selection": list(self._sedml_var_to_copasi_name.values()),
+            "use_initial_values": True,
+            "update_model": False,
+            "method": self.algorithm_info.copasi_algorithm_name,
+            "duration": self._duration_arg,
+            "start_time": self._sim.output_start_time,
+            "step_number": self.number_of_steps
+        }
 
     def get_expected_output_length(self) -> int:
         return self.number_of_steps + 1
@@ -74,7 +87,7 @@ class BasicoInitialization:
         return self.algorithm_info.copasi_algorithm_code
 
 
-def get_algorithm_id(kisao_id, events=False, config=None) -> CopasiAlgorithm:
+def get_algorithm_id(kisao_id: str, events: bool = False, config: Config = None) -> CopasiAlgorithm:
     """ Get the COPASI id for an algorithm
 
     Args:
@@ -118,7 +131,8 @@ def get_algorithm_id(kisao_id, events=False, config=None) -> CopasiAlgorithm:
     return CopasiAlgorithm(exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']), alg['id'])
 
 
-def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parameter_kisao_id, value):
+def set_algorithm_parameter_value(algorithm_kisao_id: str, algorithm_function: types.FunctionType,
+                                  parameter_kisao_id: str, value: str):
     """ Set a parameter of a COPASI simulation function
 
     Args:
@@ -420,7 +434,7 @@ def _map_sbml_id_to_copasi_name() -> dict[str, str]:
     sbml_id_to_sbml_name_map: dict[str, str]
 
     # Create mapping
-    compartment_mapping = {compartments.at[row, "sbml_id"]: f"Compartments[{str(row)}]" for row in compartments.index}
+    compartment_mapping = {compartments.at[row, "sbml_id"]: f"Compartments[{str(row)}].Volume" for row in compartments.index}
     metabolites_mapping = {metabolites.at[row, "sbml_id"]: f"[{str(row)}]" for row in metabolites.index}
     reactions_mapping = {reactions.at[row, "sbml_id"]: f"({str(row)}).Flux" for row in reactions.index}
 
@@ -457,3 +471,16 @@ def _map_sedml_target_to_sbml_id(variables: list[Variable]) -> dict[Variable, st
     targets = [target[(target.find('@id=\'') + 5):target.find('\']')] for target in raw_targets]
 
     return {sedml_var:copasi_name for sedml_var, copasi_name in zip(targetable_variables, targets)}
+
+def _calc_number_of_simulation_steps(sim: UniformTimeCourseSimulation, duration: float) -> int:
+    try:
+        step_number_arg = sim.number_of_points * duration / (sim.output_end_time - sim.output_start_time)
+    except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
+        if sim.output_start_time != sim.initial_time:
+            raise ValueError('Output end time must be greater than the output start time.')
+        step_number_arg = sim.number_of_points
+
+    if step_number_arg != math.floor(step_number_arg):
+        raise TypeError('Time course must specify an integer number of time points')
+
+    return int(step_number_arg)
