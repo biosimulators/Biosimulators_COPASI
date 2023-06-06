@@ -8,6 +8,7 @@
 """
 from __future__ import annotations
 import typing
+from typing import Tuple, List
 
 import biosimulators_utils.combine.exec as bsu_combine
 import biosimulators_utils.sedml.exec as bsu_exec
@@ -165,7 +166,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: dict
     # Process output 'data'
     actual_output_length, _ = data.shape
     expected_output_length = preprocessed_task.get_expected_output_length()
-    if (expected_output_length != actual_output_length):
+    if expected_output_length != actual_output_length:
         msg = f"Length of output does not match expected amount: {actual_output_length} (vs {expected_output_length})"
         raise RuntimeError(msg)
 
@@ -241,9 +242,12 @@ def alt_preprocess_sed_task(task: Task, variables: list[Variable], config: Confi
     if config.VALIDATE_SEDML:
         _validate_sedml(task, model, sim, variables)
 
+    model_change_error_message = f'Changes for model `{model.id}` are not supported.'
     model_etree = lxml.etree.parse(model.source)
     model_change_target_sbml_id_map: dict = validation.validate_target_xpaths(model.changes, model_etree, attr='id')
     variable_target_sbml_id_map: dict = validation.validate_target_xpaths(variables, model_etree, attr='id')
+    raise_errors_warnings(validation.validate_model_change_types(model.changes, (ModelAttributeChange,)),
+                          error_summary=model_change_error_message)
 
     if config.VALIDATE_SEDML_MODELS:
         raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
@@ -259,34 +263,28 @@ def alt_preprocess_sed_task(task: Task, variables: list[Variable], config: Confi
     alg_copasi_str_id: str
     alg_kisao_id: str = sim.algorithm.kisao_id
     has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
-    exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, has_events, config)
+    #exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = utils.get_algorithm_id(alg_kisao_id, has_events, config)
+    algorithm_info = utils.get_algorithm_id(alg_kisao_id, has_events, config)
+
+    # process model changes
+    _apply_model_changes(model, basico_data_model, model_change_target_sbml_id_map, algorithm_info.kisao_id)
 
     # Initialize solver settings
-    use_initial_values_arg: bool = True
-    update_model_arg: bool = False  # performs a model reset
-    method_arg = alg_copasi_str_id
+    method_arg = algorithm_info.copasi_algorithm_name
     if not isinstance(sim, UniformTimeCourseSimulation):
         raise ValueError("BioSimulators-COPASI can only handle UTC Simulations in this API for the time being")
     utc_sim: UniformTimeCourseSimulation = sim
     duration_arg: float = sim.output_end_time - sim.initial_time
-    start_time_arg: float = utc_sim.output_start_time
-    step_number_arg: int = _calc_number_of_simulation_steps(sim, duration_arg)
-
-    # process model changes
-    _apply_model_changes(model, basico_data_model, model_change_target_sbml_id_map, exec_alg_kisao_id)
-
-    # Preprocess output variables
-    sedml_var_to_copasi_name: dict[Variable, str] = _map_sedml_to_copasi(variables)
 
     # Create simulation settings
     settings_map = {
-        "output_selection": list(sedml_var_to_copasi_name.values()),
-        "use_initial_values": use_initial_values_arg,
-        "update_model": update_model_arg,
+        #"output_selection": list(sedml_var_to_copasi_name.values()),
+        "use_initial_values": True,
+        "update_model": False,
         "method": method_arg,
         "duration": duration_arg,
-        "start_time": start_time_arg,
-        "step_number": step_number_arg
+        "start_time": utc_sim.output_start_time,
+        "step_number": _calc_number_of_simulation_steps(sim, duration_arg)
     }
 
     # return preprocessed info
@@ -572,70 +570,7 @@ def _validate_sedml(task: Task, model: Model, sim: Simulation, variables: list[V
     bsu_util_core.raise_errors_warnings(*data_generator_errors_list, error_summary=invalid_data_gen)
 
 
-def _map_sedml_to_copasi(variables: list[Variable]) -> dict[Variable, str]:
-    sed_to_id: dict[Variable, str]
-    id_to_name: dict[str, str]
-
-    sed_to_id = _map_sedml_to_sbml_ids(variables)
-    id_to_name = _map_sbml_id_to_copasi_name()
-    return {sedml_var: id_to_name[sed_to_id[sedml_var]] for sedml_var in sed_to_id}
-
-def _map_sedml_to_sbml_ids(variables: list[Variable]) -> dict[Variable, str]:
-    sedml_var_to_sbml_id: dict[Variable, str] = {}
-    sedml_var_to_sbml_id.update(_map_sedml_symbol_to_sbml_id(variables))
-    sedml_var_to_sbml_id.update(_map_sedml_target_to_sbml_id(variables))
-    return sedml_var_to_sbml_id
-
-def _map_sbml_id_to_copasi_name() -> dict[str, str]:
-    # NB: usually, sbml_id == copasi name, with exceptions like "Time"
-    compartments: pandas.DataFrame = basico.get_compartments()
-    metabolites: pandas.DataFrame = basico.get_species()
-    reactions: pandas.DataFrame = basico.get_reactions()
-    compartment_mapping: dict[str, str]
-    metabolites_mapping: dict[str, str]
-    reactions_mapping: dict[str, str]
-    sbml_id_to_sbml_name_map: dict[str, str]
-
-    # Create mapping
-    compartment_mapping = {compartments.at[row, "sbml_id"]: f"Compartments[{str(row)}]" for row in compartments.index}
-    metabolites_mapping = {metabolites.at[row, "sbml_id"]: f"[{str(row)}]" for row in metabolites.index}
-    reactions_mapping = {reactions.at[row, "sbml_id"]: f"({str(row)}).Flux" for row in reactions.index}
-
-    # Combine mappings
-    sbml_id_to_sbml_name_map = {"Time": "Time"}
-    sbml_id_to_sbml_name_map.update(compartment_mapping)
-    sbml_id_to_sbml_name_map.update(metabolites_mapping)
-    sbml_id_to_sbml_name_map.update(reactions_mapping)
-    return sbml_id_to_sbml_name_map
-
-def _map_sedml_symbol_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
-    symbol_mappings = {"kisao:0000832": "Time", "urn:sedml:symbol:time": "Time"}
-    symbolic_variables: list[Variable]
-    raw_symbols: list[str]
-    symbols: list[typing.Union[str, None]]
-
-    # Process the variables
-    symbolic_variables = [variable for variable in variables if variable.symbol is not None]
-    raw_symbols = [str(variable.symbol).lower() for variable in variables if variable.symbol is not None]
-    symbols = [symbol_mappings.get(variable, None) for variable in raw_symbols]
-
-    if None in symbols:
-        raise ValueError(f"BioSim COPASI is unable to interpret symbol '{raw_symbols[symbols.index(None)]}'")
-
-    return {sedml_var:copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
-
-def _map_sedml_target_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
-    targetable_variables: list[Variable]
-    raw_targets: list[str]
-    targets: list[str]
-
-    targetable_variables = [variable for variable in variables if list(variable.to_tuple())[2] is not None]
-    raw_targets = [str(list(variable.to_tuple())[2]) for variable in targetable_variables]
-    targets = [target[(target.find('@id=\'') + 5):target.find('\']')] for target in raw_targets]
-
-    return {sedml_var:copasi_name for sedml_var, copasi_name in zip(targetable_variables, targets)}
-
-def _calc_number_of_simulation_steps(sim: Simulation, duration: int) -> int:
+def _calc_number_of_simulation_steps(sim: UniformTimeCourseSimulation, duration: float) -> int:
     try:
         step_number_arg = sim.number_of_points * duration / (sim.output_end_time - sim.output_start_time)
     except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
@@ -648,24 +583,30 @@ def _calc_number_of_simulation_steps(sim: Simulation, duration: int) -> int:
 
     return int(step_number_arg)
 
-def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel,
-                         model_change_target_sbml_id_map: dict, exec_alg_kisao_id: str):
-    if model.changes:
-        # check if there's anything but ChangeAttribute type changes
-        model_change: ModelAttributeChange
-        error_message = f'Changes for model `{model.id}` are not supported.'
-        change_validation_errors = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
-        raise_errors_warnings(change_validation_errors, error_summary=error_message)
 
-        legal_changes = [change for change in model.changes if isinstance(change, ModelAttributeChange)]
+def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel, model_change_target_sbml_id_map: dict,
+                         exec_alg_kisao_id: str) -> tuple[list[ModelAttributeChange], list[ModelChange]]:
 
-        invalid_changes = []
-        units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
-        c_model = basico_data_model.getModel()
-        for model_change in legal_changes:
-            target_sbml_id = model_change_target_sbml_id_map[model_change.target]
-            copasi_model_obj = utils.get_copasi_model_object_by_sbml_id(c_model, target_sbml_id, units)
-            if copasi_model_obj is None:
-                invalid_changes.append(model_change.target)
-            else:
-                model_obj_parent = copasi_model_obj.getObjectParent()
+    legal_changes: list[ModelAttributeChange] = []
+    illegal_changes: list[ModelChange] = []
+
+    # If there's no changes, get out of here
+    if not model.changes:
+        return legal_changes, illegal_changes
+
+    # check if there's anything but ChangeAttribute type changes
+    change: ModelChange
+    for change in model.changes:
+        legal_changes.append(change) if isinstance(change, ModelAttributeChange) else illegal_changes.append(change)
+
+
+    units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
+    c_model = basico_data_model.getModel()
+    model_change: ModelAttributeChange
+    for model_change in legal_changes:
+        target_sbml_id = model_change_target_sbml_id_map[model_change.target]
+        copasi_model_obj = utils.get_copasi_model_object_by_sbml_id(c_model, target_sbml_id, units)
+        if copasi_model_obj is None:
+            illegal_changes.append(model_change.target)
+
+    return legal_changes, illegal_changes

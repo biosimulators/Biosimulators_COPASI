@@ -6,6 +6,8 @@
 :License: MIT
 """
 
+from __future__ import annotations
+from typing import Union
 from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units
 from biosimulators_utils.combine.data_model import CombineArchiveContentFormat
 from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveWriter
@@ -17,12 +19,14 @@ from biosimulators_utils.utils.core import validate_str_value, parse_value
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from kisao.utils import get_preferred_substitute_algorithm_by_ids
 import COPASI
+import basico
 import itertools
 import libsedml
 import lxml
 import os
 import shutil
 import tempfile
+import pandas
 
 
 
@@ -34,31 +38,43 @@ __all__ = [
     'fix_copasi_generated_combine_archive',
 ]
 
+
+class CopasiAlgorithm:
+    def __init__(self, kisao_id: str, copasi_algorithm_code: int, copasi_algorithm_name: str):
+        self.kisao_id = kisao_id
+        self.copasi_algorithm_code = copasi_algorithm_code
+        self.copasi_algorithm_name = copasi_algorithm_name
+
+    def to_tuple(self):
+        return self.kisao_id, self.copasi_algorithm_code, self.copasi_algorithm_name
+
+
 class BasicoInitialization:
-    def __init__(self):
-        self.number_of_steps
-        pass
+    def __init__(self, num_steps: int, algorithm_info: CopasiAlgorithm, variables: list[Variable]):
+        self.number_of_steps = num_steps
+        self.algorithm_info = algorithm_info
+        self._sedml_var_to_copasi_name: dict[Variable, str] = _map_sedml_to_copasi(variables)
 
     def get_simulation_configuration(self) -> dict:
         pass
+
     def get_expected_output_length(self) -> int:
         return self.number_of_steps + 1
 
     def get_COPASI_name(self, sedml_var: Variable) -> str:
-        pass
+        return self._sedml_var_to_copasi_name.get(sedml_var)
 
     def get_KiSAO_id_for_KiSAO_algorithm(self) -> str:
-        pass
+        return self.algorithm_info.kisao_id
 
     def get_COPASI_algorithm_name(self) -> str:
-        pass
+        return self.algorithm_info.copasi_algorithm_name
 
     def get_COPASI_algorithm_code(self) -> int:
-        pass
+        return self.algorithm_info.copasi_algorithm_code
 
 
-
-def get_algorithm_id(kisao_id, events=False, config=None) -> tuple:
+def get_algorithm_id(kisao_id, events=False, config=None) -> CopasiAlgorithm:
     """ Get the COPASI id for an algorithm
 
     Args:
@@ -99,7 +115,7 @@ def get_algorithm_id(kisao_id, events=False, config=None) -> tuple:
             exec_kisao_id = kisao_id
 
     alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
-    return exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']), alg['id']
+    return CopasiAlgorithm(exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']), alg['id'])
 
 
 def set_algorithm_parameter_value(algorithm_kisao_id, algorithm_function, parameter_kisao_id, value):
@@ -378,3 +394,66 @@ def fix_copasi_generated_combine_archive(in_filename, out_filename, config=None)
         CombineArchiveWriter().run(archive, archive_dirname, out_filename)
     finally:
         shutil.rmtree(archive_dirname)
+
+def _map_sedml_to_copasi(variables: list[Variable]) -> dict[Variable, str]:
+    sed_to_id: dict[Variable, str]
+    id_to_name: dict[str, str]
+
+    sed_to_id = _map_sedml_to_sbml_ids(variables)
+    id_to_name = _map_sbml_id_to_copasi_name()
+    return {sedml_var: id_to_name[sed_to_id[sedml_var]] for sedml_var in sed_to_id}
+
+def _map_sedml_to_sbml_ids(variables: list[Variable]) -> dict[Variable, str]:
+    sedml_var_to_sbml_id: dict[Variable, str] = {}
+    sedml_var_to_sbml_id.update(_map_sedml_symbol_to_sbml_id(variables))
+    sedml_var_to_sbml_id.update(_map_sedml_target_to_sbml_id(variables))
+    return sedml_var_to_sbml_id
+
+def _map_sbml_id_to_copasi_name() -> dict[str, str]:
+    # NB: usually, sbml_id == copasi name, with exceptions like "Time"
+    compartments: pandas.DataFrame = basico.get_compartments()
+    metabolites: pandas.DataFrame = basico.get_species()
+    reactions: pandas.DataFrame = basico.get_reactions()
+    compartment_mapping: dict[str, str]
+    metabolites_mapping: dict[str, str]
+    reactions_mapping: dict[str, str]
+    sbml_id_to_sbml_name_map: dict[str, str]
+
+    # Create mapping
+    compartment_mapping = {compartments.at[row, "sbml_id"]: f"Compartments[{str(row)}]" for row in compartments.index}
+    metabolites_mapping = {metabolites.at[row, "sbml_id"]: f"[{str(row)}]" for row in metabolites.index}
+    reactions_mapping = {reactions.at[row, "sbml_id"]: f"({str(row)}).Flux" for row in reactions.index}
+
+    # Combine mappings
+    sbml_id_to_sbml_name_map = {"Time": "Time"}
+    sbml_id_to_sbml_name_map.update(compartment_mapping)
+    sbml_id_to_sbml_name_map.update(metabolites_mapping)
+    sbml_id_to_sbml_name_map.update(reactions_mapping)
+    return sbml_id_to_sbml_name_map
+
+def _map_sedml_symbol_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
+    symbol_mappings = {"kisao:0000832": "Time", "urn:sedml:symbol:time": "Time"}
+    symbolic_variables: list[Variable]
+    raw_symbols: list[str]
+    symbols: list[Union[str, None]]
+
+    # Process the variables
+    symbolic_variables = [variable for variable in variables if variable.symbol is not None]
+    raw_symbols = [str(variable.symbol).lower() for variable in variables if variable.symbol is not None]
+    symbols = [symbol_mappings.get(variable, None) for variable in raw_symbols]
+
+    if None in symbols:
+        raise ValueError(f"BioSim COPASI is unable to interpret symbol '{raw_symbols[symbols.index(None)]}'")
+
+    return {sedml_var:copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
+
+def _map_sedml_target_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
+    targetable_variables: list[Variable]
+    raw_targets: list[str]
+    targets: list[str]
+
+    targetable_variables = [variable for variable in variables if list(variable.to_tuple())[2] is not None]
+    raw_targets = [str(list(variable.to_tuple())[2]) for variable in targetable_variables]
+    targets = [target[(target.find('@id=\'') + 5):target.find('\']')] for target in raw_targets]
+
+    return {sedml_var:copasi_name for sedml_var, copasi_name in zip(targetable_variables, targets)}

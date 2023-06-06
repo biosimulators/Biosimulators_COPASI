@@ -11,18 +11,18 @@ import unittest
 
 class UtilsTestCase(unittest.TestCase):
     def test_get_algorithm_id(self):
-        self.assertEqual(utils.get_algorithm_id('KISAO_0000027'),
+        self.assertEqual(utils.get_algorithm_id('KISAO_0000027').to_tuple(),
                          ('KISAO_0000027', COPASI.CTaskEnum.Method_stochastic, "stochastic"))
 
-        self.assertEqual(utils.get_algorithm_id('KISAO_0000560'),
+        self.assertEqual(utils.get_algorithm_id('KISAO_0000560').to_tuple(),
                          ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
 
         with self.assertWarns(AlgorithmSubstitutedWarning):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000088'),
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000088').to_tuple(),
                              ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
 
         with self.assertWarns(AlgorithmSubstitutedWarning):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000089'),
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000089').to_tuple(),
                              ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
 
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'NONE'}):
@@ -33,18 +33,18 @@ class UtilsTestCase(unittest.TestCase):
             utils.get_algorithm_id('KISAO_0000450')
 
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_MATH'}):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=False)[0], 'KISAO_0000561')
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=False).kisao_id, 'KISAO_0000561')
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=False)[0], 'KISAO_0000561')
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=False).kisao_id, 'KISAO_0000561')
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_MATH'}):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=True)[0], 'KISAO_0000561')
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=True).kisao_id, 'KISAO_0000561')
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=True)[0], 'KISAO_0000563')
+            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=True).kisao_id, 'KISAO_0000563')
 
     def test_set_function_boolean_parameter(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         copasi_task = copasi_data_model.getTask('Time-Course')
-        _, algorithm_id = utils.get_algorithm_id('KISAO_0000560')
+        algorithm_id = utils.get_algorithm_id('KISAO_0000560').copasi_algorithm_code
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
         parameter = method.getParameter('Integrate Reduced Model')
@@ -58,7 +58,7 @@ class UtilsTestCase(unittest.TestCase):
     def test_set_function_integer_parameter(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         copasi_task = copasi_data_model.getTask('Time-Course')
-        _, algorithm_id = utils.get_algorithm_id('KISAO_0000027')
+        algorithm_id = utils.get_algorithm_id('KISAO_0000027').copasi_algorithm_code
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
 
@@ -70,7 +70,7 @@ class UtilsTestCase(unittest.TestCase):
     def test_set_function_float_parameter(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         copasi_task = copasi_data_model.getTask('Time-Course')
-        _, algorithm_id = utils.get_algorithm_id('KISAO_0000560')
+        algorithm_id = utils.get_algorithm_id('KISAO_0000560').copasi_algorithm_code
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
 
@@ -83,7 +83,7 @@ class UtilsTestCase(unittest.TestCase):
         # KISAO_0000561
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         copasi_task = copasi_data_model.getTask('Time-Course')
-        _, algorithm_id = utils.get_algorithm_id('KISAO_0000561')
+        algorithm_id = utils.get_algorithm_id('KISAO_0000561').copasi_algorithm_code
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
 
@@ -97,7 +97,7 @@ class UtilsTestCase(unittest.TestCase):
         # KISAO_0000566
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         copasi_task = copasi_data_model.getTask('Time-Course')
-        _, algorithm_id = utils.get_algorithm_id('KISAO_0000566')
+        algorithm_id = utils.get_algorithm_id('KISAO_0000566').copasi_algorithm_code
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
 
@@ -111,7 +111,7 @@ class UtilsTestCase(unittest.TestCase):
     def test_set_function_seed_integer_parameter(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         copasi_task = copasi_data_model.getTask('Time-Course')
-        _, algorithm_id = utils.get_algorithm_id('KISAO_0000048')
+        algorithm_id = utils.get_algorithm_id('KISAO_0000048').copasi_algorithm_code
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
 
@@ -131,7 +131,7 @@ class UtilsTestCase(unittest.TestCase):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         assert copasi_data_model.importSBML(os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml'))
         copasi_task = copasi_data_model.getTask('Time-Course')
-        _, algorithm_id = utils.get_algorithm_id('KISAO_0000563')
+        algorithm_id = utils.get_algorithm_id('KISAO_0000563').copasi_algorithm_code
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
 
@@ -145,7 +145,7 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_test_set_algorithm_parameter_value_errors(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        _, algorithm_id = utils.get_algorithm_id('KISAO_0000027')
+        algorithm_id = utils.get_algorithm_id('KISAO_0000027').copasi_algorithm_code
         copasi_task = copasi_data_model.getTask('Time-Course')
         assert(copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
@@ -163,7 +163,7 @@ class UtilsTestCase(unittest.TestCase):
         for parameter_kisao_id, param_props in data_model.KISAO_PARAMETERS_MAP.items():
             for algorithm_kisao_id in param_props['algorithms']:
                 copasi_data_model = COPASI.CRootContainer.addDatamodel()
-                _, algorithm_id = utils.get_algorithm_id(algorithm_kisao_id)
+                algorithm_id = utils.get_algorithm_id(algorithm_kisao_id).copasi_algorithm_code
                 copasi_task = copasi_data_model.getTask('Time-Course')
                 assert(copasi_task.setMethodType(algorithm_id))
                 method = copasi_task.getMethod()
