@@ -11,7 +11,7 @@ from __future__ import annotations
 import math
 import types
 from typing import Union
-from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units, CopasiAlgorithmType
+from biosimulators_copasi.data_model import *
 from biosimulators_utils.combine.data_model import CombineArchiveContentFormat
 from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveWriter
 from biosimulators_utils.config import get_config, Config  # noqa: F401
@@ -108,6 +108,55 @@ class BasicoInitialization:
     def get_COPASI_algorithm_code(self) -> int:
         return self.algorithm_info.copasi_algorithm_code
 
+
+def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Config = None) -> CopasiAlgorithm:
+    """ Get the algorithm wrapper for a COPASI algorithm
+
+        Args:
+            kisao_id (:obj:`str`): KiSAO algorithm id
+            events_were_requested (:obj:`bool`, optional): whether an algorithm that supports
+                events is needed
+            config (:obj:`Config`, optional): configuration
+
+        Returns:
+            :obj:`tuple`:
+
+                * :obj:`str`: KiSAO id of algorithm to execute
+                * :obj:`int`: COPASI id for algorithm
+                 * :obj:`str`: COPASI string name for algorithm
+        """
+    # This step may not be necessary anymore
+
+    algorithm_kisao_to_class_map: dict[str, CopasiAlgorithm] = {
+        CopasiAlgorithmType[alg_name].value.KISAO_ID : CopasiAlgorithmType[alg_name].value
+        for alg_name, _ in CopasiAlgorithmType.__members__.items()
+    }
+
+    legal_alg_kisao_ids = [
+        kisao for kisao, obj in algorithm_kisao_to_class_map if not events_were_requested or obj.CAN_SUPPORT_EVENTS
+    ]
+
+    if kisao_id in legal_alg_kisao_ids:
+        return _construct_algorithm(algorithm_kisao_to_class_map[kisao_id])
+
+    substitution_policy = get_algorithm_substitution_policy(config=config)
+    try:
+        alt_kisao_id = get_preferred_substitute_algorithm_by_ids(kisao_id, legal_alg_kisao_ids, substitution_policy)
+    except NotImplementedError:
+        other_hybrid_methods = ['KISAO_0000561', 'KISAO_0000562']
+        similar_approx = AlgorithmSubstitutionPolicy.SIMILAR_APPROXIMATIONS
+        selected_substitution_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy]
+        needed_substitution_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[similar_approx]
+        substitution_policy_is_sufficient =  selected_substitution_policy >= needed_substitution_policy
+        if events_were_requested and kisao_id in other_hybrid_methods and substitution_policy_is_sufficient:
+            alt_kisao_id = 'KISAO_0000563'  # Hybrid Runge Kutta RK45 method
+        else:
+            alt_kisao_id = kisao_id  # Admit defeat, this will cause a ValueError
+
+    if alt_kisao_id in legal_alg_kisao_ids:
+        return _construct_algorithm(algorithm_kisao_to_class_map[alt_kisao_id])
+
+    raise ValueError(f"No suitable equivalent for '{kisao_id}' could be found with the provided substitution policy")
 
 def get_algorithm_id(kisao_id: str, events: bool = False, config: Config = None) -> CopasiAlgorithm_OLD:
     """ Get the COPASI id for an algorithm
@@ -506,3 +555,6 @@ def _calc_number_of_simulation_steps(sim: UniformTimeCourseSimulation, duration:
         raise TypeError('Time course must specify an integer number of time points')
 
     return int(step_number_arg)
+
+def _construct_algorithm(class_name, **kwargs):
+    return None

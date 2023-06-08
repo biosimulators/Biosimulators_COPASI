@@ -12,7 +12,41 @@ from biosimulators_utils.data_model import ValueType
 import collections
 import enum
 
-__all__ = ['Units', 'KISAO_ALGORITHMS_MAP', 'KISAO_PARAMETERS_MAP']
+__all__ = [
+    'Units',
+    'KISAO_ALGORITHMS_MAP',
+    'KISAO_PARAMETERS_MAP',
+    'CopasiAlgorithmParameter',
+    'RelativeToleranceParameter',
+    'AbsoluteToleranceParameter',
+    'IntegrateReducedModelParameter',
+    'MaximumInternalStepsParameter',
+    'MaximumInternalStepSizeParameter',
+    'RandomSeedParameter',
+    'EpsilonParameter',
+    'LowerLimitParameter',
+    'UpperLimitParameter',
+    'PartitioningIntervalParameter',
+    'InitialStepSizeParameter',
+    'StepSizeParameter',
+    'RungeKuttaStepSizeParameter',
+    'InternalStepParameter',
+    'ToleranceForRootFinderParameter',
+    'ForcePhysicalCorrectnessParameter',
+    'DeterministicReactionsParameter',
+    'CopasiAlgorithmType',
+    'CopasiAlgorithm',
+    'GibsonBruckAlgorithm',
+    'DirectMethodAlgorithm',
+    'TauLeapAlgorithm',
+    'AdaptiveSSATauLeapAlgorithm',
+    'LsodaAlgorithm',
+    'Radau5Algorithm',
+    'HybridLsodaAlgorithm',
+    'HybridRungeKuttaAlgorithm',
+    'HybridRK45Algorithm',
+    'SDESolveRI5Algorithm'
+]
 
 
 class Units(str, enum.Enum):
@@ -188,7 +222,7 @@ class InternalStepParameter(StepSizeParameter):
     def get_value(self) -> float:
         return self._value
 
-class ToleranceForRootFinderParamter(CopasiAlgorithmParameter):
+class ToleranceForRootFinderParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000565"
     ID: str = "root_finder_tolerance"
     NAME: str = "Tolerance for Root Finder"
@@ -221,19 +255,6 @@ class DeterministicReactionsParameter(CopasiAlgorithmParameter):
     def get_value(self) -> list:
         return self._value
 
-
-class CopasiAlgorithmType(enum.Enum):
-    GIBSON_BRUCK = "stochastic"
-    DIRECT_METHOD = "directmethod"
-    TAU_LEAP = "tauleap"
-    ADAPTIVE_SSA_TAU_LEAP = "adaptivesa"
-    LSODA = "lsoda"
-    RADAU5 = "radau5"
-    HYBRID_LSODA = "hybridlsoda"
-    # HYBRID_RUNGE_KUTTA = ""  # Not yet implemented in basico! See `baisco.task_timecourse.__method_name_to_type`
-    HYBRID_RK45 = "hybridode45"
-    SDE_SOLVE_RI5 = "sde"
-
 class CopasiAlgorithm:
     KISAO_ID: str
     ID: CopasiAlgorithmType
@@ -249,7 +270,7 @@ class CopasiAlgorithm:
 
 class GibsonBruckAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000027"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.GIBSON_BRUCK
+    ID: str = "stochastic"
     NAME: str = "Gibson + Bruck"
     CAN_SUPPORT_EVENTS: bool = True
     def __init__(self, max_internal_steps: int, random_seed: int, units: Units = Units.discrete):
@@ -258,7 +279,7 @@ class GibsonBruckAlgorithm(CopasiAlgorithm):
         self._units = units
 
     def get_copasi_id(self) -> str:
-        return GibsonBruckAlgorithm.ID.value
+        return GibsonBruckAlgorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -266,7 +287,7 @@ class GibsonBruckAlgorithm(CopasiAlgorithm):
 
 class DirectMethodAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000029"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.DIRECT_METHOD
+    ID: str = "directmethod"
     NAME: str = "direct method"
     CAN_SUPPORT_EVENTS: bool = True
 
@@ -276,7 +297,7 @@ class DirectMethodAlgorithm(CopasiAlgorithm):
         self._units = units
 
     def get_copasi_id(self) -> str:
-        return DirectMethodAlgorithm.ID.value
+        return DirectMethodAlgorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -284,7 +305,7 @@ class DirectMethodAlgorithm(CopasiAlgorithm):
 
 class TauLeapAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000039"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.TAU_LEAP
+    ID: str = "tauleap"
     NAME: str = "tau leap method"
     CAN_SUPPORT_EVENTS: bool = False
 
@@ -295,7 +316,7 @@ class TauLeapAlgorithm(CopasiAlgorithm):
         self._units = units
 
     def get_copasi_id(self) -> str:
-        return TauLeapAlgorithm.ID.value
+        return TauLeapAlgorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -303,7 +324,7 @@ class TauLeapAlgorithm(CopasiAlgorithm):
 
 class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000048"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.ADAPTIVE_SSA_TAU_LEAP
+    ID: str = "adaptivesa"
     NAME: str = "adaptive SSA + tau leap"
     CAN_SUPPORT_EVENTS: bool = True
 
@@ -314,7 +335,7 @@ class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
         self._units = units
 
     def get_copasi_id(self) -> str:
-        return AdaptiveSSATauLeapAlgorithm.ID.value
+        return AdaptiveSSATauLeapAlgorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -322,7 +343,7 @@ class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
 
 class LsodaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000560"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.LSODA
+    ID: str = "lsoda"
     NAME: str = "LSODA/LSODAR"
     CAN_SUPPORT_EVENTS: bool = True
 
@@ -336,7 +357,7 @@ class LsodaAlgorithm(CopasiAlgorithm):
         self.max_internal_step_size = MaximumInternalStepSizeParameter(max_internal_step_size)
 
     def get_copasi_id(self) -> str:
-        return LsodaAlgorithm.ID.value
+        return LsodaAlgorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -344,7 +365,7 @@ class LsodaAlgorithm(CopasiAlgorithm):
 
 class Radau5Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000304"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.RADAU5
+    ID: str = "radau5"
     NAME: str = "RADAU5"
     CAN_SUPPORT_EVENTS: bool = False
 
@@ -358,7 +379,7 @@ class Radau5Algorithm(CopasiAlgorithm):
         self._units = units
 
     def get_copasi_id(self) -> str:
-        return Radau5Algorithm.ID.value
+        return Radau5Algorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -366,7 +387,7 @@ class Radau5Algorithm(CopasiAlgorithm):
 
 class HybridLsodaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000562"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.HYBRID_LSODA
+    ID: str = "hybridlsoda"
     NAME: str = "hybrid(lsoda)"
     CAN_SUPPORT_EVENTS: bool = False
 
@@ -385,14 +406,14 @@ class HybridLsodaAlgorithm(CopasiAlgorithm):
         self._units = units
 
     def get_copasi_id(self) -> str:
-        return HybridLsodaAlgorithm.ID.value
+        return HybridLsodaAlgorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
 
 class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000561"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.LSODA  # Not implemented correctly, see above: `CopasiAlgorithmType`
+    ID: str = "lsoda"  # Not implemented correctly, see above: `CopasiAlgorithmType`
     NAME: str = "hybrid(runge kutta)"
     CAN_SUPPORT_EVENTS: bool = False
 
@@ -406,14 +427,14 @@ class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
         self.step_size = RungeKuttaStepSizeParameter(step_size)
 
     def get_copasi_id(self) -> str:
-        return HybridRungeKuttaAlgorithm.ID.value
+        return HybridRungeKuttaAlgorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
 
 class HybridRK45Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000563"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.HYBRID_RK45
+    ID: str = "hybridode45"
     NAME: str = "hybrid (RK-45)"
     CAN_SUPPORT_EVENTS: bool = True
 
@@ -427,7 +448,7 @@ class HybridRK45Algorithm(CopasiAlgorithm):
         self._units = units
 
     def get_copasi_id(self) -> str:
-        return HybridRK45Algorithm.ID.value
+        return HybridRK45Algorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -435,7 +456,7 @@ class HybridRK45Algorithm(CopasiAlgorithm):
 
 class SDESolveRI5Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000566"
-    ID: CopasiAlgorithmType = CopasiAlgorithmType.SDE_SOLVE_RI5
+    ID: str = "sde"
     NAME: str = "SDE Solve (RI5)"
     CAN_SUPPORT_EVENTS: bool = True
 
@@ -444,16 +465,27 @@ class SDESolveRI5Algorithm(CopasiAlgorithm):
         self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.step_size = InternalStepParameter(step_size)
-        self.tolerance_for_root_finder = ToleranceForRootFinderParamter(tolerance_for_root_finder)
+        self.tolerance_for_root_finder = ToleranceForRootFinderParameter(tolerance_for_root_finder)
         self.force_physical_correctness = ForcePhysicalCorrectnessParameter(force_physical_correctness)
         self._units = units
 
     def get_copasi_id(self) -> str:
-        return SDESolveRI5Algorithm.ID.value
+        return SDESolveRI5Algorithm.ID
 
     def get_unit_set(self) -> Units:
         return self._units
 
+class CopasiAlgorithmType(enum.Enum):
+    GIBSON_BRUCK = GibsonBruckAlgorithm
+    DIRECT_METHOD = DirectMethodAlgorithm
+    TAU_LEAP = TauLeapAlgorithm
+    ADAPTIVE_SSA_TAU_LEAP = AdaptiveSSATauLeapAlgorithm
+    LSODA = LsodaAlgorithm
+    RADAU5 = Radau5Algorithm
+    HYBRID_LSODA = HybridLsodaAlgorithm
+    #HYBRID_RUNGE_KUTTA = None  # Not yet implemented in basico! See `baisco.task_timecourse.__method_name_to_type`
+    HYBRID_RK45 = HybridRK45Algorithm
+    SDE_SOLVE_RI5 = SDESolveRI5Algorithm
 
 KISAO_ALGORITHMS_MAP = collections.OrderedDict([
     ('KISAO_0000027', {

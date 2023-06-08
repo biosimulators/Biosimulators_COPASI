@@ -230,7 +230,7 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
         config (:obj:`Config`, optional): BioSimulators common configuration
 
     Returns:
-        :obj:`dict`: preprocessed information about the task
+        :obj:`BasicoInitialization`: prepared information about the task
     """
     config: Config = config or bsu_config.get_config()
 
@@ -259,11 +259,12 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
 
     # process solution algorithm
     has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
+    testy_test = utils.get_algorithm(sim.algorithm.kisao_id, has_events, config)
     algorithm_info = utils.get_algorithm_id(sim.algorithm.kisao_id, has_events, config)
     funcs = basico.get_functions()
 
-    basico.set_task_settings(basico.T.TIME_COURSE, {"scheduled": True})
-    myList = basico.get_scheduled_tasks()
+    #basico.set_task_settings(basico.T.TIME_COURSE, {"scheduled": True})
+    #myList = basico.get_scheduled_tasks()
 
     # process model changes
     _apply_model_changes(model, basico_data_model, model_change_target_sbml_id_map, algorithm_info.kisao_id)
@@ -272,6 +273,9 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     if not isinstance(sim, UniformTimeCourseSimulation):
         raise ValueError("BioSimulators-COPASI can only handle UTC Simulations in this API for the time being")
     utc_sim: UniformTimeCourseSimulation = sim
+
+    # Apply method overrides
+
 
     # Create and return preprocessed simulation settings
     preprocessed_info = utils.BasicoInitialization(utc_sim, algorithm_info, variables)
