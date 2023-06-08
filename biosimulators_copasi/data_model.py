@@ -61,7 +61,7 @@ class AbsoluteToleranceParameter(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         return self._value
 
-class IntegrateReducedModel(CopasiAlgorithmParameter):
+class IntegrateReducedModelParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000216"
     ID: str = "irm"
     NAME: str = "Integrate Reduced Model"
@@ -72,7 +72,7 @@ class IntegrateReducedModel(CopasiAlgorithmParameter):
     def get_value(self) -> bool:
         return self._value
 
-class MaximumInternalSteps(CopasiAlgorithmParameter):
+class MaximumInternalStepsParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000415"
     ID: str = "max_steps"
     NAME: str = "Max Internal Steps"
@@ -83,7 +83,7 @@ class MaximumInternalSteps(CopasiAlgorithmParameter):
     def get_value(self) -> int:
         return self._value
 
-class MaximumInternalStepSize(CopasiAlgorithmParameter):
+class MaximumInternalStepSizeParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000467"
     ID: str = "max_step_size"
     NAME: str = "Max Internal Step Size"
@@ -94,7 +94,7 @@ class MaximumInternalStepSize(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         return self._value
 
-class RandomSeed(CopasiAlgorithmParameter):
+class RandomSeedParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000488"
     ID: str = "random_seed"
     NAME: str = "Random Seed"
@@ -105,7 +105,7 @@ class RandomSeed(CopasiAlgorithmParameter):
     def get_value(self) -> int:
         return self._value
 
-class Epsilon(CopasiAlgorithmParameter):
+class EpsilonParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000228"
     ID: str = "epsilon"
     NAME: str = "Epsilon"
@@ -116,7 +116,7 @@ class Epsilon(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         return self._value
 
-class LowerLimit(CopasiAlgorithmParameter):
+class LowerLimitParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000203"
     ID: str = "lower_lim"
     NAME: str = "Lower Limit"
@@ -127,7 +127,7 @@ class LowerLimit(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         return self._value
 
-class UpperLimit(CopasiAlgorithmParameter):
+class UpperLimitParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000204"
     ID: str = "upper_lim"
     NAME: str = "Upper Limit"
@@ -138,7 +138,7 @@ class UpperLimit(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         return self._value
 
-class PartitioningInterval(CopasiAlgorithmParameter):
+class PartitioningIntervalParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000205"
     ID: str = "partitioning_interval"
     NAME: str = "Partitioning Interval"
@@ -149,7 +149,7 @@ class PartitioningInterval(CopasiAlgorithmParameter):
     def get_value(self) -> int:
         return self._value
 
-class InitialStepSize(CopasiAlgorithmParameter):
+class InitialStepSizeParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000559"
     ID: str = "init_step_size"
     NAME: str = "Initial Step Size"
@@ -160,7 +160,7 @@ class InitialStepSize(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         return self._value
 
-class StepSize(CopasiAlgorithmParameter):
+class StepSizeParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000483"
     ID: str = None
     NAME: str = None
@@ -168,7 +168,7 @@ class StepSize(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         raise NotImplementedError
 
-class RungeKuttaStepSize(StepSize):
+class RungeKuttaStepSizeParameter(StepSizeParameter):
     ID: str = "rk_step_size"
     NAME: str = "Runge-Kutta Stepsize"
 
@@ -178,7 +178,7 @@ class RungeKuttaStepSize(StepSize):
     def get_value(self) -> float:
         return self._value
 
-class InternalStep(StepSize):
+class InternalStepParameter(StepSizeParameter):
     ID: str = "internal_step_size"
     NAME: str = "Internal Steps Size"
 
@@ -188,7 +188,7 @@ class InternalStep(StepSize):
     def get_value(self) -> float:
         return self._value
 
-class ToleranceForRootFinder(CopasiAlgorithmParameter):
+class ToleranceForRootFinderParamter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000565"
     ID: str = "root_finder_tolerance"
     NAME: str = "Tolerance for Root Finder"
@@ -199,7 +199,7 @@ class ToleranceForRootFinder(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         return self._value
 
-class ForcePhysicalCorrectness(CopasiAlgorithmParameter):
+class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000567"
     ID: str = "root_finder_tolerance"
     NAME: str = "Force Physical Correctness"
@@ -210,7 +210,7 @@ class ForcePhysicalCorrectness(CopasiAlgorithmParameter):
     def get_value(self) -> bool:
         return self._value
 
-class DeterministicReactions(CopasiAlgorithmParameter):
+class DeterministicReactionsParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000534"
     ID: str = "root_finder_tolerance"
     NAME: str = "Deterministic Reactions"
@@ -236,16 +236,11 @@ class CopasiAlgorithmType(enum.Enum):
 
 class CopasiAlgorithm:
     KISAO_ID: str
-    ID: str
+    ID: CopasiAlgorithmType
     NAME: str
     CAN_SUPPORT_EVENTS: bool
-    def get_kisao_id(self) -> str:
-        raise NotImplementedError
 
     def get_copasi_id(self) -> str:
-        raise NotImplementedError
-
-    def get_copasi_name(self) -> str:
         raise NotImplementedError
 
     def get_unit_set(self) -> Units:
@@ -254,22 +249,207 @@ class CopasiAlgorithm:
 
 class GibsonBruckAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000027"
-    ID: str = "stochastic"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.GIBSON_BRUCK
     NAME: str = "Gibson + Bruck"
     CAN_SUPPORT_EVENTS: bool = True
-    def __init__(self, units: Units = Units.discrete):
+    def __init__(self, max_internal_steps: int, random_seed: int, units: Units = Units.discrete):
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.random_seed = RandomSeedParameter(random_seed)
         self._units = units
-        self.max_internal_steps = MaximumInternalSteps()
-        self.random_seed = RandomSeed()
-
-    def get_kisao_id(self) -> str:
-        raise GibsonBruckAlgorithm.KISAO_ID
 
     def get_copasi_id(self) -> str:
-        raise GibsonBruckAlgorithm.ID
+        return GibsonBruckAlgorithm.ID.value
 
-    def get_copasi_name(self) -> str:
-        return GibsonBruckAlgorithm.NAME
+    def get_unit_set(self) -> Units:
+        return self._units
+
+
+class DirectMethodAlgorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000029"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.DIRECT_METHOD
+    NAME: str = "direct method"
+    CAN_SUPPORT_EVENTS: bool = True
+
+    def __init__(self, max_internal_steps: int, random_seed: int, units: Units = Units.discrete):
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.random_seed = RandomSeedParameter(random_seed)
+        self._units = units
+
+    def get_copasi_id(self) -> str:
+        return DirectMethodAlgorithm.ID.value
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+
+class TauLeapAlgorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000039"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.TAU_LEAP
+    NAME: str = "tau leap method"
+    CAN_SUPPORT_EVENTS: bool = False
+
+    def __init__(self, max_internal_steps: int, random_seed: int, epsilon: float, units: Units = Units.discrete):
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.random_seed = RandomSeedParameter(random_seed)
+        self.epsilon = EpsilonParameter(epsilon)
+        self._units = units
+
+    def get_copasi_id(self) -> str:
+        return TauLeapAlgorithm.ID.value
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+
+class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000048"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.ADAPTIVE_SSA_TAU_LEAP
+    NAME: str = "adaptive SSA + tau leap"
+    CAN_SUPPORT_EVENTS: bool = True
+
+    def __init__(self, max_internal_steps: int, random_seed: int, epsilon: float, units: Units = Units.discrete):
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.random_seed = RandomSeedParameter(random_seed)
+        self.epsilon = EpsilonParameter(epsilon)
+        self._units = units
+
+    def get_copasi_id(self) -> str:
+        return AdaptiveSSATauLeapAlgorithm.ID.value
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+
+class LsodaAlgorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000560"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.LSODA
+    NAME: str = "LSODA/LSODAR"
+    CAN_SUPPORT_EVENTS: bool = True
+
+    def __init__(self, relative_tolerance: float, absolute_tolerance: float, units, integrate_reduced_model: bool,
+                 max_internal_steps: int, max_internal_step_size: float, Units = Units.continuous):
+        self._units = units
+        self.relative_tolerance = RelativeToleranceParameter(relative_tolerance)
+        self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
+        self.integrate_reduced_model = IntegrateReducedModelParameter(integrate_reduced_model)
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.max_internal_step_size = MaximumInternalStepSizeParameter(max_internal_step_size)
+
+    def get_copasi_id(self) -> str:
+        return LsodaAlgorithm.ID.value
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+
+class Radau5Algorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000304"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.RADAU5
+    NAME: str = "RADAU5"
+    CAN_SUPPORT_EVENTS: bool = False
+
+    def __init__(self, relative_tolerance: float, absolute_tolerance: float, integrate_reduced_model: bool,
+                 max_internal_steps: int, initial_step_size: float, units: Units = Units.continuous):
+        self.relative_tolerance = RelativeToleranceParameter(relative_tolerance)
+        self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
+        self.integrate_reduced_model = IntegrateReducedModelParameter(integrate_reduced_model)
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.initial_step_size = InitialStepSizeParameter(initial_step_size)
+        self._units = units
+
+    def get_copasi_id(self) -> str:
+        return Radau5Algorithm.ID.value
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+
+class HybridLsodaAlgorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000562"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.HYBRID_LSODA
+    NAME: str = "hybrid(lsoda)"
+    CAN_SUPPORT_EVENTS: bool = False
+
+    def __init__(self, relative_tolerance: float, absolute_tolerance: float, integrate_reduced_model: bool,
+                 max_internal_steps: int, max_internal_step_size: float, random_seed: int, lower_limit: float,
+                 upper_limit: float, partitioning_interval: float, units: Units = Units.discrete):
+        self.relative_tolerance = RelativeToleranceParameter(relative_tolerance)
+        self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
+        self.integrate_reduced_model = IntegrateReducedModelParameter(integrate_reduced_model)
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.max_internal_step_size = MaximumInternalStepSizeParameter(max_internal_step_size)
+        self.random_seed = RandomSeedParameter(random_seed)
+        self.lower_limit = LowerLimitParameter(lower_limit)
+        self.upper_limit = LowerLimitParameter(upper_limit)
+        self.partitioning_interval = LowerLimitParameter(partitioning_interval)
+        self._units = units
+
+    def get_copasi_id(self) -> str:
+        return HybridLsodaAlgorithm.ID.value
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000561"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.LSODA  # Not implemented correctly, see above: `CopasiAlgorithmType`
+    NAME: str = "hybrid(runge kutta)"
+    CAN_SUPPORT_EVENTS: bool = False
+
+    def __init__(self, max_internal_steps: int, random_seed: int, lower_limit: float, upper_limit: float,
+                 step_size: float, units: Units = Units.discrete):
+        self._units = units
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.random_seed = RandomSeedParameter(random_seed)
+        self.lower_limit = LowerLimitParameter(lower_limit)
+        self.upper_limit = LowerLimitParameter(upper_limit)
+        self.step_size = RungeKuttaStepSizeParameter(step_size)
+
+    def get_copasi_id(self) -> str:
+        return HybridRungeKuttaAlgorithm.ID.value
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+class HybridRK45Algorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000563"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.HYBRID_RK45
+    NAME: str = "hybrid (RK-45)"
+    CAN_SUPPORT_EVENTS: bool = True
+
+    def __init__(self, relative_tolerance: float, absolute_tolerance:float, max_internal_steps: int,
+                 random_seed: int, deterministic_reactions: list, units: Units = Units.discrete):
+        self.relative_tolerance = RelativeToleranceParameter(relative_tolerance)
+        self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.random_seed = RandomSeedParameter(random_seed)
+        self.deterministic_reactions = DeterministicReactionsParameter(deterministic_reactions)
+        self._units = units
+
+    def get_copasi_id(self) -> str:
+        return HybridRK45Algorithm.ID.value
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+
+class SDESolveRI5Algorithm(CopasiAlgorithm):
+    KISAO_ID: str = "KISAO_0000566"
+    ID: CopasiAlgorithmType = CopasiAlgorithmType.SDE_SOLVE_RI5
+    NAME: str = "SDE Solve (RI5)"
+    CAN_SUPPORT_EVENTS: bool = True
+
+    def __init__(self, absolute_tolerance: float, max_internal_steps: int, step_size: float,
+                 tolerance_for_root_finder: float, force_physical_correctness: bool, units: Units = Units.continuous):
+        self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
+        self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
+        self.step_size = InternalStepParameter(step_size)
+        self.tolerance_for_root_finder = ToleranceForRootFinderParamter(tolerance_for_root_finder)
+        self.force_physical_correctness = ForcePhysicalCorrectnessParameter(force_physical_correctness)
+        self._units = units
+
+    def get_copasi_id(self) -> str:
+        return SDESolveRI5Algorithm.ID.value
 
     def get_unit_set(self) -> Units:
         return self._units
