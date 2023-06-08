@@ -11,7 +11,7 @@ from __future__ import annotations
 import math
 import types
 from typing import Union
-from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units
+from .data_model import KISAO_ALGORITHMS_MAP, KISAO_PARAMETERS_MAP, Units, CopasiAlgorithmType
 from biosimulators_utils.combine.data_model import CombineArchiveContentFormat
 from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveWriter
 from biosimulators_utils.config import get_config, Config  # noqa: F401
@@ -42,7 +42,29 @@ __all__ = [
 ]
 
 
-class CopasiAlgorithm:
+def create_algorithm_instance(self, algorithm_type: CopasiAlgorithmType):
+    if algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+    elif algorithm_type == CopasiAlgorithmType.GIBSON_BRUCK:
+        pass
+
+class CopasiAlgorithm_OLD:
     def __init__(self, kisao_id: str, copasi_algorithm_code: int, copasi_algorithm_name: str):
         self.kisao_id = kisao_id
         self.copasi_algorithm_code = copasi_algorithm_code
@@ -53,7 +75,7 @@ class CopasiAlgorithm:
 
 
 class BasicoInitialization:
-    def __init__(self, sim: UniformTimeCourseSimulation, algorithm_info: CopasiAlgorithm, variables: list[Variable]):
+    def __init__(self, sim: UniformTimeCourseSimulation, algorithm_info: CopasiAlgorithm_OLD, variables: list[Variable]):
         self.algorithm_info = algorithm_info
         self._sedml_var_to_copasi_name: dict[Variable, str] = _map_sedml_to_copasi(variables)
         self._sim = sim
@@ -87,7 +109,7 @@ class BasicoInitialization:
         return self.algorithm_info.copasi_algorithm_code
 
 
-def get_algorithm_id(kisao_id: str, events: bool = False, config: Config = None) -> CopasiAlgorithm:
+def get_algorithm_id(kisao_id: str, events: bool = False, config: Config = None) -> CopasiAlgorithm_OLD:
     """ Get the COPASI id for an algorithm
 
     Args:
@@ -128,7 +150,7 @@ def get_algorithm_id(kisao_id: str, events: bool = False, config: Config = None)
             exec_kisao_id = kisao_id
 
     alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
-    return CopasiAlgorithm(exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']), alg['id'])
+    return CopasiAlgorithm_OLD(exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']), alg['id'])
 
 
 def set_algorithm_parameter_value(algorithm_kisao_id: str, algorithm_function: types.FunctionType,

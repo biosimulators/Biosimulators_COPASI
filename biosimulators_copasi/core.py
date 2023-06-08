@@ -260,6 +260,7 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     # process solution algorithm
     has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
     algorithm_info = utils.get_algorithm_id(sim.algorithm.kisao_id, has_events, config)
+    funcs = basico.get_functions()
 
     basico.set_task_settings(basico.T.TIME_COURSE, {"scheduled": True})
     myList = basico.get_scheduled_tasks()
@@ -556,7 +557,7 @@ def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel, mod
     return legal_changes, illegal_changes
 
 
-def _load_algorithm_parameters(sim: Simulation, alg_info: utils.CopasiAlgorithm, config: Config = None):
+def _load_algorithm_parameters(sim: Simulation, alg_info: utils.CopasiAlgorithm_OLD, config: Config = None):
     # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     method_parameters = {}
     algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
