@@ -75,23 +75,28 @@ class CopasiAlgorithm_OLD:
 
 
 class BasicoInitialization:
-    def __init__(self, sim: UniformTimeCourseSimulation, algorithm_info: CopasiAlgorithm_OLD, variables: list[Variable]):
-        self.algorithm_info = algorithm_info
+    def __init__(self, sim: UniformTimeCourseSimulation, algorithm: CopasiAlgorithm, variables: list[Variable]):
+        self.algorithm = algorithm
         self._sedml_var_to_copasi_name: dict[Variable, str] = _map_sedml_to_copasi(variables)
         self._sim = sim
         self._duration_arg: float = self._sim.output_end_time - self._sim.initial_time
         self.number_of_steps = _calc_number_of_simulation_steps(self._sim, self._duration_arg)
 
     def get_simulation_configuration(self) -> dict:
-        return {
+        # Create basic config every simulation needs
+        config: dict[str, Union[bool, int, float, list]] = {
             "output_selection": list(self._sedml_var_to_copasi_name.values()),
             "use_initial_values": True,
             "update_model": False,
-            "method": self.algorithm_info.copasi_algorithm_name,
+            "method": self.algorithm.ID,
             "duration": self._duration_arg,
             "start_time": self._sim.output_start_time,
             "step_number": self.number_of_steps
         }
+
+        # Apply Overrides
+        config.update(self.algorithm.get_overrides())
+        return config
 
     def get_expected_output_length(self) -> int:
         return self.number_of_steps + 1
@@ -109,7 +114,9 @@ class BasicoInitialization:
         return self.algorithm_info.copasi_algorithm_code
 
 
-def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Config = None) -> CopasiAlgorithm:
+def get_algorithm(kisao_id: str, events_were_requested: bool = False,
+                  parameter_overrides: dict[str, Union[bool, int, float, list]] = {},
+                  config: Config = None) -> CopasiAlgorithm:
     """ Get the algorithm wrapper for a COPASI algorithm
 
         Args:
@@ -127,17 +134,18 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
         """
     # This step may not be necessary anymore
 
-    algorithm_kisao_to_class_map: dict[str, CopasiAlgorithm] = {
+    algorithm_kisao_to_class_map: dict [str, CopasiAlgorithm] = {
         CopasiAlgorithmType[alg_name].value.KISAO_ID : CopasiAlgorithmType[alg_name].value
         for alg_name, _ in CopasiAlgorithmType.__members__.items()
     }
 
     legal_alg_kisao_ids = [
-        kisao for kisao, obj in algorithm_kisao_to_class_map if not events_were_requested or obj.CAN_SUPPORT_EVENTS
+        kisao for kisao, obj in algorithm_kisao_to_class_map.items() if not events_were_requested or obj.CAN_SUPPORT_EVENTS
     ]
 
     if kisao_id in legal_alg_kisao_ids:
-        return _construct_algorithm(algorithm_kisao_to_class_map[kisao_id])
+        constructor = algorithm_kisao_to_class_map[kisao_id]
+        return constructor(**parameter_overrides)
 
     substitution_policy = get_algorithm_substitution_policy(config=config)
     try:
@@ -154,7 +162,8 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
             alt_kisao_id = kisao_id  # Admit defeat, this will cause a ValueError
 
     if alt_kisao_id in legal_alg_kisao_ids:
-        return _construct_algorithm(algorithm_kisao_to_class_map[alt_kisao_id])
+        constructor = algorithm_kisao_to_class_map[alt_kisao_id]
+        return constructor(**parameter_overrides)
 
     raise ValueError(f"No suitable equivalent for '{kisao_id}' could be found with the provided substitution policy")
 
@@ -555,6 +564,3 @@ def _calc_number_of_simulation_steps(sim: UniformTimeCourseSimulation, duration:
         raise TypeError('Time course must specify an integer number of time points')
 
     return int(step_number_arg)
-
-def _construct_algorithm(class_name, **kwargs):
-    return None

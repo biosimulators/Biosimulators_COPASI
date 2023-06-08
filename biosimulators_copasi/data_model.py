@@ -62,6 +62,12 @@ class CopasiAlgorithmParameter:
     def get_value(self) -> Union[int, str, float, bool, list]:
         raise NotImplementedError
 
+    def get_override_repr(self) -> dict:
+        if self.get_value() is None:
+            return {}
+
+        return {self.ID : self.get_value()}
+
     def __eq__(self, other: CopasiAlgorithmParameter) -> bool:
         if not isinstance(other, CopasiAlgorithmParameter):
             return False
@@ -78,7 +84,7 @@ class RelativeToleranceParameter(CopasiAlgorithmParameter):
     ID: str = "rel_tol"
     NAME: str = "Relative Tolerance"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -89,7 +95,7 @@ class AbsoluteToleranceParameter(CopasiAlgorithmParameter):
     ID: str = "abs_tol"
     NAME: str = "Relative Tolerance"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -100,7 +106,7 @@ class IntegrateReducedModelParameter(CopasiAlgorithmParameter):
     ID: str = "irm"
     NAME: str = "Integrate Reduced Model"
 
-    def __init__(self, value: bool):
+    def __init__(self, value: bool = None):
         self._value = value
 
     def get_value(self) -> bool:
@@ -111,7 +117,7 @@ class MaximumInternalStepsParameter(CopasiAlgorithmParameter):
     ID: str = "max_steps"
     NAME: str = "Max Internal Steps"
 
-    def __init__(self, value: int):
+    def __init__(self, value: int = None):
         self._value = value
 
     def get_value(self) -> int:
@@ -122,7 +128,7 @@ class MaximumInternalStepSizeParameter(CopasiAlgorithmParameter):
     ID: str = "max_step_size"
     NAME: str = "Max Internal Step Size"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -133,7 +139,7 @@ class RandomSeedParameter(CopasiAlgorithmParameter):
     ID: str = "random_seed"
     NAME: str = "Random Seed"
 
-    def __init__(self, value: int):
+    def __init__(self, value: int = None):
         self._value = value
 
     def get_value(self) -> int:
@@ -144,7 +150,7 @@ class EpsilonParameter(CopasiAlgorithmParameter):
     ID: str = "epsilon"
     NAME: str = "Epsilon"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -155,7 +161,7 @@ class LowerLimitParameter(CopasiAlgorithmParameter):
     ID: str = "lower_lim"
     NAME: str = "Lower Limit"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -166,7 +172,7 @@ class UpperLimitParameter(CopasiAlgorithmParameter):
     ID: str = "upper_lim"
     NAME: str = "Upper Limit"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -177,7 +183,7 @@ class PartitioningIntervalParameter(CopasiAlgorithmParameter):
     ID: str = "partitioning_interval"
     NAME: str = "Partitioning Interval"
 
-    def __init__(self, value: int):
+    def __init__(self, value: int = None):
         self._value = value
 
     def get_value(self) -> int:
@@ -188,7 +194,7 @@ class InitialStepSizeParameter(CopasiAlgorithmParameter):
     ID: str = "init_step_size"
     NAME: str = "Initial Step Size"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -206,7 +212,7 @@ class RungeKuttaStepSizeParameter(StepSizeParameter):
     ID: str = "rk_step_size"
     NAME: str = "Runge-Kutta Stepsize"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -216,7 +222,7 @@ class InternalStepParameter(StepSizeParameter):
     ID: str = "internal_step_size"
     NAME: str = "Internal Steps Size"
 
-    def __init__(self, value: float):
+    def __init__(self, value: float = None):
         self._value = value
 
     def get_value(self) -> float:
@@ -238,7 +244,7 @@ class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
     ID: str = "root_finder_tolerance"
     NAME: str = "Force Physical Correctness"
 
-    def __init__(self, value: bool):
+    def __init__(self, value: bool = None):
         self._value = value
 
     def get_value(self) -> bool:
@@ -249,7 +255,7 @@ class DeterministicReactionsParameter(CopasiAlgorithmParameter):
     ID: str = "root_finder_tolerance"
     NAME: str = "Deterministic Reactions"
 
-    def __init__(self, value: list):
+    def __init__(self, value: list = None):
         self._value = value
 
     def get_value(self) -> list:
@@ -267,13 +273,15 @@ class CopasiAlgorithm:
     def get_unit_set(self) -> Units:
         raise NotImplementedError
 
+    def get_overrides(self) -> dict:
+        raise NotImplementedError
 
 class GibsonBruckAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000027"
     ID: str = "stochastic"
     NAME: str = "Gibson + Bruck"
     CAN_SUPPORT_EVENTS: bool = True
-    def __init__(self, max_internal_steps: int, random_seed: int, units: Units = Units.discrete):
+    def __init__(self, max_internal_steps: int = None, random_seed: int = None, units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self._units = units
@@ -284,6 +292,12 @@ class GibsonBruckAlgorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.random_seed.get_override_repr())
+        return overrides
+
 
 class DirectMethodAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000029"
@@ -291,7 +305,7 @@ class DirectMethodAlgorithm(CopasiAlgorithm):
     NAME: str = "direct method"
     CAN_SUPPORT_EVENTS: bool = True
 
-    def __init__(self, max_internal_steps: int, random_seed: int, units: Units = Units.discrete):
+    def __init__(self, max_internal_steps: int = None, random_seed: int = None, units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self._units = units
@@ -302,6 +316,12 @@ class DirectMethodAlgorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.random_seed.get_override_repr())
+        return overrides
+
 
 class TauLeapAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000039"
@@ -309,7 +329,8 @@ class TauLeapAlgorithm(CopasiAlgorithm):
     NAME: str = "tau leap method"
     CAN_SUPPORT_EVENTS: bool = False
 
-    def __init__(self, max_internal_steps: int, random_seed: int, epsilon: float, units: Units = Units.discrete):
+    def __init__(self, max_internal_steps: int = None, random_seed: int = None, epsilon: float = None,
+                 units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self.epsilon = EpsilonParameter(epsilon)
@@ -321,6 +342,12 @@ class TauLeapAlgorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.random_seed.get_override_repr())
+        overrides.update(self.epsilon.get_override_repr())
+        return overrides
 
 class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000048"
@@ -328,7 +355,8 @@ class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
     NAME: str = "adaptive SSA + tau leap"
     CAN_SUPPORT_EVENTS: bool = True
 
-    def __init__(self, max_internal_steps: int, random_seed: int, epsilon: float, units: Units = Units.discrete):
+    def __init__(self, max_internal_steps: int = None, random_seed: int = None, epsilon: float = None,
+                 units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self.epsilon = EpsilonParameter(epsilon)
@@ -340,6 +368,12 @@ class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.random_seed.get_override_repr())
+        overrides.update(self.epsilon.get_override_repr())
+        return overrides
 
 class LsodaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000560"
@@ -347,8 +381,9 @@ class LsodaAlgorithm(CopasiAlgorithm):
     NAME: str = "LSODA/LSODAR"
     CAN_SUPPORT_EVENTS: bool = True
 
-    def __init__(self, relative_tolerance: float, absolute_tolerance: float, units, integrate_reduced_model: bool,
-                 max_internal_steps: int, max_internal_step_size: float, Units = Units.continuous):
+    def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
+                 integrate_reduced_model: bool = None, max_internal_steps: int = None,
+                 max_internal_step_size: float = None, units: Units = Units.continuous):
         self._units = units
         self.relative_tolerance = RelativeToleranceParameter(relative_tolerance)
         self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
@@ -362,6 +397,14 @@ class LsodaAlgorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.relative_tolerance.get_override_repr())
+        overrides.update(self.absolute_tolerance.get_override_repr())
+        overrides.update(self.integrate_reduced_model.get_override_repr())
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.max_internal_step_size.get_override_repr())
+        return overrides
 
 class Radau5Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000304"
@@ -369,8 +412,9 @@ class Radau5Algorithm(CopasiAlgorithm):
     NAME: str = "RADAU5"
     CAN_SUPPORT_EVENTS: bool = False
 
-    def __init__(self, relative_tolerance: float, absolute_tolerance: float, integrate_reduced_model: bool,
-                 max_internal_steps: int, initial_step_size: float, units: Units = Units.continuous):
+    def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
+                 integrate_reduced_model: bool = None, max_internal_steps: int = None, initial_step_size: float = None,
+                 units: Units = Units.continuous):
         self.relative_tolerance = RelativeToleranceParameter(relative_tolerance)
         self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
         self.integrate_reduced_model = IntegrateReducedModelParameter(integrate_reduced_model)
@@ -384,16 +428,24 @@ class Radau5Algorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
-
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.relative_tolerance.get_override_repr())
+        overrides.update(self.absolute_tolerance.get_override_repr())
+        overrides.update(self.integrate_reduced_model.get_override_repr())
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.initial_step_size.get_override_repr())
+        return overrides
 class HybridLsodaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000562"
     ID: str = "hybridlsoda"
     NAME: str = "hybrid(lsoda)"
     CAN_SUPPORT_EVENTS: bool = False
 
-    def __init__(self, relative_tolerance: float, absolute_tolerance: float, integrate_reduced_model: bool,
-                 max_internal_steps: int, max_internal_step_size: float, random_seed: int, lower_limit: float,
-                 upper_limit: float, partitioning_interval: float, units: Units = Units.discrete):
+    def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
+                 integrate_reduced_model: bool = None, max_internal_steps: int = None,
+                 max_internal_step_size: float = None, random_seed: int = None, lower_limit: float = None,
+                 upper_limit: float = None, partitioning_interval: float = None, units: Units = Units.discrete):
         self.relative_tolerance = RelativeToleranceParameter(relative_tolerance)
         self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
         self.integrate_reduced_model = IntegrateReducedModelParameter(integrate_reduced_model)
@@ -411,20 +463,33 @@ class HybridLsodaAlgorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.relative_tolerance.get_override_repr())
+        overrides.update(self.absolute_tolerance.get_override_repr())
+        overrides.update(self.integrate_reduced_model.get_override_repr())
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.max_internal_step_size.get_override_repr())
+        overrides.update(self.random_seed.get_override_repr())
+        overrides.update(self.lower_limit.get_override_repr())
+        overrides.update(self.upper_limit.get_override_repr())
+        overrides.update(self.partitioning_interval.get_override_repr())
+        return overrides
+
 class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000561"
     ID: str = "lsoda"  # Not implemented correctly, see above: `CopasiAlgorithmType`
     NAME: str = "hybrid(runge kutta)"
     CAN_SUPPORT_EVENTS: bool = False
 
-    def __init__(self, max_internal_steps: int, random_seed: int, lower_limit: float, upper_limit: float,
-                 step_size: float, units: Units = Units.discrete):
-        self._units = units
+    def __init__(self, max_internal_steps: int = None, random_seed: int = None, lower_limit: float = None,
+                 upper_limit: float = None, step_size: float = None, units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self.lower_limit = LowerLimitParameter(lower_limit)
         self.upper_limit = LowerLimitParameter(upper_limit)
         self.step_size = RungeKuttaStepSizeParameter(step_size)
+        self._units = units
 
     def get_copasi_id(self) -> str:
         return HybridRungeKuttaAlgorithm.ID
@@ -432,14 +497,24 @@ class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.random_seed.get_override_repr())
+        overrides.update(self.lower_limit.get_override_repr())
+        overrides.update(self.upper_limit.get_override_repr())
+        overrides.update(self.step_size.get_override_repr())
+        return overrides
+
 class HybridRK45Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000563"
     ID: str = "hybridode45"
     NAME: str = "hybrid (RK-45)"
     CAN_SUPPORT_EVENTS: bool = True
 
-    def __init__(self, relative_tolerance: float, absolute_tolerance:float, max_internal_steps: int,
-                 random_seed: int, deterministic_reactions: list, units: Units = Units.discrete):
+    def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
+                 max_internal_steps: int = None, random_seed: int = None, deterministic_reactions: list = None,
+                 units: Units = Units.discrete):
         self.relative_tolerance = RelativeToleranceParameter(relative_tolerance)
         self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
@@ -453,6 +528,14 @@ class HybridRK45Algorithm(CopasiAlgorithm):
     def get_unit_set(self) -> Units:
         return self._units
 
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.relative_tolerance.get_override_repr())
+        overrides.update(self.absolute_tolerance.get_override_repr())
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.random_seed.get_override_repr())
+        overrides.update(self.deterministic_reactions.get_override_repr())
+        return overrides
 
 class SDESolveRI5Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000566"
@@ -460,8 +543,9 @@ class SDESolveRI5Algorithm(CopasiAlgorithm):
     NAME: str = "SDE Solve (RI5)"
     CAN_SUPPORT_EVENTS: bool = True
 
-    def __init__(self, absolute_tolerance: float, max_internal_steps: int, step_size: float,
-                 tolerance_for_root_finder: float, force_physical_correctness: bool, units: Units = Units.continuous):
+    def __init__(self, absolute_tolerance: float = None, max_internal_steps: int = None, step_size: float = None,
+                 tolerance_for_root_finder: float = None, force_physical_correctness: bool = None,
+                 units: Units = Units.continuous):
         self.absolute_tolerance = AbsoluteToleranceParameter(absolute_tolerance)
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.step_size = InternalStepParameter(step_size)
@@ -474,6 +558,15 @@ class SDESolveRI5Algorithm(CopasiAlgorithm):
 
     def get_unit_set(self) -> Units:
         return self._units
+
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.absolute_tolerance.get_override_repr())
+        overrides.update(self.max_internal_steps.get_override_repr())
+        overrides.update(self.step_size.get_override_repr())
+        overrides.update(self.tolerance_for_root_finder.get_override_repr())
+        overrides.update(self.force_physical_correctness.get_override_repr())
+        return overrides
 
 class CopasiAlgorithmType(enum.Enum):
     GIBSON_BRUCK = GibsonBruckAlgorithm
