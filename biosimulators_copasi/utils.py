@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import builtins
 import math
 import types
 from typing import Union
@@ -17,7 +18,7 @@ from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveW
 from biosimulators_utils.config import get_config, Config  # noqa: F401
 from biosimulators_utils.data_model import ValueType
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
-from biosimulators_utils.sedml.data_model import Variable, UniformTimeCourseSimulation
+from biosimulators_utils.sedml.data_model import Variable, UniformTimeCourseSimulation, Algorithm, AlgorithmParameterChange
 from biosimulators_utils.utils.core import validate_str_value, parse_value
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from kisao.utils import get_preferred_substitute_algorithm_by_ids
@@ -105,18 +106,13 @@ class BasicoInitialization:
         return self._sedml_var_to_copasi_name.get(sedml_var)
 
     def get_KiSAO_id_for_KiSAO_algorithm(self) -> str:
-        return self.algorithm_info.kisao_id
+        return self.algorithm.KISAO_ID
 
-    def get_COPASI_algorithm_name(self) -> str:
-        return self.algorithm_info.copasi_algorithm_name
-
-    def get_COPASI_algorithm_code(self) -> int:
-        return self.algorithm_info.copasi_algorithm_code
+    def get_COPASI_algorithm_ID(self) -> str:
+        return self.algorithm.get_copasi_id()
 
 
-def get_algorithm(kisao_id: str, events_were_requested: bool = False,
-                  parameter_overrides: dict[str, Union[bool, int, float, list]] = {},
-                  config: Config = None) -> CopasiAlgorithm:
+def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Config = None) -> CopasiAlgorithm:
     """ Get the algorithm wrapper for a COPASI algorithm
 
         Args:
@@ -127,7 +123,6 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False,
 
         Returns:
             :obj:`tuple`:
-
                 * :obj:`str`: KiSAO id of algorithm to execute
                 * :obj:`int`: COPASI id for algorithm
                  * :obj:`str`: COPASI string name for algorithm
@@ -145,7 +140,7 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False,
 
     if kisao_id in legal_alg_kisao_ids:
         constructor = algorithm_kisao_to_class_map[kisao_id]
-        return constructor(**parameter_overrides)
+        return constructor()  # it is, in fact, callable
 
     substitution_policy = get_algorithm_substitution_policy(config=config)
     try:
@@ -163,7 +158,7 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False,
 
     if alt_kisao_id in legal_alg_kisao_ids:
         constructor = algorithm_kisao_to_class_map[alt_kisao_id]
-        return constructor(**parameter_overrides)
+        return constructor() # this too is, in fact, callable
 
     raise ValueError(f"No suitable equivalent for '{kisao_id}' could be found with the provided substitution policy")
 
@@ -209,6 +204,9 @@ def get_algorithm_id(kisao_id: str, events: bool = False, config: Config = None)
 
     alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
     return CopasiAlgorithm_OLD(exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']), alg['id'])
+
+def initialize_parameter_overrides(kisao_id: str, value: Union[bool, int, float, list]) -> dict [str, Union[bool, int, float, list]]:
+    pass
 
 
 def set_algorithm_parameter_value(algorithm_kisao_id: str, algorithm_function: types.FunctionType,
@@ -331,6 +329,44 @@ def set_algorithm_parameter_value(algorithm_kisao_id: str, algorithm_function: t
             args[parameter_name].append(rxn_common_name)
 
     return args
+
+def set_algorithm_parameter_values(copasi_algorithm: CopasiAlgorithm, requested_changes: list):
+    """ Set a parameter of a COPASI simulation function
+
+    Args:
+        algorithm_kisao_id (:obj:`str`): KiSAO algorithm id
+        algorithm_function (:obj:`types.FunctionType`): algorithm function
+        parameter_kisao_id (:obj:`str`): KiSAO parameter id
+        value (:obj:`string`): parameter value
+
+    Returns:
+        :obj:`dict`: names of the COPASI parameters that were set and their values
+    """
+    param_dict: dict[str, CopasiAlgorithmParameter] = copasi_algorithm.get_parameters_by_kisao()
+
+    change: AlgorithmParameterChange
+    legal_changes, illegal_changes = [], []
+    for change in requested_changes:
+        legal_changes.append(change) if param_dict.get(change.kisao_id) is not None else illegal_changes.append(change)
+
+    for change in legal_changes:
+        target = param_dict.get(change.kisao_id)
+        try:
+            target.set_value(change.new_value)
+        except ValueError:
+            illegal_changes.append(change)
+
+    if builtins.len(illegal_changes) == 0:
+        return
+
+    invalid_parameters = f"[{', '.join([change.kisao_id for change in illegal_changes])}]"
+    valid_parameters = "".join([f'\t- "{params.NAME}"({kisao})\n' for kisao, params in param_dict.items()])
+    (s, be) = ("s", "are") if builtins.len(invalid_parameters) > 1 else (s, are) = ("", "is")
+
+    error_message = f"Parameter{s} '{invalid_parameters}' {be} either not supported, or a bad value.\n\n" + \
+                    f"COPASI supports the following parameters:\n{valid_parameters}"
+    raise NotImplementedError(error_message)
+
 
 
 def get_copasi_model_object_by_sbml_id(model: COPASI.CModel, id: str, units: Units):

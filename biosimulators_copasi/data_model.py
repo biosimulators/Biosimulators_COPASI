@@ -54,6 +54,7 @@ class Units(str, enum.Enum):
     discrete = 'discrete'
     continuous = 'continuous'
 
+
 class CopasiAlgorithmParameter:
     KISAO_ID: str
     ID: str
@@ -62,22 +63,26 @@ class CopasiAlgorithmParameter:
     def get_value(self) -> Union[int, str, float, bool, list]:
         raise NotImplementedError
 
+    def set_value(self, new_value: Union[int, str, float, bool, list]):
+        raise NotImplementedError
+
     def get_override_repr(self) -> dict:
         if self.get_value() is None:
             return {}
 
-        return {self.ID : self.get_value()}
+        return {self.ID: self.get_value()}
 
     def __eq__(self, other: CopasiAlgorithmParameter) -> bool:
         if not isinstance(other, CopasiAlgorithmParameter):
             return False
         other_value = other.get_value()
-        if type(other_value) != type(self.get_value()):
+        if isinstance(other_value, type(self.get_value())):
             return False
         return other.get_value() == self.get_value()
 
     def __ne__(self, other: RelativeToleranceParameter) -> bool:
         return not self.__eq__(other)
+
 
 class RelativeToleranceParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000209"
@@ -85,10 +90,16 @@ class RelativeToleranceParameter(CopasiAlgorithmParameter):
     NAME: str = "Relative Tolerance"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class AbsoluteToleranceParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000211"
@@ -96,10 +107,16 @@ class AbsoluteToleranceParameter(CopasiAlgorithmParameter):
     NAME: str = "Relative Tolerance"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class IntegrateReducedModelParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000216"
@@ -107,10 +124,16 @@ class IntegrateReducedModelParameter(CopasiAlgorithmParameter):
     NAME: str = "Integrate Reduced Model"
 
     def __init__(self, value: bool = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> bool:
         return self._value
+
+    def set_value(self, new_value: bool):
+        if not isinstance(new_value, bool):
+            raise ValueError
+        self._value = new_value
+
 
 class MaximumInternalStepsParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000415"
@@ -118,10 +141,16 @@ class MaximumInternalStepsParameter(CopasiAlgorithmParameter):
     NAME: str = "Max Internal Steps"
 
     def __init__(self, value: int = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> int:
         return self._value
+
+    def set_value(self, new_value: int):
+        if not isinstance(new_value, int):
+            raise ValueError
+        self._value = new_value
+
 
 class MaximumInternalStepSizeParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000467"
@@ -129,10 +158,16 @@ class MaximumInternalStepSizeParameter(CopasiAlgorithmParameter):
     NAME: str = "Max Internal Step Size"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class RandomSeedParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000488"
@@ -140,10 +175,16 @@ class RandomSeedParameter(CopasiAlgorithmParameter):
     NAME: str = "Random Seed"
 
     def __init__(self, value: int = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> int:
         return self._value
+
+    def set_value(self, new_value: int):
+        if not isinstance(new_value, int):
+            raise ValueError
+        self._value = new_value
+
 
 class EpsilonParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000228"
@@ -151,10 +192,16 @@ class EpsilonParameter(CopasiAlgorithmParameter):
     NAME: str = "Epsilon"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class LowerLimitParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000203"
@@ -162,10 +209,16 @@ class LowerLimitParameter(CopasiAlgorithmParameter):
     NAME: str = "Lower Limit"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class UpperLimitParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000204"
@@ -173,10 +226,16 @@ class UpperLimitParameter(CopasiAlgorithmParameter):
     NAME: str = "Upper Limit"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class PartitioningIntervalParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000205"
@@ -184,10 +243,16 @@ class PartitioningIntervalParameter(CopasiAlgorithmParameter):
     NAME: str = "Partitioning Interval"
 
     def __init__(self, value: int = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> int:
         return self._value
+
+    def set_value(self, new_value: int):
+        if not isinstance(new_value, int):
+            raise ValueError
+        self._value = new_value
+
 
 class InitialStepSizeParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000559"
@@ -195,10 +260,16 @@ class InitialStepSizeParameter(CopasiAlgorithmParameter):
     NAME: str = "Initial Step Size"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class StepSizeParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000483"
@@ -208,25 +279,41 @@ class StepSizeParameter(CopasiAlgorithmParameter):
     def get_value(self) -> float:
         raise NotImplementedError
 
+    def set_value(self, new_value: float):
+        raise NotImplementedError
+
+
 class RungeKuttaStepSizeParameter(StepSizeParameter):
     ID: str = "rk_step_size"
     NAME: str = "Runge-Kutta Stepsize"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class InternalStepParameter(StepSizeParameter):
     ID: str = "internal_step_size"
     NAME: str = "Internal Steps Size"
 
     def __init__(self, value: float = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class ToleranceForRootFinderParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000565"
@@ -234,10 +321,16 @@ class ToleranceForRootFinderParameter(CopasiAlgorithmParameter):
     NAME: str = "Tolerance for Root Finder"
 
     def __init__(self, value: float):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
+
+    def set_value(self, new_value: float):
+        if not isinstance(new_value, float):
+            raise ValueError
+        self._value = new_value
+
 
 class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000567"
@@ -245,10 +338,16 @@ class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
     NAME: str = "Force Physical Correctness"
 
     def __init__(self, value: bool = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> bool:
         return self._value
+
+    def set_value(self, new_value: bool):
+        if not isinstance(new_value, bool):
+            raise ValueError
+        self._value = new_value
+
 
 class DeterministicReactionsParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000534"
@@ -256,16 +355,30 @@ class DeterministicReactionsParameter(CopasiAlgorithmParameter):
     NAME: str = "Deterministic Reactions"
 
     def __init__(self, value: list = None):
-        self._value = value
+        self.set_value(value)
 
     def get_value(self) -> list:
         return self._value
+
+    def set_value(self, new_value: list):
+        if not isinstance(new_value, list):
+            raise ValueError
+        self._value = new_value
+
 
 class CopasiAlgorithm:
     KISAO_ID: str
     ID: CopasiAlgorithmType
     NAME: str
     CAN_SUPPORT_EVENTS: bool
+
+    def get_parameters_by_kisao(self) -> dict[str, CopasiAlgorithmParameter]:
+        return {
+            getattr(self, member).KISAO_ID : getattr(self, member)
+            for member in dir(self)
+            if isinstance(getattr(self, member), CopasiAlgorithmParameter)
+        }
+
 
     def get_copasi_id(self) -> str:
         raise NotImplementedError
@@ -276,11 +389,13 @@ class CopasiAlgorithm:
     def get_overrides(self) -> dict:
         raise NotImplementedError
 
+
 class GibsonBruckAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000027"
     ID: str = "stochastic"
     NAME: str = "Gibson + Bruck"
     CAN_SUPPORT_EVENTS: bool = True
+
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
@@ -349,6 +464,7 @@ class TauLeapAlgorithm(CopasiAlgorithm):
         overrides.update(self.epsilon.get_override_repr())
         return overrides
 
+
 class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000048"
     ID: str = "adaptivesa"
@@ -374,6 +490,7 @@ class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
         overrides.update(self.random_seed.get_override_repr())
         overrides.update(self.epsilon.get_override_repr())
         return overrides
+
 
 class LsodaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000560"
@@ -406,6 +523,7 @@ class LsodaAlgorithm(CopasiAlgorithm):
         overrides.update(self.max_internal_step_size.get_override_repr())
         return overrides
 
+
 class Radau5Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000304"
     ID: str = "radau5"
@@ -436,6 +554,8 @@ class Radau5Algorithm(CopasiAlgorithm):
         overrides.update(self.max_internal_steps.get_override_repr())
         overrides.update(self.initial_step_size.get_override_repr())
         return overrides
+
+
 class HybridLsodaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000562"
     ID: str = "hybridlsoda"
@@ -476,9 +596,10 @@ class HybridLsodaAlgorithm(CopasiAlgorithm):
         overrides.update(self.partitioning_interval.get_override_repr())
         return overrides
 
+
 class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000561"
-    ID: str = "lsoda"  # Not implemented correctly, see above: `CopasiAlgorithmType`
+    ID: str = "hybrid"
     NAME: str = "hybrid(runge kutta)"
     CAN_SUPPORT_EVENTS: bool = False
 
@@ -505,6 +626,7 @@ class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
         overrides.update(self.upper_limit.get_override_repr())
         overrides.update(self.step_size.get_override_repr())
         return overrides
+
 
 class HybridRK45Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000563"
@@ -537,6 +659,7 @@ class HybridRK45Algorithm(CopasiAlgorithm):
         overrides.update(self.deterministic_reactions.get_override_repr())
         return overrides
 
+
 class SDESolveRI5Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000566"
     ID: str = "sde"
@@ -568,6 +691,7 @@ class SDESolveRI5Algorithm(CopasiAlgorithm):
         overrides.update(self.force_physical_correctness.get_override_repr())
         return overrides
 
+
 class CopasiAlgorithmType(enum.Enum):
     GIBSON_BRUCK = GibsonBruckAlgorithm
     DIRECT_METHOD = DirectMethodAlgorithm
@@ -576,9 +700,13 @@ class CopasiAlgorithmType(enum.Enum):
     LSODA = LsodaAlgorithm
     RADAU5 = Radau5Algorithm
     HYBRID_LSODA = HybridLsodaAlgorithm
-    #HYBRID_RUNGE_KUTTA = None  # Not yet implemented in basico! See `baisco.task_timecourse.__method_name_to_type`
+    HYBRID_RUNGE_KUTTA = HybridRungeKuttaAlgorithm
     HYBRID_RK45 = HybridRK45Algorithm
     SDE_SOLVE_RI5 = SDESolveRI5Algorithm
+
+KISAO_TRANSLATION_MAP = {
+    'KISAO_0000027' : GibsonBruckAlgorithm
+}
 
 KISAO_ALGORITHMS_MAP = collections.OrderedDict([
     ('KISAO_0000027', {

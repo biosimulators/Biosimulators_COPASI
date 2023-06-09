@@ -190,7 +190,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: util
     if config.LOG:
         log.algorithm = preprocessed_task.get_KiSAO_id_for_KiSAO_algorithm()
         log.simulator_details = {
-            'methodName': preprocessed_task.get_COPASI_algorithm_name(),
+            'methodName': preprocessed_task.get_COPASI_algorithm_ID(),
             'methodCode': preprocessed_task.get_COPASI_algorithm_code(),
             'parameters': None,
         }
@@ -555,8 +555,42 @@ def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel, mod
 
     return legal_changes, illegal_changes
 
+def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAlgorithm, config: Config = None):
+    # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
+    method_parameters = {}
+    algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
+    requested_algorithm: Algorithm = sim.algorithm
+    if copasi_algorithm.KISAO_ID != requested_algorithm.kisao_id:
+        return
 
-def _load_algorithm_parameters(sim: Simulation, alg_info: utils.CopasiAlgorithm_OLD, config: Config = None):
+    try:
+        utils.set_algorithm_parameter_values(copasi_algorithm, requested_algorithm.changes)
+    except NotImplementedError or ValueError as exception:
+        pass
+
+    for change in requested_algorithm.changes:
+        try:
+            change_args = utils.set_algorithm_parameter_value(alg_info.kisao_id, copasi_method,
+                                                              change.kisao_id, change.new_value)
+            for key, val in change_args.items():
+                method_parameters[key] = val
+        except NotImplementedError or ValueError as exception:
+            selected_sub_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
+            zero_substitution_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
+            if selected_sub_policy <= zero_substitution_policy:
+                raise
+
+            reformatted_error_message = str(exception).replace('\n', '\n  ')
+            if isinstance(exception, NotImplementedError):
+                warning_message = 'Unsupported algorithm parameter `{}` was ignored:\n  {}'
+                warning_message = warning_message.format(change.kisao_id, reformatted_error_message)
+            else:
+                warning_message = 'Unsupported value `{}` for algorithm parameter `{}` was ignored:\n  {}'
+                warning_message = warning_message.format(change.new_value, change.kisao_id, reformatted_error_message)
+
+            warn(warning_message, BioSimulatorsWarning)
+
+def _load_algorithm_parameters_old(sim: Simulation, alg_info: utils.CopasiAlgorithm_OLD, config: Config = None):
     # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     method_parameters = {}
     algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
