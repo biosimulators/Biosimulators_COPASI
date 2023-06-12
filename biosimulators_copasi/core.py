@@ -7,8 +7,6 @@
 :License: MIT
 """
 from __future__ import annotations
-import typing
-from typing import Tuple, List
 
 import biosimulators_utils.combine.exec as bsu_combine
 import biosimulators_utils.sedml.exec as bsu_exec
@@ -31,9 +29,9 @@ from biosimulators_utils.sedml import validation
 from biosimulators_utils.utils.core import raise_errors_warnings
 from biosimulators_utils.warnings import warn, BioSimulatorsWarning
 from kisao.data_model import AlgorithmSubstitutionPolicy as AlgSubPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
-from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP, Units
+from biosimulators_copasi.data_model import Units
 
-#from .utils import (get_algorithm_id, set_algorithm_parameter_value, get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids)
+# from .utils import (get_algorithm_id, set_algorithm_parameter_value, get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids)
 import basico
 import COPASI
 import lxml
@@ -45,6 +43,8 @@ import tempfile
 __all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
 
 proper_args: dict = {}
+
+
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Config = None,
                                        should_fix_copasi_generated_combine_archive: bool = None) -> tuple:
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
@@ -191,7 +191,6 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: util
         log.algorithm = preprocessed_task.get_KiSAO_id_for_KiSAO_algorithm()
         log.simulator_details = {
             'methodName': preprocessed_task.get_COPASI_algorithm_ID(),
-            'methodCode': preprocessed_task.get_COPASI_algorithm_code(),
             'parameters': None,
         }
 
@@ -199,18 +198,17 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: util
     return variable_results, log
 
 
-def get_copasi_error_message(algorithm_kisao_id, details=None):
+def get_copasi_error_message(sim: Simulation, details=None):
     """ Get an error message from COPASI
 
     Args:
-        algorithm_kisao_id (:obj:`str`): KiSAO id of algorithm of failed simulation
+        sim (:obj:`Simulation`): KiSAO id of algorithm of failed simulation
         details (:obj:`str`, optional): details of of error
 
     Returns:
         :obj:`str`: COPASI error message
     """
-    error_msg = 'Simulation with algorithm {} ({}) failed'.format(
-        algorithm_kisao_id, KISAO_ALGORITHMS_MAP.get(algorithm_kisao_id, {}).get('name', 'N/A'))
+    error_msg = f"Simulation with name {sim.name}(id='{sim.id}')"
     if not details:
         details = COPASI.CCopasiMessage.getLastMessage().getText()
     if details:
@@ -270,217 +268,10 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     _load_algorithm_parameters(sim, copasi_algorithm, config)
 
     # process model changes
-    _apply_model_changes(model, basico_data_model, model_change_target_sbml_id_map, copasi_algorithm.KISAO_ID)
+    _apply_model_changes(model, copasi_algorithm)
 
     # Create and return preprocessed simulation settings
     preprocessed_info = utils.BasicoInitialization(utc_sim, copasi_algorithm, variables)
-    return preprocessed_info
-
-def old_preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None):
-    """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
-    repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
-
-    Args:
-        task (:obj:`Task`): task
-        variables (:obj:`list` of :obj:`Variable`): variables that should be recorded
-        config (:obj:`Config`, optional): BioSimulators common configuration
-
-    Returns:
-        :obj:`dict`: preprocessed information about the task
-    """
-    config: Config = config or bsu_config.get_config()
-
-    model: Model = task.model
-    sim: Simulation = task.simulation
-
-    if config.VALIDATE_SEDML:
-        _validate_sedml(task, model, sim, variables)
-
-    model_etree = lxml.etree.parse(model.source)
-    model_change_target_sbml_id_map: dict = validation.validate_target_xpaths(model.changes, model_etree, attr='id')
-    variable_target_sbml_id_map: dict = validation.validate_target_xpaths(variables, model_etree, attr='id')
-
-    if config.VALIDATE_SEDML_MODELS:
-        raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
-                              error_summary=f'Model `{model.id}` is invalid.',
-                              warning_summary=f'Model `{model.id}` may be invalid.')
-
-    # Read the SBML-encoded model located at `os.path.join(working_dir, model_filename)`
-    copasi_data_model: COPASI.CDataModel = COPASI.CRootContainer.addDatamodel()
-    if not copasi_data_model.importSBML(model.source):
-        copasi_error_message = get_copasi_error_message(sim.algorithm.kisao_id).replace('\n', "\n  ")
-        raise ValueError(f"`{model.source}` could not be imported:\n\n  {copasi_error_message}")
-    copasi_model: COPASI.CModel = copasi_data_model.getModel()
-
-    # determine the algorithm to execute
-    alg_kisao_id: str = sim.algorithm.kisao_id
-    has_events: bool = copasi_model.getNumEvents() >= 1
-    exec_alg_kisao_id, alg_copasi_id, alg_copasi_str_id = \
-        utils.get_algorithm_id(alg_kisao_id, events=has_events, config=config).to_tuple()
-
-    # initialize COPASI task
-    copasi_task: COPASI.CCopasiTask = copasi_data_model.getTask('Time-Course')
-
-    # Load the algorithm specified by `simulation.algorithm`
-    if not copasi_task.setMethodType(alg_copasi_id):
-        raise RuntimeError(f'Unable to initialize function for {exec_alg_kisao_id}')
-        # pragma: no cover # unreachable because :obj:`get_algorithm_id` returns valid COPASI method ids
-    copasi_method: COPASI.CCopasiMethod = copasi_task.getMethod()
-
-    # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
-    method_parameters = {}
-    algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
-    if exec_alg_kisao_id == alg_kisao_id:
-        for change in sim.algorithm.changes:
-            try:
-                change_args = utils.set_algorithm_parameter_value(exec_alg_kisao_id, copasi_method,
-                                                                  change.kisao_id, change.new_value)
-                for key, val in change_args.items():
-                    method_parameters[key] = val
-            except NotImplementedError as exception:
-                if (
-                        ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
-                        > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
-                ):
-                    warn('Unsupported algorithm parameter `{}` was ignored:\n  {}'.format(
-                        change.kisao_id, str(exception).replace('\n', '\n  ')),
-                        BioSimulatorsWarning)
-                else:
-                    raise
-            except ValueError as exception:
-                if (
-                        ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
-                        > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
-                ):
-                    warn('Unsuported value `{}` for algorithm parameter `{}` was ignored:\n  {}'.format(
-                        change.new_value, change.kisao_id, str(exception).replace('\n', '\n  ')),
-                        BioSimulatorsWarning)
-                else:
-                    raise
-
-    # validate model changes
-    model_change_obj_map = {}
-
-    invalid_changes = []
-
-    units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
-    for change in model.changes:
-        target_sbml_id = model_change_target_sbml_id_map[change.target]
-        copasi_model_obj = utils.get_copasi_model_object_by_sbml_id(copasi_model, target_sbml_id, units)
-        if copasi_model_obj is None:
-            invalid_changes.append(change.target)
-        else:
-            model_obj_parent = copasi_model_obj.getObjectParent()
-
-            if isinstance(model_obj_parent, COPASI.CCompartment):
-                set_func = model_obj_parent.setInitialValue
-                ref = model_obj_parent.getInitialValueReference()
-
-            elif isinstance(model_obj_parent, COPASI.CModelValue):
-                set_func = model_obj_parent.setInitialValue
-                ref = model_obj_parent.getInitialValueReference()
-
-            elif isinstance(model_obj_parent, COPASI.CMetab):
-                if units == Units.discrete:
-                    set_func = model_obj_parent.setInitialValue
-                    ref = model_obj_parent.getInitialValueReference()
-                else:
-                    set_func = model_obj_parent.setInitialConcentration
-                    ref = model_obj_parent.getInitialConcentrationReference()
-
-            elif isinstance(model_obj_parent, COPASI.CReaction):
-                if units == Units.discrete:
-                    set_func = model_obj_parent.setInitialValue
-                    ref = model_obj_parent.getInitialValueReference()
-                else:
-                    set_func = model_obj_parent.setInitialConcentration
-                    ref = model_obj_parent.getInitialConcentrationReference()
-
-            model_change_obj_map[change.target] = (set_func, ref)
-
-    if invalid_changes:
-        raise ValueError(''.join([
-            'The following change targets are invalid:\n  - {}\n\n'.format(
-                '\n  - '.join(sorted(invalid_changes)),
-            ),
-            'Targets must have one of the following ids:\n  - {}'.format(
-                '\n  - '.join(sorted(utils.get_copasi_model_obj_sbml_ids(copasi_model))),
-            ),
-        ]))
-
-    # set up observables of the task
-    # due to a COPASI bug, :obj:`COPASI.CCopasiTask.initializeRawWithOutputHandler` must be called after
-    # :obj:`COPASI.CCopasiTask.setMethodType`
-    variable_common_name_map = {}
-
-    invalid_symbols = []
-    invalid_targets = []
-
-    for variable in variables:
-        copasi_model_obj_common_name: str = None
-        if variable.symbol:
-            if variable.symbol == Symbol.time.value:
-                copasi_model_obj_common_name = copasi_model.getValueReference().getCN().getString()
-            else:
-                invalid_symbols.append(variable.symbol)
-
-        else:
-            target_sbml_id: str = variable_target_sbml_id_map[variable.target]
-
-            copasi_model_obj: COPASI.CDataObject = utils.get_copasi_model_object_by_sbml_id(copasi_model, target_sbml_id,
-                                                                  KISAO_ALGORITHMS_MAP[exec_alg_kisao_id][
-                                                                      'default_units'])
-            if copasi_model_obj is None:
-                invalid_targets.append(variable.target)
-            else:
-                copasi_model_obj_common_name = copasi_model_obj.getCN().getString()
-
-        if copasi_model_obj_common_name is not None:
-            variable_common_name_map[(variable.target, variable.symbol)] = COPASI.CRegisteredCommonName(
-                copasi_model_obj_common_name)
-
-    if invalid_symbols:
-        raise NotImplementedError("".join([
-            "The following variable symbols are not supported:\n  - {}\n\n".format(
-                '\n  - '.join(sorted(invalid_symbols)),
-            ),
-            "Symbols must be one of the following:\n  - {}".format(Symbol.time),
-        ]))
-
-    if invalid_targets:
-        raise ValueError(''.join([
-            'The following variable targets cannot be recorded:\n  - {}\n\n'.format(
-                '\n  - '.join(sorted(invalid_targets)),
-            ),
-            'Targets must have one of the following ids:\n  - {}'.format(
-                '\n  - '.join(sorted(utils.get_copasi_model_obj_sbml_ids(copasi_model))),
-            ),
-        ]))
-
-    # Execute simulation
-    copasi_task.setScheduled(True)
-
-    copasi_problem = copasi_task.getProblem()
-    copasi_problem.setTimeSeriesRequested(False)
-    copasi_problem.setAutomaticStepSize(False)
-    copasi_problem.setOutputEvent(False)
-
-    # return preprocessed info
-    preprocessed_info = {
-        'task': copasi_task,
-        'model': {
-            'model': copasi_model,
-            'model_change_obj_map': model_change_obj_map,
-            'variable_common_name_map': variable_common_name_map,
-        },
-        'simulation': {
-            'algorithm_kisao_id': exec_alg_kisao_id,
-            'algorithm_copasi_id': alg_copasi_id,
-            'method_name': KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['id'],
-            'method_parameters': method_parameters,
-        },
-    }
-
     return preprocessed_info
 
 
@@ -489,6 +280,7 @@ def _fix_time_name(var: Variable, new_name: str) -> Variable:
     list_args[1] = new_name
     args = tuple(list_args)
     return Variable(*args)
+
 
 def _get_copasi_fixed_archive(archive_filename: bytes | str):
     temp_archive_file: int
@@ -527,9 +319,9 @@ def _validate_sedml(task: Task, model: Model, sim: Simulation, variables: list[V
     bsu_util_core.raise_errors_warnings(*simulation_errors_list, error_summary=invalid_sim)
     bsu_util_core.raise_errors_warnings(*data_generator_errors_list, error_summary=invalid_data_gen)
 
+
 def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgorithm) \
         -> tuple[list[ModelAttributeChange], list[ModelChange]]:
-
     legal_changes: list[ModelAttributeChange] = []
     illegal_changes: list[ModelChange] = []
 
@@ -541,46 +333,39 @@ def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgor
     change: ModelChange
     for change in sedml_model.changes:
         legal_changes.append(change) if isinstance(change, ModelAttributeChange) else illegal_changes.append(change)
-    pseudo_variable_map = {change: Variable(change.id, change.name, change.target, change.target_namespaces) \
-                        for change in legal_changes}
+    pseudo_variable_map = {change: Variable(change.id, change.name, change.target, change.target_namespaces)
+                           for change in legal_changes}
     variable_to_target_sbml_id = utils._map_sedml_to_sbml_ids(list(pseudo_variable_map.values()))
-    change_to_sbml_id_map = {change: variable_to_target_sbml_id[pseudo_variable_map[change]] \
-                        for change in legal_changes}
+    change_to_sbml_id_map = {change: variable_to_target_sbml_id[pseudo_variable_map[change]]
+                             for change in legal_changes}
     units = copasi_algorithm.get_unit_set()
     model_change: ModelAttributeChange
     for model_change in change_to_sbml_id_map.keys():
-        metabolite = basico.get_species(sbml_id=change_to_sbml_id_map[model_change])
-        if
+        sbml_id = change_to_sbml_id_map[model_change]
+        metabolite = basico.get_species(sbml_id=sbml_id)
+        if metabolite is not None:
+            if units == Units.continuous:
+                basico.set_species(sbml_id=sbml_id, initial_concentration=model_change.new_value)
+            else:
+                basico.set_species(sbml_id=sbml_id, initial_particle_number=model_change.new_value)
+            continue
 
+        compartment = basico.get_compartments(sbml_id=sbml_id)
+        if compartment is not None:
+            basico.set_compartment(sbml_id=sbml_id, initial_size=model_change.new_value)
+            continue
 
-    return legal_changes, illegal_changes
+        #reaction = basico.get_reactions(sbml_id=sbml_id)
+        #if reaction is not None:
+        #    basico.set_reaction(sbml_id=sbml_id, ???)
+        #    continue
 
-
-def _apply_model_changes_old(model: Model, basico_data_model: COPASI.CDataModel, model_change_target_sbml_id_map: dict,
-                         exec_alg_kisao_id: str) -> tuple[list[ModelAttributeChange], list[ModelChange]]:
-
-    legal_changes: list[ModelAttributeChange] = []
-    illegal_changes: list[ModelChange] = []
-
-    # If there's no changes, get out of here
-    if not model.changes:
-        return legal_changes, illegal_changes
-
-    # check if there's anything but ChangeAttribute type changes
-    change: ModelChange
-    for change in model.changes:
-        legal_changes.append(change) if isinstance(change, ModelAttributeChange) else illegal_changes.append(change)
-
-    units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
-    c_model = basico_data_model.getModel()
-    model_change: ModelAttributeChange
-    for model_change in legal_changes:
-        target_sbml_id = model_change_target_sbml_id_map[model_change.target]
-        copasi_model_obj = utils.get_copasi_model_object_by_sbml_id(c_model, target_sbml_id, units)
-        if copasi_model_obj is None:
-            illegal_changes.append(model_change.target)
+        illegal_changes.append(model_change)
+        raise ValueError(f"Change [id='{model_change.id}', name='{model_change.name}', " +
+                         f"target='{model_change.target}', value='{model_change.new_value}' is invalid!")
 
     return legal_changes, illegal_changes
+
 
 def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAlgorithm, config: Config = None):
     # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`

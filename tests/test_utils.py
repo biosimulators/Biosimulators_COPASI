@@ -11,35 +11,32 @@ import unittest
 
 class UtilsTestCase(unittest.TestCase):
     def test_get_algorithm_id(self):
-        self.assertEqual(utils.get_algorithm_id('KISAO_0000027').to_tuple(),
-                         ('KISAO_0000027', COPASI.CTaskEnum.Method_stochastic, "stochastic"))
+        self.assertEqual(utils.get_algorithm('KISAO_0000027'), data_model.GibsonBruckAlgorithm())
 
-        self.assertEqual(utils.get_algorithm_id('KISAO_0000560').to_tuple(),
-                         ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
+        self.assertEqual(utils.get_algorithm('KISAO_0000560'), data_model.LsodaAlgorithm())
 
         with self.assertWarns(AlgorithmSubstitutedWarning):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000088').to_tuple(),
-                             ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
+            self.assertEqual(utils.get_algorithm('KISAO_0000088'), data_model.LsodaAlgorithm())
 
         with self.assertWarns(AlgorithmSubstitutedWarning):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000089').to_tuple(),
-                             ('KISAO_0000560', COPASI.CTaskEnum.Method_deterministic, "deterministic"))
+            self.assertEqual(utils.get_algorithm('KISAO_0000089'), data_model.LsodaAlgorithm())
 
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'NONE'}):
             with self.assertRaises(AlgorithmCannotBeSubstitutedException):
-                utils.get_algorithm_id('KISAO_0000088')
+                utils.get_algorithm('KISAO_0000088')
 
         with self.assertRaises(AlgorithmCannotBeSubstitutedException):
-            utils.get_algorithm_id('KISAO_0000450')
+            utils.get_algorithm('KISAO_0000450')
 
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_MATH'}):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=False).kisao_id, 'KISAO_0000561')
+            self.assertEqual(utils.get_algorithm('KISAO_0000561', False).KISAO_ID, 'KISAO_0000561')
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=False).kisao_id, 'KISAO_0000561')
+            self.assertEqual(utils.get_algorithm('KISAO_0000561', False).KISAO_ID, 'KISAO_0000561')
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_MATH'}):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=True).kisao_id, 'KISAO_0000561')
+            with self.assertRaises(ValueError):
+                utils.get_algorithm('KISAO_0000561', True)
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
-            self.assertEqual(utils.get_algorithm_id('KISAO_0000561', events=True).kisao_id, 'KISAO_0000563')
+            self.assertEqual(utils.get_algorithm('KISAO_0000561', True).KISAO_ID, 'KISAO_0000563')
 
     def test_set_function_boolean_parameter(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()

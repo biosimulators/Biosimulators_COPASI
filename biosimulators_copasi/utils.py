@@ -35,7 +35,6 @@ import pandas
 
 
 __all__ = [
-    'get_algorithm_id',
     'set_algorithm_parameter_value',
     'get_copasi_model_object_by_sbml_id',
     'get_copasi_model_obj_sbml_ids',
@@ -122,10 +121,7 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
             config (:obj:`Config`, optional): configuration
 
         Returns:
-            :obj:`tuple`:
-                * :obj:`str`: KiSAO id of algorithm to execute
-                * :obj:`int`: COPASI id for algorithm
-                 * :obj:`str`: COPASI string name for algorithm
+           :obj:`CopasiAlgorithm`: The copasi algorithm deemed suitable
         """
     # This step may not be necessary anymore
 
@@ -135,7 +131,8 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
     }
 
     legal_alg_kisao_ids = [
-        kisao for kisao, obj in algorithm_kisao_to_class_map.items() if not events_were_requested or obj.CAN_SUPPORT_EVENTS
+        kisao for kisao, obj in algorithm_kisao_to_class_map.items()
+        if not events_were_requested or obj.CAN_SUPPORT_EVENTS
     ]
 
     if kisao_id in legal_alg_kisao_ids:
@@ -150,7 +147,7 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
         similar_approx = AlgorithmSubstitutionPolicy.SIMILAR_APPROXIMATIONS
         selected_substitution_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy]
         needed_substitution_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[similar_approx]
-        substitution_policy_is_sufficient =  selected_substitution_policy >= needed_substitution_policy
+        substitution_policy_is_sufficient = selected_substitution_policy >= needed_substitution_policy
         if events_were_requested and kisao_id in other_hybrid_methods and substitution_policy_is_sufficient:
             alt_kisao_id = 'KISAO_0000563'  # Hybrid Runge Kutta RK45 method
         else:
@@ -161,49 +158,6 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
         return constructor() # this too is, in fact, callable
 
     raise ValueError(f"No suitable equivalent for '{kisao_id}' could be found with the provided substitution policy")
-
-def get_algorithm_id(kisao_id: str, events: bool = False, config: Config = None) -> CopasiAlgorithm_OLD:
-    """ Get the COPASI id for an algorithm
-
-    Args:
-        kisao_id (:obj:`str`): KiSAO algorithm id
-        events (:obj:`bool`, optional): whether an algorithm that supports
-            events is needed
-        config (:obj:`Config`, optional): configuration
-
-    Returns:
-        :obj:`tuple`:
-
-            * :obj:`str`: KiSAO id of algorithm to execute
-            * :obj:`int`: COPASI id for algorithm
-             * :obj:`str`: COPASI string name for algorithm
-    """
-    possible_alg_kisao_ids = [
-        id
-        for id, props in KISAO_ALGORITHMS_MAP.items()
-        if not events or props['supports_events']
-    ]
-
-    substitution_policy = get_algorithm_substitution_policy(config=config)
-    try:
-        exec_kisao_id = get_preferred_substitute_algorithm_by_ids(
-            kisao_id, possible_alg_kisao_ids,
-            substitution_policy=substitution_policy)
-    except NotImplementedError:
-        if (
-            events
-            and kisao_id in ['KISAO_0000561', 'KISAO_0000562']
-            and (
-                ALGORITHM_SUBSTITUTION_POLICY_LEVELS[substitution_policy] >=
-                ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgorithmSubstitutionPolicy.SIMILAR_APPROXIMATIONS]
-            )
-        ):
-            exec_kisao_id = 'KISAO_0000563'
-        else:
-            exec_kisao_id = kisao_id
-
-    alg = KISAO_ALGORITHMS_MAP[exec_kisao_id]
-    return CopasiAlgorithm_OLD(exec_kisao_id, getattr(COPASI.CTaskEnum, 'Method_' + alg['id']), alg['id'])
 
 def initialize_parameter_overrides(kisao_id: str, value: Union[bool, int, float, list]) -> dict [str, Union[bool, int, float, list]]:
     pass
@@ -375,13 +329,24 @@ def set_algorithm_parameter_values(copasi_algorithm: CopasiAlgorithm, requested_
     unsupported_parameters = [change.kisao_id for change in illegal_changes if change not in legal_changes]
     if builtins.len(unsupported_parameters) > 0:
         unsupported_list_str = f"[{', '.join(unsupported_parameters)}]"
-        (s, be) = ("s", "are") if builtins.len(unsupported_parameters) > 1 else (s, are) = ("", "is")
+        s: str
+        be: str
+        if builtins.len(unsupported_parameters) > 1:
+            (s, be) = "s", "are"
+        else:
+            (s, be) = "", "is"
         unsupported_message = f"Parameter{s} '{unsupported_list_str}' {be} not supported, or a bad value.\n\n"
 
     bad_parameters = [change.kisao_id for change in illegal_changes if change in legal_changes]
     if builtins.len(bad_parameters) > 0:
         bad_list_str = f"[{', '.join(bad_parameters)}]"
-        (have, a, s) = ("have", "", "s") if builtins.len(bad_parameters) > 1 else (have, a, s) = ("has", "a", "")
+        have: str
+        a: str
+        s: str
+        if builtins.len(bad_parameters) > 1:
+            (have, a, s) = "have", "", "s"
+        else:
+            (have, a, s) = "has", "a", ""
         bad_message = f"Parameter{s} '{bad_list_str}' {have} {a} bad value{s}.\n\n"
 
     valid_parameters = "".join([f'\t- "{params.NAME}"({kisao})\n' for kisao, params in param_dict.items()])
