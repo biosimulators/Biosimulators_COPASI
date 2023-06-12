@@ -254,6 +254,11 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
                               error_summary=f'Model `{model.id}` is invalid.',
                               warning_summary=f'Model `{model.id}` may be invalid.')
 
+    # Confirm UTC Simulation
+    if not isinstance(sim, UniformTimeCourseSimulation):
+        raise ValueError("BioSimulators-COPASI can only handle UTC Simulations in this API for the time being")
+    utc_sim: UniformTimeCourseSimulation = sim
+
     # instantiate model
     basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
 
@@ -261,16 +266,11 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
     copasi_algorithm = utils.get_algorithm(sim.algorithm.kisao_id, has_events, config=config)
 
-    #basico.set_task_settings(basico.T.TIME_COURSE, {"scheduled": True})
-    #myList = basico.get_scheduled_tasks()
+    # Apply method parameter overrides:
+    _load_algorithm_parameters(sim, copasi_algorithm, config)
 
     # process model changes
     _apply_model_changes(model, basico_data_model, model_change_target_sbml_id_map, copasi_algorithm.KISAO_ID)
-
-    # Confirm UTC Simulation
-    if not isinstance(sim, UniformTimeCourseSimulation):
-        raise ValueError("BioSimulators-COPASI can only handle UTC Simulations in this API for the time being")
-    utc_sim: UniformTimeCourseSimulation = sim
 
     # Create and return preprocessed simulation settings
     preprocessed_info = utils.BasicoInitialization(utc_sim, copasi_algorithm, variables)
@@ -527,8 +527,36 @@ def _validate_sedml(task: Task, model: Model, sim: Simulation, variables: list[V
     bsu_util_core.raise_errors_warnings(*simulation_errors_list, error_summary=invalid_sim)
     bsu_util_core.raise_errors_warnings(*data_generator_errors_list, error_summary=invalid_data_gen)
 
+def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgorithm) \
+        -> tuple[list[ModelAttributeChange], list[ModelChange]]:
 
-def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel, model_change_target_sbml_id_map: dict,
+    legal_changes: list[ModelAttributeChange] = []
+    illegal_changes: list[ModelChange] = []
+
+    # If there's no changes, get out of here
+    if not sedml_model.changes:
+        return legal_changes, illegal_changes
+
+    # check if there's anything but ChangeAttribute type changes
+    change: ModelChange
+    for change in sedml_model.changes:
+        legal_changes.append(change) if isinstance(change, ModelAttributeChange) else illegal_changes.append(change)
+    pseudo_variable_map = {change: Variable(change.id, change.name, change.target, change.target_namespaces) \
+                        for change in legal_changes}
+    variable_to_target_sbml_id = utils._map_sedml_to_sbml_ids(list(pseudo_variable_map.values()))
+    change_to_sbml_id_map = {change: variable_to_target_sbml_id[pseudo_variable_map[change]] \
+                        for change in legal_changes}
+    units = copasi_algorithm.get_unit_set()
+    model_change: ModelAttributeChange
+    for model_change in change_to_sbml_id_map.keys():
+        metabolite = basico.get_species(sbml_id=change_to_sbml_id_map[model_change])
+        if
+
+
+    return legal_changes, illegal_changes
+
+
+def _apply_model_changes_old(model: Model, basico_data_model: COPASI.CDataModel, model_change_target_sbml_id_map: dict,
                          exec_alg_kisao_id: str) -> tuple[list[ModelAttributeChange], list[ModelChange]]:
 
     legal_changes: list[ModelAttributeChange] = []
@@ -542,7 +570,6 @@ def _apply_model_changes(model: Model, basico_data_model: COPASI.CDataModel, mod
     change: ModelChange
     for change in model.changes:
         legal_changes.append(change) if isinstance(change, ModelAttributeChange) else illegal_changes.append(change)
-
 
     units = KISAO_ALGORITHMS_MAP[exec_alg_kisao_id]['default_units']
     c_model = basico_data_model.getModel()
@@ -563,64 +590,25 @@ def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAl
     if copasi_algorithm.KISAO_ID != requested_algorithm.kisao_id:
         return
 
-    try:
-        utils.set_algorithm_parameter_values(copasi_algorithm, requested_algorithm.changes)
-    except NotImplementedError or ValueError as exception:
-        pass
-
-    for change in requested_algorithm.changes:
-        try:
-            change_args = utils.set_algorithm_parameter_value(alg_info.kisao_id, copasi_method,
-                                                              change.kisao_id, change.new_value)
-            for key, val in change_args.items():
-                method_parameters[key] = val
-        except NotImplementedError or ValueError as exception:
-            selected_sub_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
-            zero_substitution_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
-            if selected_sub_policy <= zero_substitution_policy:
-                raise
-
-            reformatted_error_message = str(exception).replace('\n', '\n  ')
-            if isinstance(exception, NotImplementedError):
-                warning_message = 'Unsupported algorithm parameter `{}` was ignored:\n  {}'
-                warning_message = warning_message.format(change.kisao_id, reformatted_error_message)
-            else:
-                warning_message = 'Unsupported value `{}` for algorithm parameter `{}` was ignored:\n  {}'
-                warning_message = warning_message.format(change.new_value, change.kisao_id, reformatted_error_message)
-
-            warn(warning_message, BioSimulatorsWarning)
-
-def _load_algorithm_parameters_old(sim: Simulation, alg_info: utils.CopasiAlgorithm_OLD, config: Config = None):
-    # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
-    method_parameters = {}
-    algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
-    requested_algorithm: Algorithm = sim.algorithm
-    if alg_info.kisao_id != requested_algorithm.kisao_id:
+    unsupported_parameters, bad_parameters = utils.set_algorithm_parameter_values(copasi_algorithm,
+                                                                                  requested_algorithm.changes)
+    if len(unsupported_parameters) + len(bad_parameters) == 0:
         return
 
-    for change in requested_algorithm.changes:
-        try:
-            change_args = utils.set_algorithm_parameter_value(alg_info.kisao_id, copasi_method,
-                                                              change.kisao_id, change.new_value)
-            for key, val in change_args.items():
-                method_parameters[key] = val
-        except NotImplementedError as exception:
-            if (
-                    ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
-                    > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
-            ):
-                warn('Unsupported algorithm parameter `{}` was ignored:\n  {}'.format(
-                    change.kisao_id, str(exception).replace('\n', '\n  ')),
-                    BioSimulatorsWarning)
-            else:
-                raise
-        except ValueError as exception:
-            if (
-                    ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
-                    > ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
-            ):
-                warn('Unsuported value `{}` for algorithm parameter `{}` was ignored:\n  {}'.format(
-                    change.new_value, change.kisao_id, str(exception).replace('\n', '\n  ')),
-                    BioSimulatorsWarning)
-            else:
-                raise
+    selected_sub_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
+    zero_substitution_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
+    # If we were asked for a "zero-tolerance" substitution policy, we need to raise an exception
+    # Otherwise, just create some warnings
+
+    for change in unsupported_parameters:
+        if selected_sub_policy <= zero_substitution_policy:
+            raise NotImplementedError(change)
+        warn(f'Unsupported algorithm parameter `{change.kisao_id}` was ignored:\n', BioSimulatorsWarning)
+
+    for change in bad_parameters:
+        if selected_sub_policy <= zero_substitution_policy:
+            raise ValueError(change)
+        warning_message = 'Invalid or unsupported value `{}` for algorithm parameter `{}` was ignored:\n'
+        warn(warning_message.format(change.new_value, change.kisao_id), BioSimulatorsWarning)
+
+    return

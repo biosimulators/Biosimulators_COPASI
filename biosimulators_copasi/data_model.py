@@ -86,34 +86,36 @@ class CopasiAlgorithmParameter:
 
 class RelativeToleranceParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000209"
-    ID: str = "rel_tol"
+    ID: str = "r_tol"
     NAME: str = "Relative Tolerance"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
 
 class AbsoluteToleranceParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000211"
-    ID: str = "abs_tol"
+    ID: str = "a_tol"
     NAME: str = "Relative Tolerance"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -124,13 +126,14 @@ class IntegrateReducedModelParameter(CopasiAlgorithmParameter):
     NAME: str = "Integrate Reduced Model"
 
     def __init__(self, value: bool = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> bool:
         return self._value
 
     def set_value(self, new_value: bool):
-        if not isinstance(new_value, bool):
+        if new_value is not None and not isinstance(new_value, bool):
             raise ValueError
         self._value = new_value
 
@@ -141,13 +144,14 @@ class MaximumInternalStepsParameter(CopasiAlgorithmParameter):
     NAME: str = "Max Internal Steps"
 
     def __init__(self, value: int = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> int:
         return self._value
 
     def set_value(self, new_value: int):
-        if not isinstance(new_value, int):
+        if new_value is not None and not isinstance(new_value, int):
             raise ValueError
         self._value = new_value
 
@@ -158,13 +162,14 @@ class MaximumInternalStepSizeParameter(CopasiAlgorithmParameter):
     NAME: str = "Max Internal Step Size"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -175,13 +180,14 @@ class RandomSeedParameter(CopasiAlgorithmParameter):
     NAME: str = "Random Seed"
 
     def __init__(self, value: int = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> int:
         return self._value
 
     def set_value(self, new_value: int):
-        if not isinstance(new_value, int):
+        if new_value is not None and not isinstance(new_value, int):
             raise ValueError
         self._value = new_value
 
@@ -192,13 +198,14 @@ class EpsilonParameter(CopasiAlgorithmParameter):
     NAME: str = "Epsilon"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -209,13 +216,14 @@ class LowerLimitParameter(CopasiAlgorithmParameter):
     NAME: str = "Lower Limit"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -226,13 +234,14 @@ class UpperLimitParameter(CopasiAlgorithmParameter):
     NAME: str = "Upper Limit"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -243,13 +252,14 @@ class PartitioningIntervalParameter(CopasiAlgorithmParameter):
     NAME: str = "Partitioning Interval"
 
     def __init__(self, value: int = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> int:
         return self._value
 
     def set_value(self, new_value: int):
-        if not isinstance(new_value, int):
+        if new_value is not None and not isinstance(new_value, int):
             raise ValueError
         self._value = new_value
 
@@ -260,13 +270,14 @@ class InitialStepSizeParameter(CopasiAlgorithmParameter):
     NAME: str = "Initial Step Size"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -288,13 +299,14 @@ class RungeKuttaStepSizeParameter(StepSizeParameter):
     NAME: str = "Runge-Kutta Stepsize"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -304,13 +316,14 @@ class InternalStepParameter(StepSizeParameter):
     NAME: str = "Internal Steps Size"
 
     def __init__(self, value: float = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -321,13 +334,14 @@ class ToleranceForRootFinderParameter(CopasiAlgorithmParameter):
     NAME: str = "Tolerance for Root Finder"
 
     def __init__(self, value: float):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> float:
         return self._value
 
     def set_value(self, new_value: float):
-        if not isinstance(new_value, float):
+        if new_value is not None and not isinstance(new_value, float):
             raise ValueError
         self._value = new_value
 
@@ -338,13 +352,14 @@ class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
     NAME: str = "Force Physical Correctness"
 
     def __init__(self, value: bool = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> bool:
         return self._value
 
     def set_value(self, new_value: bool):
-        if not isinstance(new_value, bool):
+        if new_value is not None and not isinstance(new_value, bool):
             raise ValueError
         self._value = new_value
 
@@ -355,13 +370,14 @@ class DeterministicReactionsParameter(CopasiAlgorithmParameter):
     NAME: str = "Deterministic Reactions"
 
     def __init__(self, value: list = None):
+        self._value = None
         self.set_value(value)
 
     def get_value(self) -> list:
         return self._value
 
     def set_value(self, new_value: list):
-        if not isinstance(new_value, list):
+        if new_value is not None and not isinstance(new_value, list):
             raise ValueError
         self._value = new_value
 
@@ -374,11 +390,10 @@ class CopasiAlgorithm:
 
     def get_parameters_by_kisao(self) -> dict[str, CopasiAlgorithmParameter]:
         return {
-            getattr(self, member).KISAO_ID : getattr(self, member)
+            getattr(self, member).KISAO_ID: getattr(self, member)
             for member in dir(self)
             if isinstance(getattr(self, member), CopasiAlgorithmParameter)
         }
-
 
     def get_copasi_id(self) -> str:
         raise NotImplementedError
@@ -704,9 +719,6 @@ class CopasiAlgorithmType(enum.Enum):
     HYBRID_RK45 = HybridRK45Algorithm
     SDE_SOLVE_RI5 = SDESolveRI5Algorithm
 
-KISAO_TRANSLATION_MAP = {
-    'KISAO_0000027' : GibsonBruckAlgorithm
-}
 
 KISAO_ALGORITHMS_MAP = collections.OrderedDict([
     ('KISAO_0000027', {

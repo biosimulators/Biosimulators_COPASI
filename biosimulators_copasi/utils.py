@@ -330,7 +330,9 @@ def set_algorithm_parameter_value(algorithm_kisao_id: str, algorithm_function: t
 
     return args
 
-def set_algorithm_parameter_values(copasi_algorithm: CopasiAlgorithm, requested_changes: list):
+
+def set_algorithm_parameter_values(copasi_algorithm: CopasiAlgorithm, requested_changes: list)\
+        -> tuple[list[AlgorithmParameterChange],list[AlgorithmParameterChange]]:
     """ Set a parameter of a COPASI simulation function
 
     Args:
@@ -357,16 +359,41 @@ def set_algorithm_parameter_values(copasi_algorithm: CopasiAlgorithm, requested_
             illegal_changes.append(change)
 
     if builtins.len(illegal_changes) == 0:
-        return
+        return [], []
 
-    invalid_parameters = f"[{', '.join([change.kisao_id for change in illegal_changes])}]"
+    unsupported_parameters = []
+    bad_parameters = []
+    for change in illegal_changes:
+         bad_parameters.append(change) if change in legal_changes else unsupported_parameters.append(change)
+    return unsupported_parameters, bad_parameters
+
+    unsupported_message = ""
+    bad_message = ""
+    # Based on the logic above:
+    #   - A parameter with a bad value is first labeled legal, but then found to be illegal, so it ends up in both lists
+    #   - A parameter that is unsupported is immediately labeled as invalid, so it will only exist in the illegal list
+    unsupported_parameters = [change.kisao_id for change in illegal_changes if change not in legal_changes]
+    if builtins.len(unsupported_parameters) > 0:
+        unsupported_list_str = f"[{', '.join(unsupported_parameters)}]"
+        (s, be) = ("s", "are") if builtins.len(unsupported_parameters) > 1 else (s, are) = ("", "is")
+        unsupported_message = f"Parameter{s} '{unsupported_list_str}' {be} not supported, or a bad value.\n\n"
+
+    bad_parameters = [change.kisao_id for change in illegal_changes if change in legal_changes]
+    if builtins.len(bad_parameters) > 0:
+        bad_list_str = f"[{', '.join(bad_parameters)}]"
+        (have, a, s) = ("have", "", "s") if builtins.len(bad_parameters) > 1 else (have, a, s) = ("has", "a", "")
+        bad_message = f"Parameter{s} '{bad_list_str}' {have} {a} bad value{s}.\n\n"
+
     valid_parameters = "".join([f'\t- "{params.NAME}"({kisao})\n' for kisao, params in param_dict.items()])
-    (s, be) = ("s", "are") if builtins.len(invalid_parameters) > 1 else (s, are) = ("", "is")
+    valid_message = f"COPASI supports the following parameters with proper values:\n{valid_parameters}"
 
-    error_message = f"Parameter{s} '{invalid_parameters}' {be} either not supported, or a bad value.\n\n" + \
-                    f"COPASI supports the following parameters:\n{valid_parameters}"
-    raise NotImplementedError(error_message)
-
+    error_message = unsupported_message + bad_message + valid_message
+    if builtins.len(bad_parameters) == 0 and builtins.len(unsupported_parameters) > 0:
+        raise NotImplementedError(error_message)
+    elif builtins.len(unsupported_parameters) == 0 and builtins.len(bad_parameters) > 0:
+        raise ValueError(error_message)
+    else:
+        raise RuntimeError(error_message)
 
 
 def get_copasi_model_object_by_sbml_id(model: COPASI.CModel, id: str, units: Units):
@@ -525,12 +552,12 @@ def fix_copasi_generated_combine_archive(in_filename, out_filename, config=None)
     finally:
         shutil.rmtree(archive_dirname)
 
-def _map_sedml_to_copasi(variables: list[Variable]) -> dict[Variable, str]:
+def _map_sedml_to_copasi(variables: list[Variable], for_output: bool = True) -> dict[Variable, str]:
     sed_to_id: dict[Variable, str]
     id_to_name: dict[str, str]
 
     sed_to_id = _map_sedml_to_sbml_ids(variables)
-    id_to_name = _map_sbml_id_to_copasi_name()
+    id_to_name = _map_sbml_id_to_copasi_name(for_output)
     return {sedml_var: id_to_name[sed_to_id[sedml_var]] for sedml_var in sed_to_id}
 
 def _map_sedml_to_sbml_ids(variables: list[Variable]) -> dict[Variable, str]:
@@ -539,7 +566,7 @@ def _map_sedml_to_sbml_ids(variables: list[Variable]) -> dict[Variable, str]:
     sedml_var_to_sbml_id.update(_map_sedml_target_to_sbml_id(variables))
     return sedml_var_to_sbml_id
 
-def _map_sbml_id_to_copasi_name() -> dict[str, str]:
+def _map_sbml_id_to_copasi_name(for_output: bool) -> dict[str, str]:
     # NB: usually, sbml_id == copasi name, with exceptions like "Time"
     compartments: pandas.DataFrame = basico.get_compartments()
     metabolites: pandas.DataFrame = basico.get_species()
@@ -550,9 +577,15 @@ def _map_sbml_id_to_copasi_name() -> dict[str, str]:
     sbml_id_to_sbml_name_map: dict[str, str]
 
     # Create mapping
-    compartment_mapping = {compartments.at[row, "sbml_id"]: f"Compartments[{str(row)}].Volume" for row in compartments.index}
-    metabolites_mapping = {metabolites.at[row, "sbml_id"]: f"[{str(row)}]" for row in metabolites.index}
-    reactions_mapping = {reactions.at[row, "sbml_id"]: f"({str(row)}).Flux" for row in reactions.index}
+    if for_output:
+        compartment_mapping = \
+            {compartments.at[row, "sbml_id"]: f"Compartments[{str(row)}].Volume" for row in compartments.index}
+        metabolites_mapping = {metabolites.at[row, "sbml_id"]: f"[{str(row)}]" for row in metabolites.index}
+        reactions_mapping = {reactions.at[row, "sbml_id"]: f"({str(row)}).Flux" for row in reactions.index}
+    else:
+        compartment_mapping = {compartments.at[row, "sbml_id"]: str(row) for row in compartments.index}
+        metabolites_mapping = {metabolites.at[row, "sbml_id"]: str(row) for row in metabolites.index}
+        reactions_mapping = {reactions.at[row, "sbml_id"]: str(row) for row in reactions.index}
 
     # Combine mappings
     sbml_id_to_sbml_name_map = {"Time": "Time"}
