@@ -84,6 +84,9 @@ class BasicoInitialization:
 
     def get_simulation_configuration(self) -> dict:
         # Create basic config every simulation needs
+        
+
+
         config: dict[str, Union[bool, int, float, list]] = {
             "output_selection": list(self._sedml_var_to_copasi_name.values()),
             "use_initial_values": True,

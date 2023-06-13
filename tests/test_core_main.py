@@ -9,7 +9,6 @@
 
 from biosimulators_copasi import __main__
 from biosimulators_copasi.core import exec_sed_task, exec_sedml_docs_in_combine_archive, preprocess_sed_task
-from biosimulators_copasi.data_model import KISAO_ALGORITHMS_MAP
 from biosimulators_utils.archive.io import ArchiveReader
 from biosimulators_utils.combine import data_model as combine_data_model
 from biosimulators_utils.combine.exceptions import CombineArchiveExecutionError
