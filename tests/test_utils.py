@@ -1,3 +1,5 @@
+import basico
+
 from biosimulators_copasi import data_model
 from biosimulators_copasi import utils
 from biosimulators_utils.data_model import ValueType
@@ -39,42 +41,55 @@ class UtilsTestCase(unittest.TestCase):
             self.assertEqual(utils.get_algorithm('KISAO_0000561', True).KISAO_ID, 'KISAO_0000563')
 
     def test_set_function_boolean_parameter(self):
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        copasi_task = copasi_data_model.getTask('Time-Course')
-        algorithm_id = utils.get_algorithm_id('KISAO_0000560').copasi_algorithm_code
-        assert(copasi_task.setMethodType(algorithm_id))
-        method = copasi_task.getMethod()
-        parameter = method.getParameter('Integrate Reduced Model')
+        state: bool = True
+        alg = data_model.SDESolveRI5Algorithm(force_physical_correctness=state)
 
-        utils.set_algorithm_parameter_value('KISAO_0000560', method, 'KISAO_0000216', 'true')
-        self.assertEqual(parameter.getBoolValue(), True)
+        # Create empty Data model
+        basico.create_datamodel()
 
-        utils.set_algorithm_parameter_value('KISAO_0000560', method, 'KISAO_0000216', '0')
-        self.assertEqual(parameter.getBoolValue(), False)
+        # build map to change algorithm, and apply the change
+        replacement_settings = {"method": alg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
+
+        # Check whether the change applied
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        saved_value = alg.force_physical_correctness.get_value()
+        self.assertEqual(saved_value, task_settings["method"][alg.force_physical_correctness.NAME])
 
     def test_set_function_integer_parameter(self):
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        copasi_task = copasi_data_model.getTask('Time-Course')
-        algorithm_id = utils.get_algorithm_id('KISAO_0000027').copasi_algorithm_code
-        assert(copasi_task.setMethodType(algorithm_id))
-        method = copasi_task.getMethod()
+        state: int = 2023
+        alg = data_model.SDESolveRI5Algorithm(max_internal_steps=state)
 
-        utils.set_algorithm_parameter_value('KISAO_0000027', method, 'KISAO_0000415', '100')
+        # Create empty Data model
+        basico.create_datamodel()
 
-        parameter = method.getParameter('Max Internal Steps')
-        self.assertEqual(parameter.getIntValue(), 100)
+        # build map to change algorithm, and apply the change
+        replacement_settings = {"method": alg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
+
+        # Check whether the change applied
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        saved_value = alg.max_internal_steps.get_value()
+        self.assertEqual(saved_value, task_settings["method"][alg.max_internal_steps.NAME])
 
     def test_set_function_float_parameter(self):
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        copasi_task = copasi_data_model.getTask('Time-Course')
-        algorithm_id = utils.get_algorithm_id('KISAO_0000560').copasi_algorithm_code
-        assert(copasi_task.setMethodType(algorithm_id))
-        method = copasi_task.getMethod()
+        state: float = 22.43
+        alg = data_model.SDESolveRI5Algorithm(step_size=state)
 
-        utils.set_algorithm_parameter_value('KISAO_0000560', method, 'KISAO_0000209', '100.1')
+        # Create empty Data model
+        basico.create_datamodel()
 
-        parameter = method.getParameter('Relative Tolerance')
-        self.assertEqual(parameter.getDblValue(), 100.1)
+        # build map to change algorithm, and apply the change
+        replacement_settings = {"method": alg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
+
+        # Check whether the change applied
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        saved_value = alg.step_size.get_value()
+        self.assertEqual(saved_value, task_settings["method"][alg.step_size.NAME])
 
     def test_set_function_step_float_parameter(self):
         # KISAO_0000561
@@ -223,3 +238,21 @@ class UtilsTestCase(unittest.TestCase):
         ids = utils.get_copasi_model_obj_sbml_ids(copasi_model)
         self.assertEqual(len(ids), 6 + 32 + 25 + 1)
         self.assertIn('UnInfected_Tumour_Cells_Xu', ids)
+
+    def test_check_all_algorithm_args(self):
+        basico.create_datamodel()
+        algorithms = [data_model.GibsonBruckAlgorithm(),
+                      data_model.DirectMethodAlgorithm(),
+                      data_model.TauLeapAlgorithm(),
+                      data_model.AdaptiveSSATauLeapAlgorithm(),
+                      data_model.LsodaAlgorithm(),
+                      data_model.Radau5Algorithm(),
+                      data_model.HybridLsodaAlgorithm(),
+                      data_model.HybridRungeKuttaAlgorithm(),
+                      data_model.HybridRK45Algorithm(),
+                      data_model.SDESolveRI5Algorithm()]
+
+        for alg in algorithms:
+            basico.set_task_settings(basico.T.TIME_COURSE, {"method": {"name": alg.NAME}})
+            task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+            self.assertTrue(task_settings["method"]["name"] == alg.NAME)

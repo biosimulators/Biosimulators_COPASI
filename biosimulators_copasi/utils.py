@@ -81,25 +81,28 @@ class BasicoInitialization:
         self._sim = sim
         self._duration_arg: float = self._sim.output_end_time - self._sim.initial_time
         self.number_of_steps = _calc_number_of_simulation_steps(self._sim, self._duration_arg)
+        self._step_size = self._duration_arg/self.number_of_steps
 
     def get_simulation_configuration(self) -> dict:
-        # Create basic config every simulation needs
-        
-
-
-        config: dict[str, Union[bool, int, float, list]] = {
-            "output_selection": list(self._sedml_var_to_copasi_name.values()),
-            "use_initial_values": True,
-            "update_model": False,
-            "method": self.algorithm.ID,
-            "duration": self._duration_arg,
-            "start_time": self._sim.output_start_time,
-            "step_number": self.number_of_steps
+        # Create the configuration basico needs to initialize the time course task
+        problem = {
+            "AutomaticStepSize": False,
+            "StepNumber": self.number_of_steps,
+            "StepSize": self._step_size,
+            "Duration": self._duration_arg,
+            "OutputStartTime": self._sim.output_start_time
+        }
+        method = self.algorithm.get_method_settings()
+        return {
+            "problem": problem,
+            "method": method
         }
 
-        # Apply Overrides
-        config.update(self.algorithm.get_overrides())
-        return config
+    def get_run_configuration(self) -> dict:
+        return {
+            "output_selection": list(self._sedml_var_to_copasi_name.values()),
+            "use_initial_values": True,
+        }
 
     def get_expected_output_length(self) -> int:
         return self.number_of_steps + 1

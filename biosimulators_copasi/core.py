@@ -160,10 +160,10 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: util
         preprocessed_task = preprocess_sed_task(task, variables, config)
 
     # prepare task
-    _apply_pre_processed_settings(preprocessed_task)
+    basico.set_task_settings(basico.T.TIME_COURSE, preprocessed_task.get_simulation_configuration())
 
     # Execute Simulation
-    data: pandas.DataFrame = basico.run_time_course_with_output(**(preprocessed_task.get_simulation_configuration()))
+    data: pandas.DataFrame = basico.run_time_course_with_output(**(preprocessed_task.get_run_configuration()))
 
     # Process output 'data'
     actual_output_length, _ = data.shape
@@ -400,11 +400,3 @@ def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAl
 
     return
 
-def _apply_pre_processed_settings(preprocessed_task: utils.BasicoInitialization):
-    # Initialize settings to correct method.
-    algorithm: str = preprocessed_task.get_COPASI_algorithm_ID()
-    basico.set_task_settings(basico.T.TIME_COURSE, {"method": {"name": algorithm}})
-
-    basico_task_settings_map = basico.get_task_settings(basico.T.TIME_COURSE)
-
-    basico.set_task_settings(basico.T.TIME_COURSE, basico_task_settings_map)

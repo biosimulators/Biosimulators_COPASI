@@ -68,7 +68,7 @@ class CopasiAlgorithmParameter:
         if self.get_value() is None:
             return {}
 
-        return {self.ID: self.get_value()}
+        return {self.NAME: self.get_value()}
 
     def __eq__(self, other: CopasiAlgorithmParameter) -> bool:
         if not isinstance(other, CopasiAlgorithmParameter):
@@ -103,7 +103,7 @@ class RelativeToleranceParameter(CopasiAlgorithmParameter):
 class AbsoluteToleranceParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000211"
     ID: str = "a_tol"
-    NAME: str = "Relative Tolerance"
+    NAME: str = "Absolute Tolerance"
 
     def __init__(self, value: float = None):
         self._value = None
@@ -188,6 +188,15 @@ class RandomSeedParameter(CopasiAlgorithmParameter):
         if new_value is not None and not isinstance(new_value, int):
             raise ValueError
         self._value = new_value
+
+    def get_override_repr(self) -> dict:
+        if self.get_value() is None:
+            return {}
+
+        return {
+            self.NAME: self.get_value(),
+            "Use Random Seed": True
+        }
 
 
 class EpsilonParameter(CopasiAlgorithmParameter):
@@ -346,7 +355,7 @@ class ToleranceForRootFinderParameter(CopasiAlgorithmParameter):
 
 class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000567"
-    ID: str = "root_finder_tolerance"
+    ID: str = "force_physical_correctness"
     NAME: str = "Force Physical Correctness"
 
     def __init__(self, value: bool = None):
@@ -364,7 +373,7 @@ class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
 
 class DeterministicReactionsParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000534"
-    ID: str = "root_finder_tolerance"
+    ID: str = "deterministic_reactions"
     NAME: str = "Deterministic Reactions"
 
     def __init__(self, value: list = None):
@@ -402,6 +411,11 @@ class CopasiAlgorithm:
     def get_overrides(self) -> dict:
         raise NotImplementedError
 
+    def get_method_settings(self) -> dict[str, str]:
+        settings: dict[str, str] = {"name": self.NAME}
+        settings.update(self.get_overrides())
+        return settings
+
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return False
@@ -416,7 +430,7 @@ class CopasiAlgorithm:
 class GibsonBruckAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000027"
     ID: str = "stochastic"
-    NAME: str = "Gibson + Bruck"
+    NAME: str = "Stochastic (Gibson + Bruck)"
     CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, units: Units = Units.discrete):
@@ -440,7 +454,7 @@ class GibsonBruckAlgorithm(CopasiAlgorithm):
 class DirectMethodAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000029"
     ID: str = "directmethod"
-    NAME: str = "direct method"
+    NAME: str = "Stochastic (Direct method)"
     CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, units: Units = Units.discrete):
@@ -464,7 +478,7 @@ class DirectMethodAlgorithm(CopasiAlgorithm):
 class TauLeapAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000039"
     ID: str = "tauleap"
-    NAME: str = "tau leap method"
+    NAME: str = "Stochastic (τ-Leap)"
     CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, epsilon: float = None,
@@ -491,7 +505,7 @@ class TauLeapAlgorithm(CopasiAlgorithm):
 class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000048"
     ID: str = "adaptivesa"
-    NAME: str = "adaptive SSA + tau leap"
+    NAME: str = "Stochastic (Adaptive SSA/τ-Leap)"
     CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, epsilon: float = None,
@@ -518,7 +532,7 @@ class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
 class LsodaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000560"
     ID: str = "lsoda"
-    NAME: str = "LSODA/LSODAR"
+    NAME: str = "Deterministic (LSODA)"
     CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
@@ -550,7 +564,7 @@ class LsodaAlgorithm(CopasiAlgorithm):
 class Radau5Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000304"
     ID: str = "radau5"
-    NAME: str = "RADAU5"
+    NAME: str = "Deterministic (RADAU5)"
     CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
@@ -582,7 +596,7 @@ class Radau5Algorithm(CopasiAlgorithm):
 class HybridLsodaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000562"
     ID: str = "hybridlsoda"
-    NAME: str = "hybrid(lsoda)"
+    NAME: str = "Hybrid (LSODA)"
     CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
@@ -596,8 +610,8 @@ class HybridLsodaAlgorithm(CopasiAlgorithm):
         self.max_internal_step_size = MaximumInternalStepSizeParameter(max_internal_step_size)
         self.random_seed = RandomSeedParameter(random_seed)
         self.lower_limit = LowerLimitParameter(lower_limit)
-        self.upper_limit = LowerLimitParameter(upper_limit)
-        self.partitioning_interval = LowerLimitParameter(partitioning_interval)
+        self.upper_limit = UpperLimitParameter(upper_limit)
+        self.partitioning_interval = PartitioningIntervalParameter(partitioning_interval)
         self._units = units
 
     def get_copasi_id(self) -> str:
@@ -623,16 +637,18 @@ class HybridLsodaAlgorithm(CopasiAlgorithm):
 class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000561"
     ID: str = "hybrid"
-    NAME: str = "hybrid(runge kutta)"
+    NAME: str = "Hybrid (Runge-Kutta)"
     CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, lower_limit: float = None,
-                 upper_limit: float = None, step_size: float = None, units: Units = Units.discrete):
+                 upper_limit: float = None, step_size: float = None, partitioning_interval: float = None,
+                 units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self.lower_limit = LowerLimitParameter(lower_limit)
         self.upper_limit = LowerLimitParameter(upper_limit)
         self.step_size = RungeKuttaStepSizeParameter(step_size)
+        self.partitioning_interval = PartitioningIntervalParameter(partitioning_interval)
         self._units = units
 
     def get_copasi_id(self) -> str:
@@ -648,13 +664,14 @@ class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
         overrides.update(self.lower_limit.get_override_repr())
         overrides.update(self.upper_limit.get_override_repr())
         overrides.update(self.step_size.get_override_repr())
+        overrides.update(self.partitioning_interval.get_override_repr())
         return overrides
 
 
 class HybridRK45Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000563"
     ID: str = "hybridode45"
-    NAME: str = "hybrid (RK-45)"
+    NAME: str = "Hybrid (RK-45)"
     CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
@@ -686,7 +703,7 @@ class HybridRK45Algorithm(CopasiAlgorithm):
 class SDESolveRI5Algorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000566"
     ID: str = "sde"
-    NAME: str = "SDE Solve (RI5)"
+    NAME: str = "SDE Solver (RI5)"
     CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, absolute_tolerance: float = None, max_internal_steps: int = None, step_size: float = None,
