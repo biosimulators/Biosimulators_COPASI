@@ -303,7 +303,7 @@ class StepSizeParameter(CopasiAlgorithmParameter):
 
 class RungeKuttaStepSizeParameter(StepSizeParameter):
     ID: str = "rk_step_size"
-    NAME: str = "Runge-Kutta Stepsize"
+    NAME: str = "Runge Kutta Stepsize"
 
     def __init__(self, value: float = None):
         self._value = None

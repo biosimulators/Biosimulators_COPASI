@@ -92,54 +92,80 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(saved_value, task_settings["method"][alg.step_size.NAME])
 
     def test_set_function_step_float_parameter(self):
-        # KISAO_0000561
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        copasi_task = copasi_data_model.getTask('Time-Course')
-        algorithm_id = utils.get_algorithm_id('KISAO_0000561').copasi_algorithm_code
-        assert(copasi_task.setMethodType(algorithm_id))
-        method = copasi_task.getMethod()
+        runge_kutta_step_size: float = 1e-12
+        internal_steps_size: float = 1e-11
+        rungeKuttaAlg = data_model.HybridRungeKuttaAlgorithm(step_size=runge_kutta_step_size)
+        RI5Alg = data_model.SDESolveRI5Algorithm(step_size=internal_steps_size)
 
-        utils.set_algorithm_parameter_value('KISAO_0000561', method, 'KISAO_0000483', '1e-12')
+        # Create empty Data model
+        basico.create_datamodel()
 
-        parameter = method.getParameter('Runge Kutta Stepsize')
-        self.assertEqual(parameter.getDblValue(), 1e-12)
+        # HybridRungeKuttaAlgorithm (KISAO_0000561)
+        # build map to change algorithm, and apply the change
+        replacement_settings = {"method": rungeKuttaAlg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
 
-        self.assertEqual(method.getParameter('Internal Steps Size'), None)
+        # Check whether the change applied
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(rungeKuttaAlg.NAME, task_settings["method"]["name"])
+        saved_value = rungeKuttaAlg.step_size.get_value()
+        self.assertEqual(saved_value, task_settings["method"][rungeKuttaAlg.step_size.NAME])
+        with self.assertRaises(KeyError):
+            value = task_settings["method"][RI5Alg.step_size.NAME]
 
-        # KISAO_0000566
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        copasi_task = copasi_data_model.getTask('Time-Course')
-        algorithm_id = utils.get_algorithm_id('KISAO_0000566').copasi_algorithm_code
-        assert(copasi_task.setMethodType(algorithm_id))
-        method = copasi_task.getMethod()
+        # SDESolveRI5Algorithm (KISAO_0000566)
+        # build map to change algorithm, and apply the change
+        replacement_settings = {"method": RI5Alg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
 
-        utils.set_algorithm_parameter_value('KISAO_0000566', method, 'KISAO_0000483', '1e-11')
-
-        parameter = method.getParameter('Internal Steps Size')
-        self.assertEqual(parameter.getDblValue(), 1e-11)
-
-        self.assertEqual(method.getParameter('Runge Kutta Stepsize'), None)
+        # Check whether the change applied
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(RI5Alg.NAME, task_settings["method"]["name"])
+        saved_value = RI5Alg.step_size.get_value()
+        self.assertEqual(saved_value, task_settings["method"][RI5Alg.step_size.NAME])
+        with self.assertRaises(KeyError):
+            value = task_settings["method"][rungeKuttaAlg.step_size.NAME]
 
     def test_set_function_seed_integer_parameter(self):
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        copasi_task = copasi_data_model.getTask('Time-Course')
-        algorithm_id = utils.get_algorithm_id('KISAO_0000048').copasi_algorithm_code
-        assert(copasi_task.setMethodType(algorithm_id))
-        method = copasi_task.getMethod()
+        state: float = 90
+        alg = data_model.AdaptiveSSATauLeapAlgorithm()
 
-        parameter = method.getParameter('Use Random Seed')
-        assert(parameter.setBoolValue(False))
-        self.assertFalse(parameter.getBoolValue())
+        # Create empty Data model
+        basico.create_datamodel()
 
-        utils.set_algorithm_parameter_value('KISAO_0000048', method, 'KISAO_0000488', '90')
+        # build map to change algorithm, and apply the change
+        replacement_settings = {"method": alg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
 
-        parameter = method.getParameter('Random Seed')
-        self.assertEqual(parameter.getIntValue(), 90)
+        # Check if we have the algorithm, and the default is not a random seed.
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        self.assertFalse(task_settings["method"]["Use Random Seed"])
 
-        parameter = method.getParameter('Use Random Seed')
-        self.assertTrue(parameter.getBoolValue())
+        # Now set the random seed parameter:
+        alg.random_seed.set_value(state)
+        replacement_settings = {"method": alg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
 
-    def test_set_function_partioning_list_parameter(self):
+        # Check whether the change applied
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(alg.random_seed.get_value(), task_settings["method"][alg.random_seed.NAME])
+
+    def test_set_function_partitioning_list_parameter(self):
+        state: float = 90
+        alg = data_model.HybridRK45Algorithm()
+
+        # Build model from sbml
+        basico.load_model(os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml'))
+
+        # build map to change algorithm, and apply the change
+        replacement_settings = {"method": alg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
+
+        # Check whether the change applied
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(alg.random_seed.get_value(), task_settings["method"][alg.random_seed.NAME])
+
         copasi_data_model = COPASI.CRootContainer.addDatamodel()
         assert copasi_data_model.importSBML(os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml'))
         copasi_task = copasi_data_model.getTask('Time-Course')
