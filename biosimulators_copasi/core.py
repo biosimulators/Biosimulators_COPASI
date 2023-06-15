@@ -244,8 +244,8 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
 
     model_change_error_message = f'Changes for model `{model.id}` are not supported.'
     model_etree = lxml.etree.parse(model.source)
-    model_change_target_sbml_id_map: dict = validation.validate_target_xpaths(model.changes, model_etree, attr='id')
-    variable_target_sbml_id_map: dict = validation.validate_target_xpaths(variables, model_etree, attr='id')
+    validation.validate_target_xpaths(model.changes, model_etree, attr='id')
+    validation.validate_target_xpaths(variables, model_etree, attr='id')
     raise_errors_warnings(validation.validate_model_change_types(model.changes, (ModelAttributeChange,)),
                           error_summary=model_change_error_message)
 
