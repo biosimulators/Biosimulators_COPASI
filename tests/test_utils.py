@@ -94,37 +94,37 @@ class UtilsTestCase(unittest.TestCase):
     def test_set_function_step_float_parameter(self):
         runge_kutta_step_size: float = 1e-12
         internal_steps_size: float = 1e-11
-        rungeKuttaAlg = data_model.HybridRungeKuttaAlgorithm(step_size=runge_kutta_step_size)
-        RI5Alg = data_model.SDESolveRI5Algorithm(step_size=internal_steps_size)
+        runge_kutta_alg = data_model.HybridRungeKuttaAlgorithm(step_size=runge_kutta_step_size)
+        ri5_alg = data_model.SDESolveRI5Algorithm(step_size=internal_steps_size)
 
         # Create empty Data model
         basico.create_datamodel()
 
         # HybridRungeKuttaAlgorithm (KISAO_0000561)
         # build map to change algorithm, and apply the change
-        replacement_settings = {"method": rungeKuttaAlg.get_method_settings()}
+        replacement_settings = {"method": runge_kutta_alg.get_method_settings()}
         basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
 
         # Check whether the change applied
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(rungeKuttaAlg.NAME, task_settings["method"]["name"])
-        saved_value = rungeKuttaAlg.step_size.get_value()
-        self.assertEqual(saved_value, task_settings["method"][rungeKuttaAlg.step_size.NAME])
+        self.assertEqual(runge_kutta_alg.NAME, task_settings["method"]["name"])
+        saved_value = runge_kutta_alg.step_size.get_value()
+        self.assertEqual(saved_value, task_settings["method"][runge_kutta_alg.step_size.NAME])
         with self.assertRaises(KeyError):
-            value = task_settings["method"][RI5Alg.step_size.NAME]
+            value = task_settings["method"][ri5_alg.step_size.NAME]
 
         # SDESolveRI5Algorithm (KISAO_0000566)
         # build map to change algorithm, and apply the change
-        replacement_settings = {"method": RI5Alg.get_method_settings()}
+        replacement_settings = {"method": ri5_alg.get_method_settings()}
         basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
 
         # Check whether the change applied
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(RI5Alg.NAME, task_settings["method"]["name"])
-        saved_value = RI5Alg.step_size.get_value()
-        self.assertEqual(saved_value, task_settings["method"][RI5Alg.step_size.NAME])
+        self.assertEqual(ri5_alg.NAME, task_settings["method"]["name"])
+        saved_value = ri5_alg.step_size.get_value()
+        self.assertEqual(saved_value, task_settings["method"][ri5_alg.step_size.NAME])
         with self.assertRaises(KeyError):
-            value = task_settings["method"][rungeKuttaAlg.step_size.NAME]
+            value = task_settings["method"][runge_kutta_alg.step_size.NAME]
 
     def test_set_function_seed_integer_parameter(self):
         state: float = 90
