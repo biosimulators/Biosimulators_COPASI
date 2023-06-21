@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 from typing import Union
+
+import basico
 from biosimulators_utils.data_model import ValueType
 import collections
 import enum
@@ -386,7 +388,8 @@ class DeterministicReactionsParameter(CopasiAlgorithmParameter):
     def set_value(self, new_value: list):
         if new_value is not None and not isinstance(new_value, list):
             raise ValueError
-        self._value = new_value
+        basico.get_reactions()
+        self._value = new_value if new_value is not None else []
 
 
 class CopasiAlgorithm:
