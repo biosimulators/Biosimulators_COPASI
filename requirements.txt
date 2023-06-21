@@ -1,5 +1,5 @@
-biosimulators_utils[logging,sbml] >= 0.1.128
-kisao~=2.30
+biosimulators_utils[logging,sbml] >= 0.1.180
+kisao~=2.32
 lxml~=4.9.2
 numpy~=1.24.3
 python-libsbml
