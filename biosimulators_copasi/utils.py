@@ -427,9 +427,14 @@ def _map_sbml_id_to_copasi_name(for_output: bool) -> dict[str, str]:
     # Create mapping
     if for_output:
         compartment_mapping = \
-            {compartments.at[row, "sbml_id"]: f"Compartments[{str(row)}].Volume" for row in compartments.index}
-        metabolites_mapping = {metabolites.at[row, "sbml_id"]: f"[{str(row)}]" for row in metabolites.index}
-        reactions_mapping = {reactions.at[row, "sbml_id"]: f"({str(row)}).Flux" for row in reactions.index}
+            {compartments.at[row, "sbml_id"]: format_to_copasi_compartment_name(str(row))
+             for row in compartments.index}
+        metabolites_mapping = \
+            {metabolites.at[row, "sbml_id"]: format_to_copasi_species_concentration_name(str(row))
+             for row in metabolites.index}
+        reactions_mapping = \
+            {reactions.at[row, "sbml_id"]: format_to_copasi_reaction_name(str(row))
+             for row in reactions.index}
     else:
         compartment_mapping = {compartments.at[row, "sbml_id"]: str(row) for row in compartments.index}
         metabolites_mapping = {metabolites.at[row, "sbml_id"]: str(row) for row in metabolites.index}
@@ -481,3 +486,15 @@ def _calc_number_of_simulation_steps(sim: UniformTimeCourseSimulation, duration:
         raise TypeError('Time course must specify an integer number of time points')
 
     return int(step_number_arg)
+
+
+def format_to_copasi_reaction_name(sbml_name: str):
+    return f"({sbml_name}).Flux"
+
+
+def format_to_copasi_species_concentration_name(sbml_name: str):
+    return f"[{sbml_name}]"
+
+
+def format_to_copasi_compartment_name(sbml_name: str):
+    return f"Compartments[{sbml_name}].Volume"

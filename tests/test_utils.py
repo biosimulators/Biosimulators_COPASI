@@ -170,7 +170,7 @@ class UtilsTestCase(unittest.TestCase):
         assert copasi_data_model.importSBML(os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml'))
         copasi_task = copasi_data_model.getTask('Time-Course')
         algorithm_id = utils.get_algorithm_id('KISAO_0000563').copasi_algorithm_code
-        assert(copasi_task.setMethodType(algorithm_id))
+        assert (copasi_task.setMethodType(algorithm_id))
         method = copasi_task.getMethod()
 
         utils.set_algorithm_parameter_value('KISAO_0000563', method, 'KISAO_0000534', '["Reaction1", "Reaction2"]')
@@ -182,79 +182,99 @@ class UtilsTestCase(unittest.TestCase):
             utils.set_algorithm_parameter_value('KISAO_0000563', method, 'KISAO_0000534', '["Rxn1", "Rxn2"]')
 
     def test_test_set_algorithm_parameter_value_errors(self):
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        algorithm_id = utils.get_algorithm_id('KISAO_0000027').copasi_algorithm_code
-        copasi_task = copasi_data_model.getTask('Time-Course')
-        assert(copasi_task.setMethodType(algorithm_id))
-        method = copasi_task.getMethod()
+        state: float = 90
+        alg: data_model.GibsonBruckAlgorithm = data_model.GibsonBruckAlgorithm()
 
-        with self.assertRaises(NotImplementedError):
-            utils.set_algorithm_parameter_value('KISAO_0000027', method, 'KISAO_0000000', '100')
+        # Create empty Data model
+        basico.create_datamodel()
 
-        with self.assertRaises(NotImplementedError):
-            utils.set_algorithm_parameter_value('KISAO_0000027', method, 'KISAO_0000216', '100')
+        # build map to change algorithm, and apply the change
+        replacement_settings = {"method": alg.get_method_settings()}
+        basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
+
+        # Check if we have the algorithm.
+        task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+
+        # Now check for errors
+        with self.assertRaises(AttributeError):
+            alg: data_model.LsodaAlgorithm  # Fake cast
+            alg.integrate_reduced_model.set_value(True)
 
         with self.assertRaises(ValueError):
-            utils.set_algorithm_parameter_value('KISAO_0000027', method, 'KISAO_0000488', '100.')
+            alg: data_model.GibsonBruckAlgorithm
+            alg.random_seed.set_value(True)
 
     def test_all_parameters_for_all_algorithms(self):
-        for parameter_kisao_id, param_props in data_model.KISAO_PARAMETERS_MAP.items():
-            for algorithm_kisao_id in param_props['algorithms']:
-                copasi_data_model = COPASI.CRootContainer.addDatamodel()
-                algorithm_id = utils.get_algorithm_id(algorithm_kisao_id).copasi_algorithm_code
-                copasi_task = copasi_data_model.getTask('Time-Course')
-                assert(copasi_task.setMethodType(algorithm_id))
-                method = copasi_task.getMethod()
+        alg: data_model.GibsonBruckAlgorithm = data_model.GibsonBruckAlgorithm()
 
-                if param_props['type'] == ValueType.boolean:
-                    value = 'true'
-                elif param_props['type'] == ValueType.integer:
-                    value = '2'
-                elif param_props['type'] == ValueType.float:
-                    value = '1e-8'
+        basico.create_datamodel()
+        member: data_model.CopasiAlgorithmType
+        for name, member in data_model.CopasiAlgorithmType.__members__.items():
+            alg = member.value()
+
+            for param in alg.get_parameters_by_kisao().values():
+                val_type = param.get_value_type(param)
+                if val_type == bool:  # can't use isinstance because PEP 285.
+                    param.set_value(True)
+                elif val_type == int:  # can't use isinstance because PEP 285.
+                    param.set_value(2)
+                elif val_type == float:  # can't use isinstance because PEP 285.
+                    param.set_value(1e-8)
                 else:
                     continue
 
-                utils.set_algorithm_parameter_value(algorithm_kisao_id, method, parameter_kisao_id, value)
+            replacement_settings = {"method": alg.get_method_settings()}
+            basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
 
-                if isinstance(param_props['name'], str):
-                    parameter_name = param_props['name']
-                else:
-                    parameter_name = param_props['name'][algorithm_kisao_id]
-                parameter = method.getParameter(parameter_name)
+            # confirm our settings applied
+            task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+            self.assertEqual(alg.NAME, task_settings["method"]["name"])
+            alg_params = list(alg.get_parameters_by_kisao().values())
+            param_name_to_value = {param.NAME: param.get_value() for param in alg_params}
 
-                if param_props['type'] == ValueType.boolean:
-                    self.assertEqual(parameter.getBoolValue(), True)
-                elif param_props['type'] == ValueType.integer:
-                    self.assertEqual(parameter.getIntValue(), 2)
-                elif param_props['type'] == ValueType.float:
-                    self.assertEqual(parameter.getDblValue(), 1e-8)
+            for basico_param_name, basico_param_value in task_settings["method"].items():
+                if basico_param_name == "name" or basico_param_name == "Subtype":
+                    continue  # The above are not parameters to check
+                if basico_param_name == "Use Random Seed" or basico_param_name == "Partitioning Strategy":
+                    continue  # We automatically set this, and don't keep track of it.
+                if basico_param_name not in param_name_to_value.keys():
+                    raise NotImplementedError
+                value = param_name_to_value[basico_param_name]
+                if value != basico_param_value:
+                    raise ValueError
 
     def test_get_copasi_model_object_by_sbml_id(self):
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        copasi_data_model.importSBML(os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000806.xml'))
-        copasi_model = copasi_data_model.getModel()
+        species_concentration_id, species_concentration_cn = (
+            "UnInfected_Tumour_Cells_Xu",
+            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Compartments[compartment],'
+            + 'Vector=Metabolites[UnInfected_Tumour_Cells(Xu)],Reference=Concentration')
+        compartment_id, compartment_cn = (
+            "compartment",
+            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,'
+            + 'Vector=Compartments[compartment],Reference=Volume')
+        reaction_id, reaction_cn = (
+            "Uninfected_tumour_cell_logistic_growth",
+            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,'
+            + 'Vector=Reactions[Uninfected tumour cell logistic growth],Reference=Flux')
 
-        object = utils.get_copasi_model_object_by_sbml_id(copasi_model, 'UnInfected_Tumour_Cells_Xu', data_model.Units.continuous)
-        self.assertEqual(
-            object.getCN().getString(),
-            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Compartments[compartment],Vector=Metabolites[UnInfected_Tumour_Cells(Xu)],Reference=Concentration')
+        # load SBML
+        basico.load_model(os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000806.xml'))
+        species = basico.get_species(sbml_id=species_concentration_id)
+        compartment = basico.get_compartments(sbml_id=compartment_id)
+        reaction = basico.get_reactions(sbml_id=reaction_id)
 
-        object = utils.get_copasi_model_object_by_sbml_id(copasi_model, 'UnInfected_Tumour_Cells_Xu', data_model.Units.discrete)
-        self.assertEqual(
-            object.getCN().getString(),
-            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Compartments[compartment],Vector=Metabolites[UnInfected_Tumour_Cells(Xu)],Reference=ParticleNumber')
+        index: str = species.index.values[0]
+        index_cn = basico.get_cn(utils.format_to_copasi_species_concentration_name(index))
+        self.assertEqual(index_cn, species_concentration_cn)
 
-        object = utils.get_copasi_model_object_by_sbml_id(copasi_model, 'compartment', data_model.Units.continuous)
-        self.assertEqual(
-            object.getCN().getString(),
-            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Compartments[compartment],Reference=Volume')
+        index: str = compartment.index.values[0]
+        index_cn = basico.get_cn(utils.format_to_copasi_compartment_name(index))
+        self.assertEqual(index_cn, compartment_cn)
 
-        object = utils.get_copasi_model_object_by_sbml_id(
-            copasi_model, 'Uninfected_tumour_cell_logistic_growth', data_model.Units.continuous)
-        self.assertEqual(
-            object.getCN().getString(),
-            'CN=Root,Model=Eftimie2019-Macrophages Plasticity,Vector=Reactions[Uninfected tumour cell logistic growth],Reference=Flux')
+        index: str = reaction.index.values[0]
+        index_cn = basico.get_cn(utils.format_to_copasi_reaction_name(index))
+        self.assertEqual(index_cn, reaction_cn)
 
     def test_get_copasi_model_obj_sbml_ids(self):
         copasi_data_model = COPASI.CRootContainer.addDatamodel()

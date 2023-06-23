@@ -7,7 +7,7 @@
 """
 
 from __future__ import annotations
-from typing import Union
+from typing import Union, get_type_hints
 
 import basico
 from biosimulators_utils.data_model import ValueType
@@ -66,6 +66,12 @@ class CopasiAlgorithmParameter:
     def set_value(self, new_value: Union[int, str, float, bool, list]):
         raise NotImplementedError
 
+    @staticmethod
+    def get_value_type(cls: CopasiAlgorithmParameter):
+        func = cls.get_value
+        type_map = get_type_hints(func)
+        return type_map["return"]
+
     def get_override_repr(self) -> dict:
         if self.get_value() is None:
             return {}
@@ -97,7 +103,7 @@ class RelativeToleranceParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -115,7 +121,7 @@ class AbsoluteToleranceParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -133,7 +139,7 @@ class IntegrateReducedModelParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: bool):
-        if new_value is not None and not isinstance(new_value, bool):
+        if new_value is not None and not (type(new_value) == bool):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -151,7 +157,7 @@ class MaximumInternalStepsParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: int):
-        if new_value is not None and not isinstance(new_value, int):
+        if new_value is not None and not (type(new_value) == int):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -169,7 +175,7 @@ class MaximumInternalStepSizeParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -187,7 +193,7 @@ class RandomSeedParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: int):
-        if new_value is not None and not isinstance(new_value, int):
+        if new_value is not None and not (type(new_value) == int):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -214,7 +220,7 @@ class EpsilonParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -232,7 +238,7 @@ class LowerLimitParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -250,7 +256,7 @@ class UpperLimitParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -268,7 +274,7 @@ class PartitioningIntervalParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: int):
-        if new_value is not None and not isinstance(new_value, int):
+        if new_value is not None and not (type(new_value) == int):  # can't use isinstance because PEP 285:
             raise ValueError
         self._value = new_value
 
@@ -286,7 +292,7 @@ class InitialStepSizeParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285:
             raise ValueError
         self._value = new_value
 
@@ -315,7 +321,7 @@ class RungeKuttaStepSizeParameter(StepSizeParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -332,7 +338,7 @@ class InternalStepParameter(StepSizeParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -350,7 +356,7 @@ class ToleranceForRootFinderParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not isinstance(new_value, float):
+        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
             raise ValueError
         self._value = new_value
 
@@ -368,7 +374,7 @@ class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: bool):
-        if new_value is not None and not isinstance(new_value, bool):
+        if new_value is not None and not (type(new_value) == bool):  # can't use isinstance because PEP 285:
             raise ValueError
         self._value = new_value
 
@@ -649,7 +655,7 @@ class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self.lower_limit = LowerLimitParameter(lower_limit)
-        self.upper_limit = LowerLimitParameter(upper_limit)
+        self.upper_limit = UpperLimitParameter(upper_limit)
         self.step_size = RungeKuttaStepSizeParameter(step_size)
         self.partitioning_interval = PartitioningIntervalParameter(partitioning_interval)
         self._units = units
