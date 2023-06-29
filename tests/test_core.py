@@ -37,7 +37,7 @@ import tempfile
 import unittest
 
 
-class TestMainCases(unittest.TestCase):
+class TestCore(unittest.TestCase):
     DOCKER_IMAGE = 'ghcr.io/biosimulators/biosimulators_copasi/copasi:latest'
     NAMESPACES_L2V4 = {
         'sbml': 'http://www.sbml.org/sbml/level2/version4',
@@ -47,10 +47,10 @@ class TestMainCases(unittest.TestCase):
     }
 
     def setUp(self):
-        self.dirname = tempfile.mkdtemp()
+        self.directory_name = tempfile.mkdtemp()
 
     def tearDown(self):
-        shutil.rmtree(self.dirname)
+        shutil.rmtree(self.directory_name)
 
     def test_exec_sed_task(self):
         task = sedml_data_model.Task(
@@ -480,7 +480,7 @@ class TestMainCases(unittest.TestCase):
     def test_exec_sed_task_error_handling(self):
         task = sedml_data_model.Task(
             model=sedml_data_model.Model(
-                source=os.path.join(self.dirname, 'model.xml'),
+                source=os.path.join(self.directory_name, 'model.xml'),
                 language=sedml_data_model.ModelLanguage.SBML.value,
                 changes=[],
             ),
@@ -579,7 +579,7 @@ class TestMainCases(unittest.TestCase):
                                                             orig_model_filename='BIOMD0000000634_url.xml',
                                                             var_targets=[None, 'Mdm2', 'p53', 'Mdm2_p53'])
 
-        out_dir = os.path.join(self.dirname, alg.kisao_id)
+        out_dir = os.path.join(self.directory_name, alg.kisao_id)
 
         task = copy.deepcopy(doc.tasks[0])
         task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000634_url.xml')
@@ -619,7 +619,7 @@ class TestMainCases(unittest.TestCase):
     def test_exec_sedml_docs_in_combine_archive(self):
         doc, archive_filename = self._build_combine_archive()
 
-        out_dir = os.path.join(self.dirname, 'out')
+        out_dir = os.path.join(self.directory_name, 'out')
 
         config = get_config()
         config.REPORT_FORMATS = [
@@ -638,12 +638,13 @@ class TestMainCases(unittest.TestCase):
     def test_exec_sedml_docs_in_combine_archive_with_continuous_model_all_algorithms(self):
         # continuous model
         errored_algs = []
-        for alg in gen_algorithms_from_specs(os.path.join(os.path.dirname(__file__), '..', 'biosimulators.json')).values():
+        for alg in gen_algorithms_from_specs(os.path.join(os.path.dirname(__file__), '..',
+                                                          'biosimulators.json')).values():
             doc, archive_filename = self._build_combine_archive(algorithm=alg,
                                                                 orig_model_filename='model.xml',
                                                                 var_targets=[None, 'A', 'C', 'DA'])
 
-            out_dir = os.path.join(self.dirname, alg.kisao_id)
+            out_dir = os.path.join(self.directory_name, alg.kisao_id)
 
             config = get_config()
             config.REPORT_FORMATS = [
@@ -679,7 +680,7 @@ class TestMainCases(unittest.TestCase):
                                                                 orig_model_filename='BIOMD0000000634_url.xml',
                                                                 var_targets=[None, 'Mdm2', 'p53', 'Mdm2_p53'])
 
-            out_dir = os.path.join(self.dirname, alg.kisao_id)
+            out_dir = os.path.join(self.directory_name, alg.kisao_id)
 
             config = get_config()
             config.REPORT_FORMATS = [
@@ -694,14 +695,157 @@ class TestMainCases(unittest.TestCase):
                 raise log.exception
             self._assert_combine_archive_outputs(doc, out_dir)
 
-    def _build_combine_archive(self, algorithm=None, orig_model_filename='model.xml', var_targets=[None, 'A', 'C', 'DA']):
+    def test_exec_combine_archive_from_docker_entry_point_example(self):
+        archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000005.omex')
+        out_dir = os.path.join(self.directory_name, 'out')
+
+        config = get_config()
+        config.REPORT_FORMATS = [
+            report_data_model.ReportFormat.h5,
+        ]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = False
+
+        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+        if log.exception:
+            raise log.exception
+
+        report = sedml_data_model.Report(
+            data_sets=[
+                sedml_data_model.DataSet(id='autogen_time_for_task1', label='Time'),
+                sedml_data_model.DataSet(id='autogen_task1_YT', label='YT'),
+                sedml_data_model.DataSet(id='autogen_task1_M', label='M'),
+            ]
+        )
+        path_in_hdf5: str = 'BIOMD0000000005.sedml/autogen_report_for_task1'
+        report_results = ReportReader().run(report, out_dir, path_in_hdf5, format=report_data_model.ReportFormat.h5)
+
+        self.assertEqual(len(report_results[report.data_sets[0].id]), 1000 + 1)
+        numpy.testing.assert_almost_equal(report_results['autogen_time_for_task1'], numpy.linspace(0., 100., 1000 + 1),)
+        truth_array = numpy.not_equal(report_results['autogen_task1_YT'], numpy.linspace(0.25, 0.25, 1000 + 1))
+        try:
+            self.assertTrue(numpy.any(truth_array))
+        except AssertionError:
+            raise AssertionError("'YT' is constant, when it should vary!")
+
+        for data_set_result in report_results.values():
+            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
+
+    def test_exec_sedml_docs_with_model_changes_in_combine_archive(self):
+        archive_filename = os.path.join(os.path.dirname(__file__),
+                                        'fixtures', 'SimulatorSupportsModelAttributeChanges.omex')
+        out_dir = os.path.join(self.directory_name, 'out')
+
+        config = get_config()
+        config.REPORT_FORMATS = [
+            report_data_model.ReportFormat.h5,
+        ]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = False
+
+        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+        if log.exception:
+            raise log.exception
+
+        report = sedml_data_model.Report(
+            data_sets=[
+                sedml_data_model.DataSet(id='time', label='time'),
+                sedml_data_model.DataSet(id='Cdh1', label='Cdh1'),
+                sedml_data_model.DataSet(id='Trim', label='Trim'),
+                sedml_data_model.DataSet(id='Clb', label='Clb'),
+            ]
+        )
+        report_results = ReportReader().run(report, out_dir, 'simulation_1.sedml/report_1',
+                                            format=report_data_model.ReportFormat.h5)
+
+        self.assertEqual(len(report_results[report.data_sets[0].id]), 100 + 1)
+        numpy.testing.assert_almost_equal(
+            report_results['time'],
+            numpy.linspace(0., 100., 100 + 1),
+        )
+
+        for data_set_result in report_results.values():
+            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
+
+    def test_exec_sedml_docs_in_combine_archive_real_example(self):
+        archive_filename = os.path.join(os.path.dirname(__file__),
+                                        'fixtures', 'Ciliberto-J-Cell-Biol-2003-morphogenesis-checkpoint.omex')
+        out_dir = os.path.join(self.directory_name, 'out')
+
+        config = get_config()
+        config.REPORT_FORMATS = [
+            report_data_model.ReportFormat.h5,
+        ]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = False
+
+        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+        if log.exception:
+            raise log.exception
+
+        report = sedml_data_model.Report(
+            data_sets=[
+                sedml_data_model.DataSet(id='time', label='time'),
+                sedml_data_model.DataSet(id='Cdh1', label='Cdh1'),
+                sedml_data_model.DataSet(id='Trim', label='Trim'),
+                sedml_data_model.DataSet(id='Clb', label='Clb'),
+            ]
+        )
+        report_results = ReportReader().run(report, out_dir, 'simulation_1.sedml/report_1', format=report_data_model.ReportFormat.h5)
+
+        self.assertEqual(len(report_results[report.data_sets[0].id]), 100 + 1)
+        numpy.testing.assert_almost_equal(
+            report_results['time'],
+            numpy.linspace(0., 100., 100 + 1),
+        )
+
+        for data_set_result in report_results.values():
+            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
+
+    def test_raw_cli(self):
+        with mock.patch('sys.argv', ['', '--help']):
+            with self.assertRaises(SystemExit) as context:
+                __main__.main()
+                self.assertRegex(context.Exception, 'usage: ')
+
+    def test_exec_sedml_docs_in_combine_archive_with_cli(self):
+        doc, archive_filename = self._build_combine_archive()
+        out_dir = os.path.join(self.directory_name, 'out')
+        env = TestCore._get_combine_archive_exec_env()
+
+        with mock.patch.dict(os.environ, env):
+            with __main__.App(argv=['-i', archive_filename, '-o', out_dir]) as app:
+                app.run()
+
+        self._assert_combine_archive_outputs(doc, out_dir)
+
+    @staticmethod
+    def _get_combine_archive_exec_env():
+        return {
+            'REPORT_FORMATS': 'h5,csv'
+        }
+
+    def test_exec_sedml_docs_in_combine_archive_with_docker_image(self):
+        doc, archive_filename = self._build_combine_archive()
+        out_dir = os.path.join(self.directory_name, 'out')
+        docker_image = self.DOCKER_IMAGE
+        env = TestCore._get_combine_archive_exec_env()
+
+        exec_sedml_docs_in_archive_with_containerized_simulator(
+            archive_filename, out_dir, docker_image, environment=env, pull_docker_image=False)
+
+        self._assert_combine_archive_outputs(doc, out_dir)
+
+    def _build_combine_archive(self, algorithm=None, orig_model_filename='model.xml', var_targets=None):
+        if var_targets is None:
+            var_targets = [None, 'A', 'C', 'DA']
         doc = self._build_sed_doc(algorithm=algorithm)
 
         for data_gen, target in zip(doc.data_generators, var_targets):
             if target is not None:
                 data_gen.variables[0].target = "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']".format(target)
 
-        archive_dirname = os.path.join(self.dirname, 'archive')
+        archive_dirname = os.path.join(self.directory_name, 'archive')
         if not os.path.isdir(archive_dirname):
             os.mkdir(archive_dirname)
 
@@ -721,11 +865,11 @@ class TestMainCases(unittest.TestCase):
                     'sim_1.sedml', combine_data_model.CombineArchiveContentFormat.SED_ML.value),
             ],
         )
-        archive_filename = os.path.join(self.dirname,
+        archive_filename = os.path.join(self.directory_name,
                                         'archive.omex' if algorithm is None else 'archive-{}.omex'.format(algorithm.kisao_id))
         CombineArchiveWriter().run(archive, archive_dirname, archive_filename)
 
-        return (doc, archive_filename)
+        return doc, archive_filename
 
     def _build_sed_doc(self, algorithm=None):
         if algorithm is None:
@@ -821,7 +965,7 @@ class TestMainCases(unittest.TestCase):
         return doc
 
     def _assert_combine_archive_outputs(self, doc, out_dir):
-        self.assertEqual(set(['reports.h5', 'reports.zip', 'sim_1.sedml']).difference(set(os.listdir(out_dir))), set())
+        self.assertEqual({'reports.h5', 'reports.zip', 'sim_1.sedml'}.difference(set(os.listdir(out_dir))), set())
 
         report = doc.outputs[0]
 
@@ -854,140 +998,3 @@ class TestMainCases(unittest.TestCase):
 
         for data_set_result in report_results.values():
             self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
-
-    def test_exec_combine_archive_from_docker_entry_point_example(self):
-        archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000005.omex')
-        out_dir = os.path.join(self.dirname, 'out')
-
-        config = get_config()
-        config.REPORT_FORMATS = [
-            report_data_model.ReportFormat.h5,
-        ]
-        config.BUNDLE_OUTPUTS = True
-        config.KEEP_INDIVIDUAL_OUTPUTS = False
-
-        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
-        if log.exception:
-            raise log.exception
-
-        report = sedml_data_model.Report(
-            data_sets=[
-                sedml_data_model.DataSet(id='autogen_time_for_task1', label='Time'),
-                sedml_data_model.DataSet(id='autogen_task1_YT', label='YT'),
-                sedml_data_model.DataSet(id='autogen_task1_M', label='M'),
-            ]
-        )
-        path_in_hdf5: str = 'BIOMD0000000005.sedml/autogen_report_for_task1'
-        report_results = ReportReader().run(report, out_dir, path_in_hdf5, format=report_data_model.ReportFormat.h5)
-
-        self.assertEqual(len(report_results[report.data_sets[0].id]), 1000 + 1)
-        numpy.testing.assert_almost_equal(report_results['autogen_time_for_task1'], numpy.linspace(0., 100., 1000 + 1),)
-        truth_array = numpy.not_equal(report_results['autogen_task1_YT'], numpy.linspace(0.25, 0.25, 1000 + 1))
-        try:
-            self.assertTrue(numpy.any(truth_array))
-        except AssertionError:
-            raise AssertionError("'YT' is constant, when it should vary!")
-
-        for data_set_result in report_results.values():
-            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
-
-    def test_exec_sedml_docs_with_model_changes_in_combine_archive(self):
-        archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'SimulatorSupportsModelAttributeChanges.omex')
-        out_dir = os.path.join(self.dirname, 'out')
-
-        config = get_config()
-        config.REPORT_FORMATS = [
-            report_data_model.ReportFormat.h5,
-        ]
-        config.BUNDLE_OUTPUTS = True
-        config.KEEP_INDIVIDUAL_OUTPUTS = False
-
-        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
-        if log.exception:
-            raise log.exception
-
-        report = sedml_data_model.Report(
-            data_sets=[
-                sedml_data_model.DataSet(id='time', label='time'),
-                sedml_data_model.DataSet(id='Cdh1', label='Cdh1'),
-                sedml_data_model.DataSet(id='Trim', label='Trim'),
-                sedml_data_model.DataSet(id='Clb', label='Clb'),
-            ]
-        )
-        report_results = ReportReader().run(report, out_dir, 'simulation_1.sedml/report_1', format=report_data_model.ReportFormat.h5)
-
-        self.assertEqual(len(report_results[report.data_sets[0].id]), 100 + 1)
-        numpy.testing.assert_almost_equal(
-            report_results['time'],
-            numpy.linspace(0., 100., 100 + 1),
-        )
-
-        for data_set_result in report_results.values():
-            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
-
-    def test_exec_sedml_docs_in_combine_archive_real_example(self):
-        archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'Ciliberto-J-Cell-Biol-2003-morphogenesis-checkpoint.omex')
-        out_dir = os.path.join(self.dirname, 'out')
-
-        config = get_config()
-        config.REPORT_FORMATS = [
-            report_data_model.ReportFormat.h5,
-        ]
-        config.BUNDLE_OUTPUTS = True
-        config.KEEP_INDIVIDUAL_OUTPUTS = False
-
-        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
-        if log.exception:
-            raise log.exception
-
-        report = sedml_data_model.Report(
-            data_sets=[
-                sedml_data_model.DataSet(id='time', label='time'),
-                sedml_data_model.DataSet(id='Cdh1', label='Cdh1'),
-                sedml_data_model.DataSet(id='Trim', label='Trim'),
-                sedml_data_model.DataSet(id='Clb', label='Clb'),
-            ]
-        )
-        report_results = ReportReader().run(report, out_dir, 'simulation_1.sedml/report_1', format=report_data_model.ReportFormat.h5)
-
-        self.assertEqual(len(report_results[report.data_sets[0].id]), 100 + 1)
-        numpy.testing.assert_almost_equal(
-            report_results['time'],
-            numpy.linspace(0., 100., 100 + 1),
-        )
-
-        for data_set_result in report_results.values():
-            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
-
-    def test_raw_cli(self):
-        with mock.patch('sys.argv', ['', '--help']):
-            with self.assertRaises(SystemExit) as context:
-                __main__.main()
-                self.assertRegex(context.Exception, 'usage: ')
-
-    def test_exec_sedml_docs_in_combine_archive_with_cli(self):
-        doc, archive_filename = self._build_combine_archive()
-        out_dir = os.path.join(self.dirname, 'out')
-        env = self._get_combine_archive_exec_env()
-
-        with mock.patch.dict(os.environ, env):
-            with __main__.App(argv=['-i', archive_filename, '-o', out_dir]) as app:
-                app.run()
-
-        self._assert_combine_archive_outputs(doc, out_dir)
-
-    def _get_combine_archive_exec_env(self):
-        return {
-            'REPORT_FORMATS': 'h5,csv'
-        }
-
-    def test_exec_sedml_docs_in_combine_archive_with_docker_image(self):
-        doc, archive_filename = self._build_combine_archive()
-        out_dir = os.path.join(self.dirname, 'out')
-        docker_image = self.DOCKER_IMAGE
-        env = self._get_combine_archive_exec_env()
-
-        exec_sedml_docs_in_archive_with_containerized_simulator(
-            archive_filename, out_dir, docker_image, environment=env, pull_docker_image=False)
-
-        self._assert_combine_archive_outputs(doc, out_dir)

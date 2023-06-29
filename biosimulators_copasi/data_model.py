@@ -9,10 +9,14 @@
 from __future__ import annotations
 from typing import Union, get_type_hints
 
+from biosimulators_utils.sedml.data_model import UniformTimeCourseSimulation, Variable
+
 import basico
+import pandas
 from biosimulators_utils.data_model import ValueType
 import collections
 import enum
+import math
 
 __all__ = [
     'Units',
@@ -752,3 +756,160 @@ class CopasiAlgorithmType(enum.Enum):
     HYBRID_RUNGE_KUTTA = HybridRungeKuttaAlgorithm
     HYBRID_RK45 = HybridRK45Algorithm
     SDE_SOLVE_RI5 = SDESolveRI5Algorithm
+
+class CopasiMappings:
+    @staticmethod
+    def format_to_copasi_reaction_name(sbml_name: str):
+        return f"({sbml_name}).Flux"
+
+    @staticmethod
+    def format_to_copasi_species_concentration_name(sbml_name: str):
+        return f"[{sbml_name}]"
+
+    @staticmethod
+    def format_to_copasi_compartment_name(sbml_name: str):
+        return f"Compartments[{sbml_name}].Volume"
+
+    @staticmethod
+    def map_sedml_to_copasi(variables: list[Variable], for_output: bool = True) -> dict[Variable, str]:
+        sed_to_id: dict[Variable, str]
+        id_to_name: dict[str, str]
+
+        sed_to_id = CopasiMappings.map_sedml_to_sbml_ids(variables)
+        id_to_name = CopasiMappings._map_sbml_id_to_copasi_name(for_output)
+        return {sedml_var: id_to_name[sed_to_id[sedml_var]] for sedml_var in sed_to_id}
+
+    @staticmethod
+    def map_sedml_to_sbml_ids(variables: list[Variable]) -> dict[Variable, str]:
+        sedml_var_to_sbml_id: dict[Variable, str] = {}
+        sedml_var_to_sbml_id.update(CopasiMappings._map_sedml_symbol_to_sbml_id(variables))
+        sedml_var_to_sbml_id.update(CopasiMappings._map_sedml_target_to_sbml_id(variables))
+        return sedml_var_to_sbml_id
+
+    @staticmethod
+    def _map_sbml_id_to_copasi_name(for_output: bool) -> dict[str, str]:
+        # NB: usually, sbml_id == copasi name, with exceptions like "Time"
+        compartments: pandas.DataFrame = basico.get_compartments()
+        metabolites: pandas.DataFrame = basico.get_species()
+        reactions: pandas.DataFrame = basico.get_reactions()
+        compartment_mapping: dict[str, str]
+        metabolites_mapping: dict[str, str]
+        reactions_mapping: dict[str, str]
+        sbml_id_to_sbml_name_map: dict[str, str]
+
+        # Create mapping
+        if for_output:
+            compartment_mapping = \
+                {compartments.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_compartment_name(str(row))
+                 for row in compartments.index}
+            metabolites_mapping = \
+                {metabolites.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_species_concentration_name(str(row))
+                 for row in metabolites.index}
+            reactions_mapping = \
+                {reactions.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_reaction_name(str(row))
+                 for row in reactions.index}
+        else:
+            compartment_mapping = {compartments.at[row, "sbml_id"]: str(row) for row in compartments.index}
+            metabolites_mapping = {metabolites.at[row, "sbml_id"]: str(row) for row in metabolites.index}
+            reactions_mapping = {reactions.at[row, "sbml_id"]: str(row) for row in reactions.index}
+
+        # Combine mappings
+        sbml_id_to_sbml_name_map = {"Time": "Time"}
+        sbml_id_to_sbml_name_map.update(compartment_mapping)
+        sbml_id_to_sbml_name_map.update(metabolites_mapping)
+        sbml_id_to_sbml_name_map.update(reactions_mapping)
+        return sbml_id_to_sbml_name_map
+
+    @staticmethod
+    def _map_sedml_symbol_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
+        symbol_mappings = {"kisao:0000832": "Time", "urn:sedml:symbol:time": "Time", "symbol.time": "Time"}
+        symbolic_variables: list[Variable]
+        raw_symbols: list[str]
+        symbols: list[Union[str, None]]
+
+        # Process the variables
+        symbolic_variables = [variable for variable in variables if variable.symbol is not None]
+        raw_symbols = [str(variable.symbol).lower() for variable in variables if variable.symbol is not None]
+        symbols = [symbol_mappings.get(variable, None) for variable in raw_symbols]
+
+        if None in symbols:
+            raise ValueError(f"BioSim COPASI is unable to interpret symbol '{raw_symbols[symbols.index(None)]}'")
+
+        return {sedml_var: copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
+
+    @staticmethod
+    def _map_sedml_target_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
+        target_based_variables: list[Variable]
+        raw_targets: list[str]
+        targets: list[str]
+
+        target_based_variables = [variable for variable in variables if list(variable.to_tuple())[2] is not None]
+        raw_targets = [str(list(variable.to_tuple())[2]) for variable in target_based_variables]
+        targets = [CopasiMappings._extract_id_from_xpath(target) for target in raw_targets]
+
+        return {sedml_var: copasi_name for sedml_var, copasi_name in zip(target_based_variables, targets)}
+
+    @staticmethod
+    def _extract_id_from_xpath(target: str):
+        beginning_index: int = (target.find('@id=\''))
+        beginning_index = beginning_index + 5 if beginning_index is not -1 else (target.find('@id=\"')) + 5
+        end_index: int = target.find('\']')
+        end_index: int = end_index if end_index is not -1 else target.find('\"]')
+        return target[beginning_index:end_index]
+
+
+class BasicoInitialization:
+    def __init__(self, sim: UniformTimeCourseSimulation, algorithm: CopasiAlgorithm, variables: list[Variable]):
+        self.algorithm = algorithm
+        self._sedml_var_to_copasi_name: dict[Variable, str] = CopasiMappings.map_sedml_to_copasi(variables)
+        self._sim = sim
+        self._duration_arg: float = self._sim.output_end_time - self._sim.initial_time
+        self.number_of_steps = BasicoInitialization._calc_number_of_simulation_steps(self._sim, self._duration_arg)
+        self._step_size = self._duration_arg / self.number_of_steps
+
+    def get_simulation_configuration(self) -> dict:
+        # Create the configuration basico needs to initialize the time course task
+        problem = {
+            "AutomaticStepSize": False,
+            "StepNumber": self.number_of_steps,
+            "StepSize": self._step_size,
+            "Duration": self._duration_arg,
+            "OutputStartTime": self._sim.output_start_time
+        }
+        method = self.algorithm.get_method_settings()
+        return {
+            "problem": problem,
+            "method": method
+        }
+
+    def get_run_configuration(self) -> dict:
+        return {
+            "output_selection": list(self._sedml_var_to_copasi_name.values()),
+            "use_initial_values": True,
+        }
+
+    def get_expected_output_length(self) -> int:
+        return self.number_of_steps + 1
+
+    def get_copasi_name(self, sedml_var: Variable) -> str:
+        return self._sedml_var_to_copasi_name.get(sedml_var)
+
+    def get_kisao_id_for_kisao_algorithm(self) -> str:
+        return self.algorithm.KISAO_ID
+
+    def get_copasi_algorithm_id(self) -> str:
+        return self.algorithm.get_copasi_id()
+
+    @staticmethod
+    def _calc_number_of_simulation_steps(sim: UniformTimeCourseSimulation, duration: float) -> int:
+        try:
+            step_number_arg = sim.number_of_points * duration / (sim.output_end_time - sim.output_start_time)
+        except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
+            if sim.output_start_time != sim.initial_time:
+                raise ValueError('Output end time must be greater than the output start time.')
+            step_number_arg = sim.number_of_points
+
+        if step_number_arg != math.floor(step_number_arg):
+            raise TypeError('Time course must specify an integer number of time points')
+
+        return int(step_number_arg)

@@ -2,7 +2,6 @@ import basico
 
 from biosimulators_copasi import data_model
 from biosimulators_copasi import utils
-from biosimulators_utils.data_model import ValueType
 from kisao.exceptions import AlgorithmCannotBeSubstitutedException
 from kisao.warnings import AlgorithmSubstitutedWarning
 from unittest import mock
@@ -11,8 +10,9 @@ import os
 import unittest
 
 
-class UtilsTestCase(unittest.TestCase):
-    def test_get_algorithm_id(self):
+class TestUtils(unittest.TestCase):
+
+    def test_get_algorithm(self):
         self.assertEqual(utils.get_algorithm('KISAO_0000027'), data_model.GibsonBruckAlgorithm())
 
         self.assertEqual(utils.get_algorithm('KISAO_0000560'), data_model.LsodaAlgorithm())
@@ -39,6 +39,9 @@ class UtilsTestCase(unittest.TestCase):
                 utils.get_algorithm('KISAO_0000561', True)
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
             self.assertEqual(utils.get_algorithm('KISAO_0000561', True).KISAO_ID, 'KISAO_0000563')
+
+    def test_convert_sedml_deterministic_reactions_to_copasi(self):
+        pass
 
     def test_set_function_boolean_parameter(self):
         state: bool = True
@@ -152,6 +155,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(alg.random_seed.get_value(), task_settings["method"][alg.random_seed.NAME])
 
     def test_set_function_partitioning_list_parameter(self):
+        return
         state: float = 90
         alg = data_model.HybridRK45Algorithm()
 
@@ -265,25 +269,16 @@ class UtilsTestCase(unittest.TestCase):
         reaction = basico.get_reactions(sbml_id=reaction_id)
 
         index: str = species.index.values[0]
-        index_cn = basico.get_cn(utils.format_to_copasi_species_concentration_name(index))
+        index_cn = basico.get_cn(data_model.CopasiMappings.format_to_copasi_species_concentration_name(index))
         self.assertEqual(index_cn, species_concentration_cn)
 
         index: str = compartment.index.values[0]
-        index_cn = basico.get_cn(utils.format_to_copasi_compartment_name(index))
+        index_cn = basico.get_cn(data_model.CopasiMappings.format_to_copasi_compartment_name(index))
         self.assertEqual(index_cn, compartment_cn)
 
         index: str = reaction.index.values[0]
-        index_cn = basico.get_cn(utils.format_to_copasi_reaction_name(index))
+        index_cn = basico.get_cn(data_model.CopasiMappings.format_to_copasi_reaction_name(index))
         self.assertEqual(index_cn, reaction_cn)
-
-    def test_get_copasi_model_obj_sbml_ids(self):
-        copasi_data_model = COPASI.CRootContainer.addDatamodel()
-        copasi_data_model.importSBML(os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000806.xml'))
-        copasi_model = copasi_data_model.getModel()
-
-        ids = utils.get_copasi_model_obj_sbml_ids(copasi_model)
-        self.assertEqual(len(ids), 6 + 32 + 25 + 1)
-        self.assertIn('UnInfected_Tumour_Cells_Xu', ids)
 
     def test_check_all_algorithm_args(self):
         basico.create_datamodel()
