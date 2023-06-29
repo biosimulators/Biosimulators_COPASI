@@ -40,10 +40,18 @@ import numpy
 import os
 import tempfile
 
-__all__ = ['exec_sedml_docs_in_combine_archive', 'exec_sed_doc', 'exec_sed_task', 'preprocess_sed_task']
+__all__ = ['get_simulator_version', 'exec_sedml_docs_in_combine_archive', 'exec_sed_doc',
+           'exec_sed_task', 'preprocess_sed_task']
 
 proper_args: dict = {}
 
+def get_simulator_version():
+    """ Get the version of COPASI
+
+    Returns:
+        :obj:`str`: version
+    """
+    return basico.__version__
 
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Config = None,
                                        should_fix_copasi_generated_combine_archive: bool = None) -> tuple:

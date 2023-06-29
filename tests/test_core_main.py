@@ -37,7 +37,7 @@ import tempfile
 import unittest
 
 
-class CliTestCase(unittest.TestCase):
+class TestMainCases(unittest.TestCase):
     DOCKER_IMAGE = 'ghcr.io/biosimulators/biosimulators_copasi/copasi:latest'
     NAMESPACES_L2V4 = {
         'sbml': 'http://www.sbml.org/sbml/level2/version4',
