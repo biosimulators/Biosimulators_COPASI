@@ -15,6 +15,7 @@ import biosimulators_utils.simulator.utils as bsu_sim_utils
 import biosimulators_utils.utils.core as bsu_util_core
 import pandas
 
+import biosimulators_copasi.data_model as data_model
 import biosimulators_copasi.utils as utils
 
 from biosimulators_utils.config import get_config, Config  # noqa: F401
@@ -31,7 +32,6 @@ from biosimulators_utils.warnings import warn, BioSimulatorsWarning
 from kisao.data_model import AlgorithmSubstitutionPolicy as AlgSubPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from biosimulators_copasi.data_model import Units
 
-# from .utils import (get_algorithm_id, set_algorithm_parameter_value, get_copasi_model_object_by_sbml_id, get_copasi_model_obj_sbml_ids)
 import basico
 import COPASI
 import lxml
@@ -127,7 +127,7 @@ def exec_sed_doc(doc: SedDocument | str, working_dir: str, base_out_path: str, r
                                  config=config)
 
 
-def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: utils.BasicoInitialization = None,
+def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: data_model.BasicoInitialization = None,
                   log: TaskLog = None, config: Config = None):
     ''' Execute a task and save its results
 
@@ -175,7 +175,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: util
     variable_results = VariableResults()
     for variable in variables:
         variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
-        data_target = preprocessed_task.get_COPASI_name(variable)
+        data_target = preprocessed_task.get_copasi_name(variable)
         series: pandas.Series = data.loc[:, data_target]
         for index, value in enumerate(series):
             variable_results[variable.id][index] = value
@@ -190,9 +190,9 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: util
 
     # log action
     if config.LOG:
-        log.algorithm = preprocessed_task.get_KiSAO_id_for_KiSAO_algorithm()
+        log.algorithm = preprocessed_task.get_kisao_id_for_kisao_algorithm()
         log.simulator_details = {
-            'methodName': preprocessed_task.get_COPASI_algorithm_ID(),
+            'methodName': preprocessed_task.get_copasi_algorithm_id(),
             'parameters': None,
         }
 
@@ -220,7 +220,7 @@ def get_copasi_error_message(sim: Simulation, details=None):
     return error_msg
 
 
-def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None) -> utils.BasicoInitialization:
+def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None) -> data_model.BasicoInitialization:
     """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
     repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
 
@@ -273,15 +273,8 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     _apply_model_changes(model, copasi_algorithm)
 
     # Create and return preprocessed simulation settings
-    preprocessed_info = utils.BasicoInitialization(utc_sim, copasi_algorithm, variables)
+    preprocessed_info = data_model.BasicoInitialization(utc_sim, copasi_algorithm, variables)
     return preprocessed_info
-
-
-def _fix_time_name(var: Variable, new_name: str) -> Variable:
-    list_args = list(var.to_tuple())
-    list_args[1] = new_name
-    args = tuple(list_args)
-    return Variable(*args)
 
 
 def _get_copasi_fixed_archive(archive_filename: bytes | str):
@@ -337,7 +330,7 @@ def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgor
         legal_changes.append(change) if isinstance(change, ModelAttributeChange) else illegal_changes.append(change)
     pseudo_variable_map = {change: Variable(change.id, change.name, change.target, change.target_namespaces)
                            for change in legal_changes}
-    variable_to_target_sbml_id = utils._map_sedml_to_sbml_ids(list(pseudo_variable_map.values()))
+    variable_to_target_sbml_id = data_model.CopasiMappings.map_sedml_to_sbml_ids(list(pseudo_variable_map.values()))
     change_to_sbml_id_map = {change: variable_to_target_sbml_id[pseudo_variable_map[change]]
                              for change in legal_changes}
     units = copasi_algorithm.get_unit_set()
