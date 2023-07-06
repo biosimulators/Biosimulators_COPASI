@@ -170,31 +170,27 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: data
     # prepare task
     basico.set_task_settings(basico.T.TIME_COURSE, preprocessed_task.get_simulation_configuration())
 
+    # temporary work around for issue with 0.0 duration tasks
+    basico_task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+
     # Execute Simulation
     data: pandas.DataFrame = basico.run_time_course_with_output(**(preprocessed_task.get_run_configuration()))
 
     # Process output 'data'
     actual_output_length, _ = data.shape
-    expected_output_length = preprocessed_task.get_expected_output_length()
-    if expected_output_length != actual_output_length:
-        msg = f"Length of output does not match expected amount: {actual_output_length} (vs {expected_output_length})"
-        raise RuntimeError(msg)
-
     variable_results = VariableResults()
+
     for variable in variables:
-        variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
         data_target = preprocessed_task.get_copasi_name(variable)
         series: pandas.Series = data.loc[:, data_target]
-        for index, value in enumerate(series):
-            variable_results[variable.id][index] = value
-
-    # # We need this stuff, but we'll figure out what it's doing first...
-    # if sim.output_end_time == sim.output_start_time and sim.output_start_time == sim.initial_time:
-    #    for variable in variables:
-    #        variable_results[variable.id] = numpy.concatenate((
-    #            variable_results[variable.id][0:1],
-    #            numpy.full((sim.number_of_points,), variable_results[variable.id][1]),
-    #        ))
+        if basico_task_settings["problem"]["Duration"] > 0.0:
+            variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
+            for index, value in enumerate(series):
+                variable_results[variable.id][index] = value
+        else:
+            value = series.get(0)
+            sedml_utc_sim: UniformTimeCourseSimulation = task.simulation
+            variable_results[variable.id] = numpy.full(sedml_utc_sim.number_of_steps + 1, value)
 
     # log action
     if config.LOG:

@@ -1,4 +1,4 @@
-biosimulators_utils[logging,sbml]==0.1.181
+biosimulators_utils[logging,sbml]~=0.1.182
 copasi-basico==0.50
 docker
 evalidate~=2.0.1
@@ -11,4 +11,4 @@ python-dateutil~=2.8.2
 setuptools~=68.0.0
 cement~=3.0.8
 termcolor~=2.3.0
-pandas~=2.0.2
+pandas~=2.0.3
