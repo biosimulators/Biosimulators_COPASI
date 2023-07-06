@@ -9,8 +9,6 @@
 from __future__ import annotations
 
 import builtins
-import math
-from typing import Union
 from biosimulators_copasi.data_model import CopasiAlgorithmType, CopasiAlgorithm, CopasiAlgorithmParameter
 from biosimulators_utils.combine.data_model import CombineArchiveContentFormat
 from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveWriter
@@ -19,7 +17,6 @@ from biosimulators_utils.simulator.utils import get_algorithm_substitution_polic
 from biosimulators_utils.sedml.data_model import Variable, UniformTimeCourseSimulation, AlgorithmParameterChange
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from kisao.utils import get_preferred_substitute_algorithm_by_ids
-import basico
 import libsedml
 import lxml
 import os

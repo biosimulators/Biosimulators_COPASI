@@ -874,7 +874,8 @@ class BasicoInitialization:
         self.algorithm = algorithm
         self._sedml_var_to_copasi_name: dict[Variable, str] = CopasiMappings.map_sedml_to_copasi(variables)
         self._sim = sim
-        self._duration_arg: float = self._sim.output_end_time - 0  # COPASI doesn't do non-zero start time
+        self.init_time_offset = self._sim.initial_time
+        self._duration_arg: float = self._sim.output_end_time - self.init_time_offset  # COPASI is kept in the dark
         self._step_size: float = BasicoInitialization._calc_simulation_step_size(self._sim)
         self.number_of_steps: int = int(self._duration_arg / self._step_size)
         self._length_of_output = int((self._sim.output_end_time - self._sim.output_start_time) / self._step_size) + 1
@@ -886,7 +887,7 @@ class BasicoInitialization:
             "StepNumber": self.number_of_steps,
             "StepSize": self._step_size,
             "Duration": self._duration_arg,
-            "OutputStartTime": self._sim.output_start_time
+            "OutputStartTime": self._sim.output_start_time - self.init_time_offset
         }
         method = self.algorithm.get_method_settings()
         return {

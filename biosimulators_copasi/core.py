@@ -179,6 +179,7 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: data
     # Process output 'data'
     actual_output_length, _ = data.shape
     variable_results = VariableResults()
+    offset = preprocessed_task.init_time_offset
 
     for variable in variables:
         data_target = preprocessed_task.get_copasi_name(variable)
@@ -186,9 +187,9 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: data
         if basico_task_settings["problem"]["Duration"] > 0.0:
             variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
             for index, value in enumerate(series):
-                variable_results[variable.id][index] = value
+                variable_results[variable.id][index] = value if data_target != "Time" else value + offset
         else:
-            value = series.get(0)
+            value = series.get(0) if data_target != "Time" else series.get(0) + offset
             sedml_utc_sim: UniformTimeCourseSimulation = task.simulation
             variable_results[variable.id] = numpy.full(sedml_utc_sim.number_of_steps + 1, value)
 
