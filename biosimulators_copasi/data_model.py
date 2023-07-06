@@ -771,6 +771,10 @@ class CopasiMappings:
         return f"Compartments[{sbml_name}].Volume"
 
     @staticmethod
+    def format_to_copasi_parameter_name(sbml_name: str):
+        return f"Values[{sbml_name}]"
+
+    @staticmethod
     def map_sedml_to_copasi(variables: list[Variable], for_output: bool = True) -> dict[Variable, str]:
         sed_to_id: dict[Variable, str]
         id_to_name: dict[str, str]
@@ -792,32 +796,39 @@ class CopasiMappings:
         compartments: pandas.DataFrame = basico.get_compartments()
         metabolites: pandas.DataFrame = basico.get_species()
         reactions: pandas.DataFrame = basico.get_reactions()
+        parameters: pandas.DataFrame = basico.get_parameters()
         compartment_mapping: dict[str, str]
         metabolites_mapping: dict[str, str]
         reactions_mapping: dict[str, str]
+        parameters_mapping: dict[str, str]
         sbml_id_to_sbml_name_map: dict[str, str]
 
         # Create mapping
         if for_output:
             compartment_mapping = \
                 {compartments.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_compartment_name(str(row))
-                 for row in compartments.index}
+                 for row in compartments.index} if compartments is not None else {}
             metabolites_mapping = \
                 {metabolites.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_species_concentration_name(str(row))
-                 for row in metabolites.index}
+                 for row in metabolites.index} if metabolites is not None else {}
             reactions_mapping = \
                 {reactions.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_reaction_name(str(row))
-                 for row in reactions.index}
+                 for row in reactions.index} if reactions is not None else {}
+            parameters_mapping = \
+                {parameters.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_parameter_name(str(row))
+                 for row in parameters.index} if parameters is not None else {}
         else:
             compartment_mapping = {compartments.at[row, "sbml_id"]: str(row) for row in compartments.index}
             metabolites_mapping = {metabolites.at[row, "sbml_id"]: str(row) for row in metabolites.index}
             reactions_mapping = {reactions.at[row, "sbml_id"]: str(row) for row in reactions.index}
+            parameters_mapping = {parameters.at[row, "sbml_id"] : str(row) for row in parameters.index}
 
         # Combine mappings
         sbml_id_to_sbml_name_map = {"Time": "Time"}
         sbml_id_to_sbml_name_map.update(compartment_mapping)
         sbml_id_to_sbml_name_map.update(metabolites_mapping)
         sbml_id_to_sbml_name_map.update(reactions_mapping)
+        sbml_id_to_sbml_name_map.update(parameters_mapping)
         return sbml_id_to_sbml_name_map
 
     @staticmethod
@@ -863,9 +874,10 @@ class BasicoInitialization:
         self.algorithm = algorithm
         self._sedml_var_to_copasi_name: dict[Variable, str] = CopasiMappings.map_sedml_to_copasi(variables)
         self._sim = sim
-        self._duration_arg: float = self._sim.output_end_time - self._sim.initial_time
-        self.number_of_steps = BasicoInitialization._calc_number_of_simulation_steps(self._sim, self._duration_arg)
-        self._step_size = self._duration_arg / self.number_of_steps
+        self._duration_arg: float = self._sim.output_end_time - 0  # COPASI doesn't do non-zero start time
+        self._step_size: float = BasicoInitialization._calc_simulation_step_size(self._sim)
+        self.number_of_steps: int = int(self._duration_arg / self._step_size)
+        self._length_of_output = int((self._sim.output_end_time - self._sim.output_start_time) / self._step_size) + 1
 
     def get_simulation_configuration(self) -> dict:
         # Create the configuration basico needs to initialize the time course task
@@ -889,7 +901,7 @@ class BasicoInitialization:
         }
 
     def get_expected_output_length(self) -> int:
-        return self.number_of_steps + 1
+        return self._length_of_output
 
     def get_copasi_name(self, sedml_var: Variable) -> str:
         return self._sedml_var_to_copasi_name.get(sedml_var)
@@ -901,15 +913,16 @@ class BasicoInitialization:
         return self.algorithm.get_copasi_id()
 
     @staticmethod
-    def _calc_number_of_simulation_steps(sim: UniformTimeCourseSimulation, duration: float) -> int:
+    def _calc_simulation_step_size(sim: UniformTimeCourseSimulation) -> int:
+        if sim.output_end_time - sim.output_start_time < 0:
+            raise ValueError('Output end time must be greater than the output start time.')
+
         try:
-            step_number_arg = sim.number_of_points * duration / (sim.output_end_time - sim.output_start_time)
+            time_diff = sim.output_end_time - sim.output_start_time
+            if time_diff == 0:
+                raise ZeroDivisionError  # We want to have exactly 1 step, and that's what our except block does
+            step_size_arg = time_diff / sim.number_of_steps
         except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
-            if sim.output_start_time != sim.initial_time:
-                raise ValueError('Output end time must be greater than the output start time.')
-            step_number_arg = sim.number_of_points
+            step_size_arg = sim.number_of_points
 
-        if step_number_arg != math.floor(step_number_arg):
-            raise TypeError('Time course must specify an integer number of time points')
-
-        return int(step_number_arg)
+        return step_size_arg

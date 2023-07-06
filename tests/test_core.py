@@ -174,7 +174,7 @@ class TestCore(unittest.TestCase):
         # test that initial time, output start time, output end time, number of points are correctly interpreted
         task = sedml_data_model.Task(
             model=sedml_data_model.Model(
-                source=os.path.join('tests', 'fixtures', 'model.xml'),
+                source=os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml'),
                 language=sedml_data_model.ModelLanguage.SBML.value,
                 changes=[],
             ),
