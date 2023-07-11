@@ -325,6 +325,9 @@ def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgor
     legal_changes: list[ModelAttributeChange] = []
     illegal_changes: list[ModelChange] = []
 
+    specs = basico.get_species()
+    comps = basico.get_compartments()
+
     # If there's no changes, get out of here
     if not sedml_model.changes:
         return legal_changes, illegal_changes
@@ -343,6 +346,7 @@ def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgor
     for model_change in change_to_sbml_id_map.keys():
         sbml_id = change_to_sbml_id_map[model_change]
         metabolite = basico.get_species(sbml_id=sbml_id)
+        metabolite = metabolite if metabolite is not None else basico.get_species(sbml_id)  # Pretend it's the name
         if metabolite is not None:
             if units == Units.continuous:
                 basico.set_species(sbml_id=sbml_id, initial_concentration=model_change.new_value)

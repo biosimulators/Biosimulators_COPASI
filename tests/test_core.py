@@ -270,7 +270,7 @@ class TestCore(unittest.TestCase):
         # test that initial time, output start time, output end time, number of points are correctly interpreted
         task = sedml_data_model.Task(
             model=sedml_data_model.Model(
-                source=os.path.join('tests', 'fixtures', 'model.xml'),
+                source=os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml'),
                 language=sedml_data_model.ModelLanguage.SBML.value,
             ),
             simulation=sedml_data_model.UniformTimeCourseSimulation(
@@ -363,15 +363,16 @@ class TestCore(unittest.TestCase):
         variable_ids = ['EmptySet', 'A', 'C', 'DA', 'DAp', "DR", "DRp", "MA", "MR", "R"]
         variables = []
         for variable_id in variable_ids:
+            target_base_str = "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']"
             model.changes.append(sedml_data_model.ModelAttributeChange(
                 id=variable_id,
-                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']/@initialConcentration".format(variable_id),
+                target=target_base_str.format(f"{variable_id}") + "/@initialConcentration",
                 target_namespaces=self.NAMESPACES_L2V4,
-                new_value=None,
+                new_value=0.1,
             ))
             variables.append(sedml_data_model.Variable(
                 id=variable_id,
-                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']".format(variable_id),
+                target=target_base_str.format(variable_id),
                 target_namespaces=self.NAMESPACES_L2V4,
                 task=task,
             ))
