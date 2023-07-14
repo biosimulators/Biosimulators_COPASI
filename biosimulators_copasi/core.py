@@ -348,15 +348,17 @@ def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgor
         metabolite = basico.get_species(sbml_id=sbml_id)
         metabolite = metabolite if metabolite is not None else basico.get_species(sbml_id)  # Pretend it's the name
         if metabolite is not None:
+            metab_map = basico.as_dict(metabolite)
             if units == Units.continuous:
-                basico.set_species(sbml_id=sbml_id, initial_concentration=model_change.new_value)
+                basico.set_species(metab_map["name"], initial_concentration=model_change.new_value)
             else:
-                basico.set_species(sbml_id=sbml_id, initial_particle_number=model_change.new_value)
+                basico.set_species(metab_map["name"], initial_particle_number=model_change.new_value)
             continue
 
         compartment = basico.get_compartments(sbml_id=sbml_id)
         if compartment is not None:
-            basico.set_compartment(sbml_id=sbml_id, initial_size=model_change.new_value)
+            compart_map = basico.as_dict(compartment)
+            basico.set_compartment(compart_map["name"], initial_size=model_change.new_value)
             continue
 
         #reaction = basico.get_reactions(sbml_id=sbml_id)
