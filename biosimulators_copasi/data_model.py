@@ -870,15 +870,24 @@ class CopasiMappings:
 
 
 class BasicoInitialization:
-    def __init__(self, sim: UniformTimeCourseSimulation, algorithm: CopasiAlgorithm, variables: list[Variable]):
+    def __init__(self, algorithm: CopasiAlgorithm, variables: list[Variable]):
         self.algorithm = algorithm
         self._sedml_var_to_copasi_name: dict[Variable, str] = CopasiMappings.map_sedml_to_copasi(variables)
-        self._sim = sim
-        self.init_time_offset = self._sim.initial_time
+        self._sim = None
+        self.init_time_offset = None
+        self._duration_arg = None
+        self._step_size = None
+        self.number_of_steps = None
+        self._length_of_output = None
+
+    def configure_simulation_settings(self, sim: UniformTimeCourseSimulation):
+        self._sim: UniformTimeCourseSimulation = sim
+        self.init_time_offset: float = self._sim.initial_time
         self._duration_arg: float = self._sim.output_end_time - self.init_time_offset  # COPASI is kept in the dark
         self._step_size: float = BasicoInitialization._calc_simulation_step_size(self._sim)
         self.number_of_steps: int = int(self._duration_arg / self._step_size)
-        self._length_of_output = int((self._sim.output_end_time - self._sim.output_start_time) / self._step_size) + 1
+        self._length_of_output: int = int((self._sim.output_end_time - self._sim.output_start_time) / self._step_size)
+        self._length_of_output += 1
 
     def get_simulation_configuration(self) -> dict:
         # Create the configuration basico needs to initialize the time course task

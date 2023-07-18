@@ -167,6 +167,15 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: data
     if preprocessed_task is None:
         preprocessed_task = preprocess_sed_task(task, variables, config)
 
+    # Continued Initialization: Give preprocessed task the new task
+    preprocessed_task.configure_simulation_settings(task.simulation)
+
+    # Penultimate Initialization: Apply method parameter overrides:
+    _load_algorithm_parameters(task.simulation, preprocessed_task.algorithm, config)
+
+    # Final Initialization: process model changes
+    _apply_model_changes(task.model, preprocessed_task.algorithm)
+
     # prepare task
     basico.set_task_settings(basico.T.TIME_COURSE, preprocessed_task.get_simulation_configuration())
 
@@ -271,14 +280,8 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
     copasi_algorithm = utils.get_algorithm(sim.algorithm.kisao_id, has_events, config=config)
 
-    # Apply method parameter overrides:
-    _load_algorithm_parameters(sim, copasi_algorithm, config)
-
-    # process model changes
-    _apply_model_changes(model, copasi_algorithm)
-
     # Create and return preprocessed simulation settings
-    preprocessed_info = data_model.BasicoInitialization(utc_sim, copasi_algorithm, variables)
+    preprocessed_info = data_model.BasicoInitialization(copasi_algorithm, variables)
     return preprocessed_info
 
 
