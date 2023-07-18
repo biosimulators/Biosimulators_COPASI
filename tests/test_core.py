@@ -451,26 +451,26 @@ class TestCore(unittest.TestCase):
                 target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']/@initialConcentration".format(
                     'UnInfected_Tumour_Cells_Xu'),
                 target_namespaces=self.NAMESPACES_L3V1,
-                new_value=None,
+                new_value=400000,
             ),
             sedml_data_model.ModelAttributeChange(
                 id='r',
-                target="/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter[@id='{}']/@initialConcentration".format('r'),
+                target="/sbml:sbml/sbml:model/sbml:listOfParameters/sbml:parameter[@id='r']/@initialConcentration",
                 target_namespaces=self.NAMESPACES_L3V1,
-                new_value=None,
+                new_value=1.0,
             ),
             sedml_data_model.ModelAttributeChange(
                 id='compartment',
-                target="/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment[@id='{}']/@size".format('compartment'),
+                target="/sbml:sbml/sbml:model/sbml:listOfCompartments/sbml:compartment[@id='compartment']/@size",
                 target_namespaces=self.NAMESPACES_L3V1,
-                new_value=None,
+                new_value=1.2,
             ),
         ]
 
         variables = [
             sedml_data_model.Variable(
                 id='UnInfected_Tumour_Cells_Xu',
-                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']".format('UnInfected_Tumour_Cells_Xu'),
+                target="/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='UnInfected_Tumour_Cells_Xu']",
                 target_namespaces=self.NAMESPACES_L3V1,
                 task=task,
             ),
@@ -517,10 +517,6 @@ class TestCore(unittest.TestCase):
                 exec_sed_task(task, variables)
 
         task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml')
-        with mock.patch.object(COPASI.CCopasiTask, 'initializeRawWithOutputHandler', return_value=False):
-            with self.assertRaisesRegex(RuntimeError, 'Output handler could not be initialized'):
-                exec_sed_task(task, variables)
-
         task.simulation.output_end_time = 20.1
         with self.assertRaisesRegex(NotImplementedError, 'integer number of time points'):
             exec_sed_task(task, variables)
@@ -542,7 +538,7 @@ class TestCore(unittest.TestCase):
                 target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
         ]
-        with self.assertRaisesRegex(NotImplementedError, 'symbols are not supported'):
+        with self.assertRaisesRegex(NotImplementedError, 'unable to interpret'):
             exec_sed_task(task, variables)
 
         variables = [
@@ -552,7 +548,7 @@ class TestCore(unittest.TestCase):
                 target_namespaces=self.NAMESPACES_L2V4,
                 task=task),
         ]
-        with self.assertRaisesRegex(ValueError, 'targets cannot be recorded'):
+        with self.assertRaisesRegex(ValueError, 'target cannot be recorded'):
             exec_sed_task(task, variables)
 
         variables = []

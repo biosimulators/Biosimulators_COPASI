@@ -274,7 +274,11 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     utc_sim: UniformTimeCourseSimulation = sim
 
     # instantiate model
-    basico_data_model: COPASI.CDataModel = basico.load_model(model.source)
+    basico_data_model: COPASI.CDataModel
+    try:
+        basico_data_model = basico.load_model(model.source)
+    except COPASI.CCopasiException as e:
+        raise ValueError(f"SBML '{model.source}' could not be imported into COPASI;\n\t", e)
 
     # process solution algorithm
     has_events: bool = basico_data_model.getModel().getNumEvents() >= 1

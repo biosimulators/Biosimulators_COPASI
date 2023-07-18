@@ -844,7 +844,8 @@ class CopasiMappings:
         symbols = [symbol_mappings.get(variable, None) for variable in raw_symbols]
 
         if None in symbols:
-            raise ValueError(f"BioSim COPASI is unable to interpret symbol '{raw_symbols[symbols.index(None)]}'")
+            message = f"BioSimCOPASI is unable to interpret provided symbol '{raw_symbols[symbols.index(None)]}'"
+            raise NotImplementedError(message)
 
         return {sedml_var: copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
 
@@ -866,6 +867,8 @@ class CopasiMappings:
         beginning_index = beginning_index + 5 if beginning_index is not -1 else (target.find('@id=\"')) + 5
         end_index: int = target.find('\']')
         end_index: int = end_index if end_index is not -1 else target.find('\"]')
+        if beginning_index == -1 or end_index == -1:
+            raise ValueError(f"Unable to parse '{target}' to COPASI objects: target cannot be recorded by COPASI")
         return target[beginning_index:end_index]
 
 
@@ -881,11 +884,16 @@ class BasicoInitialization:
         self._length_of_output = None
 
     def configure_simulation_settings(self, sim: UniformTimeCourseSimulation):
+        if sim.output_end_time == sim.output_start_time:
+            raise NotImplementedError("The output end time must be greater than the output start time.")
         self._sim: UniformTimeCourseSimulation = sim
         self.init_time_offset: float = self._sim.initial_time
         self._duration_arg: float = self._sim.output_end_time - self.init_time_offset  # COPASI is kept in the dark
         self._step_size: float = BasicoInitialization._calc_simulation_step_size(self._sim)
-        self.number_of_steps: int = int(self._duration_arg / self._step_size)
+        self.number_of_steps = self._duration_arg / self._step_size
+        if int(self.number_of_steps) != self.number_of_steps:
+            raise NotImplementedError("Number of steps must be an integer number of time points, "
+                                      f"not '{self.number_of_steps}'")
         self._length_of_output: int = int((self._sim.output_end_time - self._sim.output_start_time) / self._step_size)
         self._length_of_output += 1
 
