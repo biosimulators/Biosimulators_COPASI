@@ -873,9 +873,10 @@ class CopasiMappings:
 
 
 class BasicoInitialization:
-    def __init__(self, algorithm: CopasiAlgorithm, variables: list[Variable]):
+    def __init__(self, algorithm: CopasiAlgorithm, variables: list[Variable], has_events: bool = False):
         self.algorithm = algorithm
         self._sedml_var_to_copasi_name: dict[Variable, str] = CopasiMappings.map_sedml_to_copasi(variables)
+        self.has_events = has_events
         self._sim = None
         self.init_time_offset = None
         self._duration_arg = None

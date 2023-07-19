@@ -23,9 +23,9 @@ from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, \
     StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
 from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults  # noqa: F401
-from biosimulators_utils.sedml.data_model import (Algorithm, Task, Model, Simulation, ModelLanguage, ModelChange,
-                                                  ModelAttributeChange, UniformTimeCourseSimulation,  # noqa: F401
-                                                  Variable, Symbol, SedDocument)
+from biosimulators_utils.sedml.data_model import (Algorithm, AlgorithmParameterChange, Task, Model, Simulation,
+                                                  ModelLanguage, ModelChange, ModelAttributeChange,
+                                                  UniformTimeCourseSimulation, Variable, Symbol, SedDocument)  # noqa: F401
 from biosimulators_utils.sedml import validation
 from biosimulators_utils.utils.core import raise_errors_warnings
 from biosimulators_utils.warnings import warn, BioSimulatorsWarning
@@ -170,11 +170,11 @@ def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: data
     # Continued Initialization: Give preprocessed task the new task
     preprocessed_task.configure_simulation_settings(task.simulation)
 
-    # Penultimate Initialization: Apply method parameter overrides:
-    _load_algorithm_parameters(task.simulation, preprocessed_task.algorithm, config)
-
-    # Final Initialization: process model changes
+    # Penultimate Initialization: Apply parameter overrides to model
     _apply_model_changes(task.model, preprocessed_task.algorithm)
+
+    # Final Initialization: Process model changes
+    _load_algorithm_parameters(task.simulation, preprocessed_task.algorithm, config)
 
     # prepare task
     basico.set_task_settings(basico.T.TIME_COURSE, preprocessed_task.get_simulation_configuration())
@@ -285,7 +285,7 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
     copasi_algorithm = utils.get_algorithm(sim.algorithm.kisao_id, has_events, config=config)
 
     # Create and return preprocessed simulation settings
-    preprocessed_info = data_model.BasicoInitialization(copasi_algorithm, variables)
+    preprocessed_info = data_model.BasicoInitialization(copasi_algorithm, variables, has_events)
     return preprocessed_info
 
 
@@ -391,7 +391,7 @@ def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAl
     unsupported_parameters, bad_parameters = utils.set_algorithm_parameter_values(copasi_algorithm,
                                                                                   requested_algorithm.changes)
     if len(unsupported_parameters) + len(bad_parameters) == 0:
-        return
+        return  # No problems
 
     selected_sub_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[algorithm_substitution_policy]
     zero_substitution_policy = ALGORITHM_SUBSTITUTION_POLICY_LEVELS[AlgSubPolicy.NONE]
@@ -399,14 +399,15 @@ def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAl
     # Otherwise, just create some warnings
 
     for change in unsupported_parameters:
+        parameter_str = f'Parameter `{change.kisao_id}`'
         if selected_sub_policy <= zero_substitution_policy:
-            raise NotImplementedError(change)
-        warn(f'Unsupported algorithm parameter `{change.kisao_id}` was ignored:\n', BioSimulatorsWarning)
+            raise NotImplementedError(parameter_str + " is not supported\n", change)
+        warn(parameter_str + " was ignored:\n", BioSimulatorsWarning)
 
     for change in bad_parameters:
-        if selected_sub_policy <= zero_substitution_policy:
-            raise ValueError(change)
-        warning_message = 'Invalid or unsupported value `{}` for algorithm parameter `{}` was ignored:\n'
+        if selected_sub_policy == zero_substitution_policy:
+            raise ValueError(f"'{change}' is not a valid change with a 'NONE' substitution policy.")
+        warning_message = 'Invalid or unsupported value `{}` for algorithm parameter `{}` encountered:\n'
         warn(warning_message.format(change.new_value, change.kisao_id), BioSimulatorsWarning)
 
     return

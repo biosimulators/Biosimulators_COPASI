@@ -558,7 +558,7 @@ class TestCore(unittest.TestCase):
                 exec_sed_task(task, variables)
 
         with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_VARIABLES'}):
-            with self.assertWarnsRegex(BioSimulatorsWarning, 'Unsuported value'):
+            with self.assertWarnsRegex(BioSimulatorsWarning, 'nsupported value'):
                 exec_sed_task(task, variables)
 
         task.simulation.algorithm.changes[0].kisao_id = 'KISAO_0000531'
@@ -567,7 +567,7 @@ class TestCore(unittest.TestCase):
                 exec_sed_task(task, variables)
 
         with mock.patch.dict('os.environ', {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_VARIABLES'}):
-            with self.assertWarnsRegex(BioSimulatorsWarning, 'Unsuported algorithm parameter'):
+            with self.assertWarnsRegex(BioSimulatorsWarning, 'was ignored:'):
                 exec_sed_task(task, variables)
 
     def test_exec_sed_task_copasi_error_handling(self):
@@ -661,13 +661,13 @@ class TestCore(unittest.TestCase):
 
         # fail because particle number too big for discrete methods
         self.assertEqual(sorted(errored_algs), sorted([
-            'KISAO_0000027',
-            'KISAO_0000029',
-            'KISAO_0000039',
-            'KISAO_0000048',
-            'KISAO_0000561',
-            'KISAO_0000562',
-            'KISAO_0000563',
+            'KISAO_0000027',  # Gibson Bruck
+            'KISAO_0000029',  # Direct Method
+            'KISAO_0000039',  # Tau Leap
+            'KISAO_0000048',  # Adaptive SSA Tau Leap
+            'KISAO_0000561',  # Hybrid Runge Kutta
+            'KISAO_0000562',  # Hybrid LSODA
+            'KISAO_0000563',  # Hybrid RK-45
         ]))
 
     def test_exec_sedml_docs_in_combine_archive_with_stochastic_model_all_algorithms(self):
