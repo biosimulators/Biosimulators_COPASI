@@ -419,7 +419,7 @@ class TestCore(unittest.TestCase):
                 id="model_change",
                 target="/sbml:sbml",
                 target_namespaces=self.NAMESPACES_L2V4,
-                new_value=None,
+            new_value=None,
             ),
         ]
         with self.assertRaises(ValueError):
