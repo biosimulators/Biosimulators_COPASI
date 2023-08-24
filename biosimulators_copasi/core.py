@@ -19,13 +19,12 @@ import biosimulators_copasi.data_model as data_model
 import biosimulators_copasi.utils as utils
 
 from biosimulators_utils.config import get_config, Config  # noqa: F401
-from biosimulators_utils.log.data_model import CombineArchiveLog, TaskLog, \
-    StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401
+from biosimulators_utils.log.data_model import TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
 from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults  # noqa: F401
-from biosimulators_utils.sedml.data_model import (Algorithm, AlgorithmParameterChange, Task, Model, Simulation,
-                                                  ModelLanguage, ModelChange, ModelAttributeChange,
-                                                  UniformTimeCourseSimulation, Variable, Symbol, SedDocument)  # noqa: F401
+from biosimulators_utils.sedml.data_model import \
+    Algorithm, Task, Model, Simulation, ModelLanguage, ModelChange, ModelAttributeChange, \
+    UniformTimeCourseSimulation, Variable, SedDocument  # noqa: F401
 from biosimulators_utils.sedml import validation
 from biosimulators_utils.utils.core import raise_errors_warnings
 from biosimulators_utils.warnings import warn, BioSimulatorsWarning
@@ -35,7 +34,6 @@ from biosimulators_copasi.data_model import Units
 import basico
 import COPASI
 import lxml
-import math
 import numpy
 import os
 import tempfile
@@ -45,6 +43,7 @@ __all__ = ['get_simulator_version', 'exec_sedml_docs_in_combine_archive', 'exec_
 
 proper_args: dict = {}
 
+
 def get_simulator_version():
     """ Get the version of COPASI
 
@@ -52,6 +51,7 @@ def get_simulator_version():
         :obj:`str`: version
     """
     return basico.__version__
+
 
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Config = None,
                                        should_fix_copasi_generated_combine_archive: bool = None) -> tuple:
@@ -234,7 +234,8 @@ def get_copasi_error_message(sim: Simulation, details=None):
     return error_msg
 
 
-def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = None) -> data_model.BasicoInitialization:
+def preprocess_sed_task(task: Task, variables: list[Variable],
+                        config: Config = None) -> data_model.BasicoInitialization:
     """ Preprocess a SED task, including its possible model changes and variables. This is useful for avoiding
     repeatedly initializing tasks on repeated calls of :obj:`exec_sed_task`.
 
@@ -282,7 +283,7 @@ def preprocess_sed_task(task: Task, variables: list[Variable], config: Config = 
 
     # process solution algorithm
     has_events: bool = basico_data_model.getModel().getNumEvents() >= 1
-    copasi_algorithm = utils.get_algorithm(sim.algorithm.kisao_id, has_events, config=config)
+    copasi_algorithm = utils.get_algorithm(utc_sim.algorithm.kisao_id, has_events, config=config)
 
     # Create and return preprocessed simulation settings
     preprocessed_info = data_model.BasicoInitialization(copasi_algorithm, variables, has_events)
@@ -332,9 +333,6 @@ def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgor
     legal_changes: list[ModelAttributeChange] = []
     illegal_changes: list[ModelChange] = []
 
-    specs = basico.get_species()
-    comps = basico.get_compartments()
-
     # If there's no changes, get out of here
     if not sedml_model.changes:
         return legal_changes, illegal_changes
@@ -368,8 +366,8 @@ def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgor
             basico.set_compartment(compart_map["name"], initial_size=model_change.new_value)
             continue
 
-        #reaction = basico.get_reactions(sbml_id=sbml_id)
-        #if reaction is not None:
+        # reaction = basico.get_reactions(sbml_id=sbml_id)
+        # if reaction is not None:
         #    basico.set_reaction(sbml_id=sbml_id, ???)
         #    continue
 
@@ -382,7 +380,6 @@ def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgor
 
 def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAlgorithm, config: Config = None):
     # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
-    method_parameters = {}
     algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
     requested_algorithm: Algorithm = sim.algorithm
     if copasi_algorithm.KISAO_ID != requested_algorithm.kisao_id:
@@ -411,4 +408,3 @@ def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAl
         warn(warning_message.format(change.new_value, change.kisao_id), BioSimulatorsWarning)
 
     return
-

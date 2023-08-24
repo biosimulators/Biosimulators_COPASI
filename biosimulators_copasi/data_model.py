@@ -13,10 +13,7 @@ from biosimulators_utils.sedml.data_model import UniformTimeCourseSimulation, Va
 
 import basico
 import pandas
-from biosimulators_utils.data_model import ValueType
-import collections
 import enum
-import math
 
 __all__ = [
     'Units',
@@ -107,7 +104,8 @@ class RelativeToleranceParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -125,7 +123,8 @@ class AbsoluteToleranceParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -143,7 +142,8 @@ class IntegrateReducedModelParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: bool):
-        if new_value is not None and not (type(new_value) == bool):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == bool):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -161,7 +161,8 @@ class MaximumInternalStepsParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: int):
-        if new_value is not None and not (type(new_value) == int):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == int):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -179,7 +180,8 @@ class MaximumInternalStepSizeParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -197,7 +199,8 @@ class RandomSeedParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: int):
-        if new_value is not None and not (type(new_value) == int):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == int):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -224,7 +227,8 @@ class EpsilonParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -242,7 +246,8 @@ class LowerLimitParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -260,7 +265,8 @@ class UpperLimitParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -278,7 +284,8 @@ class PartitioningIntervalParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: int):
-        if new_value is not None and not (type(new_value) == int):  # can't use isinstance because PEP 285:
+        # can't use isinstance because PEP 285:
+        if new_value is not None and not (type(new_value) == int):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -296,7 +303,8 @@ class InitialStepSizeParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285:
+        # can't use isinstance because PEP 285:
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -325,7 +333,8 @@ class RungeKuttaStepSizeParameter(StepSizeParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -342,7 +351,8 @@ class InternalStepParameter(StepSizeParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -360,7 +370,8 @@ class ToleranceForRootFinderParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: float):
-        if new_value is not None and not (type(new_value) == float):  # can't use isinstance because PEP 285
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -378,7 +389,8 @@ class ForcePhysicalCorrectnessParameter(CopasiAlgorithmParameter):
         return self._value
 
     def set_value(self, new_value: bool):
-        if new_value is not None and not (type(new_value) == bool):  # can't use isinstance because PEP 285:
+        # can't use isinstance because PEP 285:
+        if new_value is not None and not (type(new_value) == bool):  # noqa: E721
             raise ValueError
         self._value = new_value
 
@@ -432,12 +444,11 @@ class CopasiAlgorithm:
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return False
-        return (True if (
-            self.KISAO_ID == other.KISAO_ID,
-            self.ID == other.ID,
-            self.NAME == other.NAME,
+        equality = self.KISAO_ID == other.KISAO_ID and \
+            self.ID == other.ID and \
+            self.NAME == other.NAME and \
             self.CAN_SUPPORT_EVENTS == other.CAN_SUPPORT_EVENTS
-        ) else False)
+        return True if equality else False
 
 
 class GibsonBruckAlgorithm(CopasiAlgorithm):
@@ -757,6 +768,7 @@ class CopasiAlgorithmType(enum.Enum):
     HYBRID_RK45 = HybridRK45Algorithm
     SDE_SOLVE_RI5 = SDESolveRI5Algorithm
 
+
 class CopasiMappings:
     @staticmethod
     def format_to_copasi_reaction_name(sbml_name: str):
@@ -821,7 +833,7 @@ class CopasiMappings:
             compartment_mapping = {compartments.at[row, "sbml_id"]: str(row) for row in compartments.index}
             metabolites_mapping = {metabolites.at[row, "sbml_id"]: str(row) for row in metabolites.index}
             reactions_mapping = {reactions.at[row, "sbml_id"]: str(row) for row in reactions.index}
-            parameters_mapping = {parameters.at[row, "sbml_id"] : str(row) for row in parameters.index}
+            parameters_mapping = {parameters.at[row, "sbml_id"]: str(row) for row in parameters.index}
 
         # Combine mappings
         sbml_id_to_sbml_name_map = {"Time": "Time"}

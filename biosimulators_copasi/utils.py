@@ -14,7 +14,7 @@ from biosimulators_utils.combine.data_model import CombineArchiveContentFormat
 from biosimulators_utils.combine.io import CombineArchiveReader, CombineArchiveWriter
 from biosimulators_utils.config import get_config, Config  # noqa: F401
 from biosimulators_utils.simulator.utils import get_algorithm_substitution_policy
-from biosimulators_utils.sedml.data_model import Variable, UniformTimeCourseSimulation, AlgorithmParameterChange
+from biosimulators_utils.sedml.data_model import AlgorithmParameterChange
 from kisao.data_model import AlgorithmSubstitutionPolicy, ALGORITHM_SUBSTITUTION_POLICY_LEVELS
 from kisao.utils import get_preferred_substitute_algorithm_by_ids
 import libsedml
@@ -22,7 +22,6 @@ import lxml
 import os
 import shutil
 import tempfile
-import pandas
 
 __all__ = [
     'get_algorithm',
@@ -178,8 +177,3 @@ def fix_copasi_generated_combine_archive(in_filename, out_filename, config=None)
         CombineArchiveWriter().run(archive, archive_directory_name, out_filename)
     finally:
         shutil.rmtree(archive_directory_name)
-
-
-
-
-
