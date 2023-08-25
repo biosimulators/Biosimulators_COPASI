@@ -876,9 +876,9 @@ class CopasiMappings:
     @staticmethod
     def _extract_id_from_xpath(target: str):
         beginning_index: int = (target.find('@id=\''))
-        beginning_index = beginning_index + 5 if beginning_index is not -1 else (target.find('@id=\"')) + 5
+        beginning_index = beginning_index + 5 if beginning_index != -1 else (target.find('@id=\"')) + 5
         end_index: int = target.find('\']')
-        end_index: int = end_index if end_index is not -1 else target.find('\"]')
+        end_index: int = end_index if end_index != -1 else target.find('\"]')
         if beginning_index == -1 or end_index == -1:
             raise ValueError(f"Unable to parse '{target}' to COPASI objects: target cannot be recorded by COPASI")
         return target[beginning_index:end_index]
