@@ -826,7 +826,6 @@ class TestCore(unittest.TestCase):
             'REPORT_FORMATS': 'h5,csv'
         }
 
-    @unittest.expectedFailure
     def test_exec_sedml_docs_in_combine_archive_with_docker_image(self):
         doc, archive_filename = self._build_combine_archive()
         out_dir = os.path.join(self.directory_name, 'out')
