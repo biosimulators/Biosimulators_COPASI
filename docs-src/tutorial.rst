@@ -7,7 +7,7 @@ BioSimulators-COPASI is available as a command-line program and as a command-lin
 Creating COMBINE/OMEX archives and encoding simulation experiments into SED-ML
 ------------------------------------------------------------------------------
 
-Information about how to create COMBINE/OMEX archives which can be executed by BioSimulators-COPASI is available `here <`https://docs.biosimulations.org/users/creating-projects/>`_.
+Information about how to create COMBINE/OMEX archives which can be executed by BioSimulators-COPASI is available `here <https://docs.biosimulations.org/users/creating-projects/>`_.
 
 A list of the algorithms and algorithm parameters supported by COPASI is available at `BioSimulators <https://biosimulators.org/simulators/copasi>`_.
 

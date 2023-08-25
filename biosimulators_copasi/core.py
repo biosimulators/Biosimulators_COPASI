@@ -8,6 +8,9 @@
 """
 from __future__ import annotations
 
+from sys import platform
+from typing import Optional, Tuple, Union, List
+
 import biosimulators_utils.combine.exec as bsu_combine
 import biosimulators_utils.sedml.exec as bsu_exec
 import biosimulators_utils.config as bsu_config
@@ -19,9 +22,11 @@ import biosimulators_copasi.data_model as data_model
 import biosimulators_copasi.utils as utils
 
 from biosimulators_utils.config import get_config, Config  # noqa: F401
-from biosimulators_utils.log.data_model import TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog  # noqa: F401
+from biosimulators_utils.log.data_model import TaskLog, StandardOutputErrorCapturerLevel, SedDocumentLog, \
+    CombineArchiveLog  # noqa: F401
 from biosimulators_utils.viz.data_model import VizFormat  # noqa: F401
-from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults  # noqa: F401
+from biosimulators_utils.report.data_model import ReportFormat, VariableResults, SedDocumentResults, \
+    ReportResults  # noqa: F401
 from biosimulators_utils.sedml.data_model import \
     Algorithm, Task, Model, Simulation, ModelLanguage, ModelChange, ModelAttributeChange, \
     UniformTimeCourseSimulation, Variable, SedDocument  # noqa: F401
@@ -53,8 +58,14 @@ def get_simulator_version():
     return basico.__version__
 
 
-def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Config = None,
-                                       should_fix_copasi_generated_combine_archive: bool = None) -> tuple:
+
+CURRENT_PLATFORM = platform.system()
+DEFAULT_STDOUT_LEVEL = StandardOutputErrorCapturerLevel.python if "Darwin" in CURRENT_PLATFORM else StandardOutputErrorCapturerLevel.c  # noqa python:S3776
+
+
+def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Optional[Config] = None,
+                                       fix_copasi_generated_combine_archive: Optional[bool] = None) -> \
+        Tuple[SedDocumentResults, CombineArchiveLog]:
     """ Execute the SED tasks defined in a COMBINE/OMEX archive and save the outputs
 
     Args:
@@ -76,27 +87,27 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
             * :obj:`SedDocumentResults`: results
             * :obj:`CombineArchiveLog`: log
     """
-    if should_fix_copasi_generated_combine_archive is None:
+    if fix_copasi_generated_combine_archive is None:
         should_fix_copasi_generated_combine_archive = os.getenv('FIX_COPASI_GENERATED_COMBINE_ARCHIVE',
                                                                 '0').lower() in ['1', 'true']
 
-    if should_fix_copasi_generated_combine_archive:
+    if fix_copasi_generated_combine_archive:
         archive_filename = _get_copasi_fixed_archive(archive_filename)
 
     result = bsu_combine.exec_sedml_docs_in_archive(exec_sed_doc, archive_filename, out_dir,
                                                     apply_xml_model_changes=True, config=config)
 
-    if should_fix_copasi_generated_combine_archive:
+    if fix_copasi_generated_combine_archive:
         os.remove(archive_filename)
 
     return result
 
 
-def exec_sed_doc(doc: SedDocument | str, working_dir: str, base_out_path: str, rel_out_path: str = None,
-                 apply_xml_model_changes: bool = True, log: SedDocumentLog = None, indent: int = 0,
-                 pretty_print_modified_xml_models: bool = False,
-                 log_level: StandardOutputErrorCapturerLevel = StandardOutputErrorCapturerLevel.c,
-                 config: Config = None):
+def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, rel_out_path: Optional[str] = None,
+                 apply_xml_model_changes: bool = True, log: Optional[SedDocumentLog] = None,
+                 indent: int = 0, pretty_print_modified_xml_models: bool = False,
+                 log_level: Optional[StandardOutputErrorCapturerLevel]=DEFAULT_STDOUT_LEVEL,
+                 config: Optional[Config] = None) -> Tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
     Args:
@@ -135,8 +146,8 @@ def exec_sed_doc(doc: SedDocument | str, working_dir: str, base_out_path: str, r
                                  config=config)
 
 
-def exec_sed_task(task: Task, variables: list[Variable], preprocessed_task: data_model.BasicoInitialization = None,
-                  log: TaskLog = None, config: Config = None):
+def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Optional[Dict] = None,
+                  log: Optional[TaskLog] = None, config: Optional[Config] = None) -> Tuple[VariableResults, TaskLog]:
     ''' Execute a task and save its results
 
     Args:
