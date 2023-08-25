@@ -8,8 +8,7 @@
 """
 from __future__ import annotations
 
-from sys import platform
-from typing import Optional, Tuple, Union, List
+from typing import Optional, Tuple, Union, List, Dict
 
 import biosimulators_utils.combine.exec as bsu_combine
 import biosimulators_utils.sedml.exec as bsu_exec
@@ -42,10 +41,13 @@ import lxml
 import numpy
 import os
 import tempfile
+import sys
 
 __all__ = ['get_simulator_version', 'exec_sedml_docs_in_combine_archive', 'exec_sed_doc',
            'exec_sed_task', 'preprocess_sed_task']
 
+CURRENT_PLATFORM = sys.platform
+DEFAULT_STDOUT_LEVEL = StandardOutputErrorCapturerLevel.python if "Darwin" in CURRENT_PLATFORM else StandardOutputErrorCapturerLevel.c  # noqa python:S3776
 proper_args: dict = {}
 
 
@@ -56,11 +58,6 @@ def get_simulator_version():
         :obj:`str`: version
     """
     return basico.__version__
-
-
-
-CURRENT_PLATFORM = platform.system()
-DEFAULT_STDOUT_LEVEL = StandardOutputErrorCapturerLevel.python if "Darwin" in CURRENT_PLATFORM else StandardOutputErrorCapturerLevel.c  # noqa python:S3776
 
 
 def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, config: Optional[Config] = None,
@@ -87,9 +84,9 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
             * :obj:`SedDocumentResults`: results
             * :obj:`CombineArchiveLog`: log
     """
-    if fix_copasi_generated_combine_archive is None:
-        should_fix_copasi_generated_combine_archive = os.getenv('FIX_COPASI_GENERATED_COMBINE_ARCHIVE',
-                                                                '0').lower() in ['1', 'true']
+    # if fix_copasi_generated_combine_archive is None:
+    #     should_fix_copasi_generated_combine_archive = os.getenv('FIX_COPASI_GENERATED_COMBINE_ARCHIVE',
+    #                                                             '0').lower() in ['1', 'true']
 
     if fix_copasi_generated_combine_archive:
         archive_filename = _get_copasi_fixed_archive(archive_filename)
@@ -106,7 +103,7 @@ def exec_sedml_docs_in_combine_archive(archive_filename: str, out_dir: str, conf
 def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: str, rel_out_path: Optional[str] = None,
                  apply_xml_model_changes: bool = True, log: Optional[SedDocumentLog] = None,
                  indent: int = 0, pretty_print_modified_xml_models: bool = False,
-                 log_level: Optional[StandardOutputErrorCapturerLevel]=DEFAULT_STDOUT_LEVEL,
+                 log_level: Optional[StandardOutputErrorCapturerLevel] = DEFAULT_STDOUT_LEVEL,
                  config: Optional[Config] = None) -> Tuple[ReportResults, SedDocumentLog]:
     """ Execute the tasks specified in a SED document and generate the specified outputs
 
