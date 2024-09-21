@@ -206,12 +206,16 @@ jobs:
                 run: |
                     release="0"
                     
+                    echo "Simulator Version:  `${{ github.event.inputs.simulatorVersion }}`"
+                    echo "Input Version:  `${{ steps.update-simulator-version.outputs.simulatorVersion }}`"
+                    echo "Simulator Version:  `${{ github.event.inputs.simulatorVersion }}`"3
+                    
                     if [ "true" == "${{ github.event.inputs.simulatorVersion }}" ]; then
                         release="1"
                     fi
                     
                     if [ ! -z "${{ steps.update-simulator-version.outputs.simulatorVersion }}" ]; then
-                      if [ "${{ github.ref }}" == "${{ steps.get-main-branch.outputs.mainBranchRef }}" ]; then
+                      if [ "${{ github.ref }}" == "dev" ]; then
                         release="1"
                       fi
                     fi
