@@ -29,7 +29,7 @@ LABEL \
     org.opencontainers.image.vendor="BioSimulators Team" \
     org.opencontainers.image.licenses="Artistic-2.0" \
     \
-    base_image="python:3.9-slim-buster" \
+    base_image="python:3.10-slim-buster" \
     version="${VERSION}" \
     software="COPASI" \
     software.version="${SIMULATOR_VERSION}" \

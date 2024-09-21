@@ -167,7 +167,7 @@ jobs:
                 run: |
                     poetry run sphinx-apidoc . pyproject.toml --output-dir docs-src/source --force --module-first --no-toc
                     mkdir -p docs-src/_static
-                    poetry run docs-src docs
+                    poetry run sphinx-build docs-src docs
 
             #############################################
             ## Commit and push new version of simulator
