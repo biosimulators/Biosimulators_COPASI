@@ -122,5 +122,10 @@ temp/
 tests/results/
 tests/out/
 
+# Testing input / output
+input/*
+output/*
+biosimulators_copasi/__dev_entrypoint__.py
+
 *.tmp
 
