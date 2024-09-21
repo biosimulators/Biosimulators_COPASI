@@ -133,7 +133,7 @@ def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: 
             * :obj:`ReportResults`: results of each report
             * :obj:`SedDocumentLog`: log of the document
     """
-    return bsu_exec.exec_sed_doc(exec_sed_task, doc, working_dir, base_out_path,
+    result = bsu_exec.exec_sed_doc(exec_sed_task, doc, working_dir, base_out_path,
                                  rel_out_path=rel_out_path,
                                  apply_xml_model_changes=apply_xml_model_changes,
                                  log=log,
@@ -141,6 +141,7 @@ def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: 
                                  pretty_print_modified_xml_models=pretty_print_modified_xml_models,
                                  log_level=log_level,
                                  config=config)
+    return result
 
 
 def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Optional[Dict] = None,
@@ -198,17 +199,35 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     variable_results = VariableResults()
     offset = preprocessed_task.init_time_offset
 
-    for variable in variables:
-        data_target = preprocessed_task.get_copasi_name(variable)
-        series: pandas.Series = data.loc[:, data_target]
-        if basico_task_settings["problem"]["Duration"] > 0.0:
-            variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
-            for index, value in enumerate(series):
-                variable_results[variable.id][index] = value if data_target != "Time" else value + offset
-        else:
-            value = series.get(0) if data_target != "Time" else series.get(0) + offset
-            sedml_utc_sim: UniformTimeCourseSimulation = task.simulation
-            variable_results[variable.id] = numpy.full(sedml_utc_sim.number_of_steps + 1, value)
+    try:
+        for variable in variables:
+            data_target = preprocessed_task.get_copasi_name(variable)
+            series: pandas.Series
+            try:
+                series = data.loc[:, data_target]
+            except KeyError as e:
+                msg = "Unable to find output. Most likely a bug regarding BASICO and DisplayNames with nested braces."
+                raise RuntimeError(msg, e)
+            # Check for duplicates (yes, that can happen)
+            if isinstance(series, pandas.DataFrame):
+                _, num_cols = series.shape
+                first_sub_series: pandas.Series = series.iloc[:, 0]
+                for i in range(1, num_cols):
+                    if not first_sub_series.equals(series.iloc[:, i]):
+                        raise RuntimeError("Different data sets for same variable")
+                series: pandas.Series = first_sub_series
+
+            if basico_task_settings["problem"]["Duration"] > 0.0:
+                variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
+                for index, value in enumerate(series):
+                    variable_results[variable.id][index] = value if data_target != "Time" else value + offset
+            else:
+                value = series.get(0) if data_target != "Time" else series.get(0) + offset
+                sedml_utc_sim: UniformTimeCourseSimulation = task.simulation
+                variable_results[variable.id] = numpy.full(sedml_utc_sim.number_of_steps + 1, value)
+    except Exception as e:
+        raise e
+
 
     # log action
     if config.LOG:
