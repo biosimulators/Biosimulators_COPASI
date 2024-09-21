@@ -444,11 +444,11 @@ class CopasiAlgorithm:
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return False
-        equality = self.KISAO_ID == other.KISAO_ID and \
-            self.ID == other.ID and \
-            self.NAME == other.NAME and \
-            self.CAN_SUPPORT_EVENTS == other.CAN_SUPPORT_EVENTS
-        return True if equality else False
+        kisao_equality = self.KISAO_ID == other.KISAO_ID
+        id_equality = self.ID == other.ID
+        name_equality = self.NAME == other.NAME
+        event_support_equality = self.CAN_SUPPORT_EVENTS == other.CAN_SUPPORT_EVENTS
+        return kisao_equality and id_equality and name_equality and event_support_equality
 
 
 class GibsonBruckAlgorithm(CopasiAlgorithm):
@@ -905,8 +905,12 @@ class BasicoInitialization:
         self._step_size: float = BasicoInitialization._calc_simulation_step_size(self._sim)
         self.number_of_steps = self._duration_arg / self._step_size
         if int(self.number_of_steps) != self.number_of_steps:
-            raise NotImplementedError("Number of steps must be an integer number of time points, "
-                                      f"not '{self.number_of_steps}'")
+            difference = self.number_of_steps - int(self.number_of_steps)
+            decimal_off = difference / int(self.number_of_steps)
+            if decimal_off > pow(10, -6):
+                raise NotImplementedError("Number of steps must be an integer number of time points, "
+                                          f"not '{self.number_of_steps}'")
+            self.number_of_steps = int(self.number_of_steps)
         self._length_of_output: int = int((self._sim.output_end_time - self._sim.output_start_time) / self._step_size)
         self._length_of_output += 1
 
