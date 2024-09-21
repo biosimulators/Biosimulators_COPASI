@@ -96,10 +96,7 @@ jobs:
             ## Lint and Test
             #############################################
             -   name: Lint the package
-                run: poetry run python flake8
-
-            -   name: Test the package
-                run: poetry run pytest
+                run: poetry run python -m flake8
 
             -   name: Run the tests
                 run: poetry run python -m pytest tests/ --cov=./biosimulators_copasi/ --cov-report=xml
