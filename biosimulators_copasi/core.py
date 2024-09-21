@@ -354,6 +354,7 @@ def _validate_sedml(config: Config, task: Task, model: Model, sim: Simulation, v
     errors_model_changes = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
     raise_errors_warnings(errors_model_changes, error_summary=model_change_error_message)
 
+
 def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgorithm) \
         -> tuple[list[ModelAttributeChange], list[ModelChange]]:
     legal_changes: list[ModelAttributeChange] = []

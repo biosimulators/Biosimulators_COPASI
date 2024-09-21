@@ -1,8 +1,6 @@
 biosimulators_utils[logging,sbml]~=0.2.0
-
 python-copasi==4.44.295
 copasi_basico==0.74
-
 docker
 evalidate~=2.0.1
 kisao~=2.34
