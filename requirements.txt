@@ -1,12 +1,14 @@
 biosimulators_utils[logging,sbml]~=0.2.0
+
+python-copasi==4.44.295
 copasi_basico==0.74
+
 docker
 evalidate~=2.0.1
 kisao~=2.34
 lxml~=4.9.2
 numpy==1.24.4
 python_libsbml~=5.20.1
-python_copasi~=4.40.278
 python_dateutil~=2.8.2
 setuptools
 cement~=3.0.8
