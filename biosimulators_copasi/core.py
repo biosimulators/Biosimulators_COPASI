@@ -134,13 +134,13 @@ def exec_sed_doc(doc: Union[SedDocument, str], working_dir: str, base_out_path: 
             * :obj:`SedDocumentLog`: log of the document
     """
     result = bsu_exec.exec_sed_doc(exec_sed_task, doc, working_dir, base_out_path,
-                                 rel_out_path=rel_out_path,
-                                 apply_xml_model_changes=apply_xml_model_changes,
-                                 log=log,
-                                 indent=indent,
-                                 pretty_print_modified_xml_models=pretty_print_modified_xml_models,
-                                 log_level=log_level,
-                                 config=config)
+                                   rel_out_path=rel_out_path,
+                                   apply_xml_model_changes=apply_xml_model_changes,
+                                   log=log,
+                                   indent=indent,
+                                   pretty_print_modified_xml_models=pretty_print_modified_xml_models,
+                                   log_level=log_level,
+                                   config=config)
     return result
 
 
@@ -228,7 +228,6 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     except Exception as e:
         raise e
 
-
     # log action
     if config.LOG:
         log.algorithm = preprocessed_task.get_kisao_id_for_kisao_algorithm()
@@ -274,27 +273,14 @@ def preprocess_sed_task(task: Task, variables: list[Variable],
     Returns:
         :obj:`BasicoInitialization`: prepared information about the task
     """
-    config: Config = config or bsu_config.get_config()
+    config: Config = config if config is not None else bsu_config.get_config()
 
     # Get model and simulation
     model: Model = task.model
     sim: Simulation = task.simulation
 
     # Validate provided simulation description
-    if config.VALIDATE_SEDML:
-        _validate_sedml(task, model, sim, variables)
-
-    model_change_error_message = f'Changes for model `{model.id}` are not supported.'
-    model_etree = lxml.etree.parse(model.source)
-    validation.validate_target_xpaths(model.changes, model_etree, attr='id')
-    validation.validate_target_xpaths(variables, model_etree, attr='id')
-    raise_errors_warnings(validation.validate_model_change_types(model.changes, (ModelAttributeChange,)),
-                          error_summary=model_change_error_message)
-
-    if config.VALIDATE_SEDML_MODELS:
-        raise_errors_warnings(*validation.validate_model(model, [], working_dir='.'),
-                              error_summary=f'Model `{model.id}` is invalid.',
-                              warning_summary=f'Model `{model.id}` may be invalid.')
+    _validate_sedml(config, task, model, sim, variables)
 
     # Confirm UTC Simulation
     if not isinstance(sim, UniformTimeCourseSimulation):
@@ -327,7 +313,7 @@ def _get_copasi_fixed_archive(archive_filename: bytes | str):
     return temp_archive_filename
 
 
-def _validate_sedml(task: Task, model: Model, sim: Simulation, variables: list[Variable]):
+def _validate_sedml(config: Config, task: Task, model: Model, sim: Simulation, variables: list[Variable]):
     # Prepare error messages
     invalid_task: str = f'Task `{task.id}` is invalid.'
     invalid_model_lang: str = f'Language for model `{model.id}` is not supported.'
@@ -337,23 +323,36 @@ def _validate_sedml(task: Task, model: Model, sim: Simulation, variables: list[V
     invalid_data_gen: str = f'Data generator variables for task `{task.id}` are invalid.'
 
     # run validations
-    task_errors = validation.validate_task(task)
-    model_lang_errors = validation.validate_model_language(model.language, ModelLanguage.SBML)
-    model_change_type_errors = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
-    simulation_type_errors = validation.validate_simulation_type(sim, (UniformTimeCourseSimulation,))
-    model_change_errors_list = validation.validate_model_changes(model)
-    simulation_errors_list = validation.validate_simulation(sim)
-    data_generator_errors_list = validation.validate_data_generator_variables(variables)
+    if config.VALIDATE_SEDML:
+        task_errors = validation.validate_task(task)
+        model_lang_errors = validation.validate_model_language(model.language, ModelLanguage.SBML)
+        model_change_type_errors = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
+        simulation_type_errors = validation.validate_simulation_type(sim, (UniformTimeCourseSimulation,))
+        model_change_errors_list = validation.validate_model_changes(model)
+        simulation_errors_list = validation.validate_simulation(sim)
+        data_generator_errors_list = validation.validate_data_generator_variables(variables)
 
-    # pass results to raise errors and warnings method
-    bsu_util_core.raise_errors_warnings(task_errors, error_summary=invalid_task)
-    bsu_util_core.raise_errors_warnings(model_lang_errors, error_summary=invalid_model_lang)
-    bsu_util_core.raise_errors_warnings(model_change_type_errors, error_summary=invalid_model_changes)
-    bsu_util_core.raise_errors_warnings(*model_change_errors_list, error_summary=invalid_model_changes)
-    bsu_util_core.raise_errors_warnings(simulation_type_errors, error_summary=invalid_sim_type)
-    bsu_util_core.raise_errors_warnings(*simulation_errors_list, error_summary=invalid_sim)
-    bsu_util_core.raise_errors_warnings(*data_generator_errors_list, error_summary=invalid_data_gen)
+        # pass results to raise errors and warnings method
+        bsu_util_core.raise_errors_warnings(task_errors, error_summary=invalid_task)
+        bsu_util_core.raise_errors_warnings(model_lang_errors, error_summary=invalid_model_lang)
+        bsu_util_core.raise_errors_warnings(model_change_type_errors, error_summary=invalid_model_changes)
+        bsu_util_core.raise_errors_warnings(*model_change_errors_list, error_summary=invalid_model_changes)
+        bsu_util_core.raise_errors_warnings(simulation_type_errors, error_summary=invalid_sim_type)
+        bsu_util_core.raise_errors_warnings(*simulation_errors_list, error_summary=invalid_sim)
+        bsu_util_core.raise_errors_warnings(*data_generator_errors_list, error_summary=invalid_data_gen)
 
+    if config.VALIDATE_SEDML_MODELS:
+        model_errors = validation.validate_model(model, [], working_dir='.')
+        bsu_util_core.raise_errors_warnings(*model_errors, error_summary=f'Model `{model.id}` is invalid.',
+                                            warning_summary=f'Model `{model.id}` may be invalid.')
+
+    # Necessary validation for COPASI's use:
+    model_change_error_message = f'Changes for model `{model.id}` are not supported.'
+    model_etree = lxml.etree.parse(model.source)
+    validation.validate_target_xpaths(model.changes, model_etree, attr='id')
+    validation.validate_target_xpaths(variables, model_etree, attr='id')
+    errors_model_changes = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
+    raise_errors_warnings(errors_model_changes, error_summary=model_change_error_message)
 
 def _apply_model_changes(sedml_model: Model, copasi_algorithm: utils.CopasiAlgorithm) \
         -> tuple[list[ModelAttributeChange], list[ModelChange]]:

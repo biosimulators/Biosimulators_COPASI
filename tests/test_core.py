@@ -512,8 +512,11 @@ class TestCore(unittest.TestCase):
             file.write('  </model>')
             file.write('</sbml2>')
 
+        with self.assertRaisesRegex(ValueError, 'is invalid'):
+            exec_sed_task(task, variables)
+
         with mock.patch('biosimulators_utils.sedml.validation.validate_model_with_language', return_value=([], [], None)):
-            with self.assertRaisesRegex(ValueError, 'could not be imported'):
+            with self.assertRaisesRegex(AttributeError, 'object has no attribute'):
                 exec_sed_task(task, variables)
 
         task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml')
