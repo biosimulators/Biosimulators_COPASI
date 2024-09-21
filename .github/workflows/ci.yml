@@ -223,8 +223,6 @@ jobs:
                       fi
                     fi
                     
-                    if 
-                    
                     echo "::set-output name=release::$release"
 
             # If new tag, commit and push documentation
