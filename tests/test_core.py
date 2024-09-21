@@ -835,7 +835,7 @@ class TestCore(unittest.TestCase):
         env = TestCore._get_combine_archive_exec_env()
 
         exec_sedml_docs_in_archive_with_containerized_simulator(
-            archive_filename, out_dir, docker_image, environment=env, pull_docker_image=False)
+            archive_filename, out_dir, docker_image, environment=env, pull_docker_image=True)
 
         self._assert_combine_archive_outputs(doc, out_dir)
 
