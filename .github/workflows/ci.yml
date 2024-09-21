@@ -7,6 +7,9 @@ on:
             simulatorVersion:
                 description: New version of the underlying simulation tool (e.g., '1.5.6')
                 required: true
+            forceRelease:
+                description: Type "true" (case sensitive) to ensure a release will happen (use carefully!)
+                required: true
     schedule:
         -   cron: "0 0 * * *"
 
@@ -203,6 +206,10 @@ jobs:
                 run: |
                     release="0"
                     
+                    if [ "true" == "${{ github.event.inputs.simulatorVersion }}" ]; then
+                        release="1"
+                    fi
+                    
                     if [ ! -z "${{ steps.update-simulator-version.outputs.simulatorVersion }}" ]; then
                       if [ "${{ github.ref }}" == "${{ steps.get-main-branch.outputs.mainBranchRef }}" ]; then
                         release="1"
@@ -215,6 +222,8 @@ jobs:
                         release="1"
                       fi
                     fi
+                    
+                    if 
                     
                     echo "::set-output name=release::$release"
 
