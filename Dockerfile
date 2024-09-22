@@ -47,7 +47,7 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 # We should be able to just pip install; this is a good test anyway
-RUN pip install 'biosimulators-copasi=="${VERSION}"'
+RUN pip install biosimulators-copasi
 ENV ALGORITHM_SUBSTITUTION_POLICY=SIMILAR_VARIABLES \
     VERBOSE=0 \
     MPLBACKEND=PDF
