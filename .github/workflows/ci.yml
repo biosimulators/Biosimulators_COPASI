@@ -154,9 +154,9 @@ jobs:
                 run: echo 'Beginning Deploy Steps'
 
             #############################################
-            ## Form-fill the versions to the container and to `pyproject.toml`
+            ## Form-fill the versions to the container, `pyproject.toml`, and part of `biosimulators.json`
             #############################################
-            - name: Update versioning in "Dockerfile" and "pyproject.toml"
+            - name: Update versioning in "Dockerfile", "pyproject.toml", and part of "biosimulators.json"
               if: steps.check-new-release.outputs.needDeploy == 'true'
               run: |
                   copasiVersion=${{ steps.check-new-release.outputs.copasiVersion }}
@@ -166,6 +166,8 @@ jobs:
                   sed -i -E "s/ARG VERSION=([^ \n]+|\".*?\")/ARG VERSION=\"${bioSimVersion}\"/" Dockerfile
 
                   sed -i -E "s/^version\s+=\s+(\".*?\")/version = \"${bioSimVersion}\"/mg" pyproject.toml
+                  
+                  sed -i -e 's/__COPASI_VERSION__/${copasiVersion}/g' biosimulators.json
                   poetry update
 
             #############################################
@@ -245,7 +247,7 @@ jobs:
                     fi
 
             #############################################
-            ## Form-fill the versions to "biosimulators.json"
+            ## Form-fill the digest portion of "biosimulators.json"
             #############################################
             - name: Update versioning in "biosimulators.json"
               if: steps.check-new-release.outputs.needDeploy == 'true'
@@ -256,10 +258,8 @@ jobs:
                     grep ${{ steps.get-docker-image-tag.outputs.simulatorVersion }} | awk '{ print $3; ]'
                   
                   dockerDigest=docker inspect --format='{{index .RepoDigests 0}}' $imageId | cut -d '@' -f 2
-                  copasiVersion=${{ steps.check-new-release.outputs.copasiVersion }}
                   
                   sed -i -e 's/__CONTAINER_DIGEST__/${dockerDigest}/g' biosimulators.json
-                  sed -i -e 's/__COPASI_VERSION__/${copasiVersion}/g' biosimulators.json
 
             #############################################
             # Submit to BioSimulators registry
