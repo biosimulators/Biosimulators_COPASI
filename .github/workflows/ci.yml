@@ -151,51 +151,7 @@ jobs:
             #############################################
             -   name: Start the Deploy Process
                 if: steps.check-new-release.outputs.needDeploy == 'true'
-                run: echo 'Beginning Deploy Steps
-            #############################################
-            # If new tag, commit and push documentation
-            #############################################
-            -   id: commit-docs
-                name: Commit the compiled documentation
-                if: steps.check-new-release.outputs.needDeploy == 'true'
-                run: |
-                    git config --local user.email "biosimulators.daemon@gmail.com"
-                    git config --local user.name "biosimulatorsdaemon"
-                    git config pull.rebase false
-                    git stash
-                    git checkout ${{ steps.get-main-branch.outputs.mainBranch }}
-                    git pull
-                    set +e
-                    git stash pop
-                    git add docs
-                    git commit -m "Updating compiled documentation"
-                    git checkout .
-                    git clean -f -d
-                    if [[ $? = 0 ]]; then
-                      docsChanged=1
-                    else
-                      docsChanged=0
-                    fi
-                    echo "::set-output name=docsChanged::$docsChanged"
-
-            -   name: Push the compiled documentation
-                if: steps.commit-docs.outputs.docsChanged == '1'
-                uses: ad-m/github-push-action@master
-                with:
-                    github_token: ${{ secrets.GITHUB_TOKEN }}
-                    branch: ${{ steps.get-main-branch.outputs.mainBranch }}
-
-            #############################################
-            # Create GitHub release
-            #############################################
-            -   name: Create GitHub release
-                uses: actions/create-release@v1
-                if: steps.check-new-release.outputs.needDeploy == 'true'
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                with:
-                    tag_name: ${{ steps.get-tagged-version.outputs.version }}
-                    release_name: Release ${{ steps.get-tagged-version.outputs.version }}
+                run: echo 'Beginning Deploy Steps'
 
             #############################################
             # Create PyPI release
@@ -309,7 +265,51 @@ jobs:
                       https://api.github.com/repos/biosimulators/Biosimulators/issues \
                       -d "{\"labels\": [\"Validate/submit simulator\"], \"title\": \"Submit ${{ steps.get-docker-image-tag.outputs.simulatorName }} ${{ steps.get-docker-image-tag.outputs.simulatorVersion }}\", \"body\": \"---\nid: ${{ steps.get-docker-image-tag.outputs.simulatorId }}\nversion: ${{ steps.get-docker-image-tag.outputs.simulatorVersion }}\nspecificationsUrl: https://raw.githubusercontent.com/${{ github.repository }}/${REVISION}/biosimulators.json\nspecificationsPatch:\n  version: ${{ steps.get-docker-image-tag.outputs.simulatorVersion }}\n  image:\n    url: ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}\n    digest: \\\"${IMAGE_DIGEST}\\\"\nvalidateImage: true\ncommitSimulator: true\n\n---\"}"
 
+            #############################################
+            # If new tag, commit and push documentation
+            #############################################
+            - id: commit-docs
+              name: Commit the compiled documentation
+              if: steps.check-new-release.outputs.needDeploy == 'true'
+              run: |
+                  git config --local user.email "biosimulators.daemon@gmail.com"
+                  git config --local user.name "biosimulatorsdaemon"
+                  git config pull.rebase false
+                  git stash
+                  git checkout ${{ steps.get-main-branch.outputs.mainBranch }}
+                  git pull
+                  set +e
+                  git stash pop
+                  git add docs
+                  git commit -m "Updating compiled documentation"
+                  git checkout .
+                  git clean -f -d
+                  if [[ $? = 0 ]]; then
+                    docsChanged=1
+                  else
+                    docsChanged=0
+                  fi
+                  echo "::set-output name=docsChanged::$docsChanged"
 
+            - name: Push the compiled documentation
+              if: steps.commit-docs.outputs.docsChanged == '1'
+              uses: ad-m/github-push-action@master
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: ${{ steps.get-main-branch.outputs.mainBranch }}
+
+            #############################################
+            # Create GitHub release
+            #############################################
+            - name: Create GitHub release
+              uses: actions/create-release@v1
+              if: steps.check-new-release.outputs.needDeploy == 'true'
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ steps.get-tagged-version.outputs.version }}
+                  release_name: Release ${{ steps.get-tagged-version.outputs.version }}
+                  
             #############################################
             ## Commit and push new version of simulator
             #############################################
