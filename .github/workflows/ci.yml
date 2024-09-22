@@ -290,29 +290,40 @@ jobs:
               run: |
                   git config --local user.email "biosimulators.daemon@gmail.com"
                   git config --local user.name "biosimulatorsdaemon"
+                  git remote add origin https://github.com/biosimulators/Biosimulators_COPASI.git
                   git config pull.rebase false
-                  git stash
-                  git checkout ${{ steps.get-main-branch.outputs.mainBranch }}
-                  git pull
-                  set +e
-                  git stash pop
-                  git add docs
-                  git commit -m "Updating compiled documentation"
-                  git checkout .
-                  git clean -f -d
-                  if [[ $? = 0 ]]; then
-                    docsChanged=1
+                  
+                  # Need to check if we did the release on `dev` or not, very important!
+                  commitHash=$(git rev-parse ${{ steps.get-tagged-version.outputs.version }}^{commit})
+                  onDev=$(git branch -a --contains $commitHash | grep remotes/origin/master)
+                  
+                  if [[ -z $onDev ]]; then
+                    git stash
+                    git checkout dev
+                    git pull origin dev
+                    set +e
+                    git stash pop
+                    git add docs
+                    git commit -m "Updating compiled documentation"
+                    git checkout .
+                    git clean -f -d
+                    if [[ $? = 0 ]]; then
+                      docsChanged=1
+                    else
+                      docsChanged=0
+                    fi
                   else
-                    docsChanged=0
+                      docsChanged=0
                   fi
-                  echo "::set-output name=docsChanged::$docsChanged"
+                  echo "docsChanged=$docsChanged" >> "$GITHUB_OUTPUT"
+                  
 
             - name: Push the compiled documentation
               if: steps.commit-docs.outputs.docsChanged == '1'
               uses: ad-m/github-push-action@master
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  branch: ${{ steps.get-main-branch.outputs.mainBranch }}
+                  branch: dev
 
             #############################################
             # Create GitHub release
