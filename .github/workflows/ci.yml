@@ -76,7 +76,7 @@ jobs:
                 run: |
                     # We version the containers with the `biosimulators_copasi` version, but list the version 
                     # online as the COPASI version within the container.
-                    taggedVersion="${{ steps.get-tagged-version.outputs.version }}"
+                    taggedVersion="'${{ steps.get-tagged-version.outputs.version }}'"
                     
                     copasiVersion=$(poetry -q run python -c "import COPASI; print(COPASI.__version__)")
                     echo "copasiVersion=$copasiVersion" >> $GITHUB_OUTPUT
