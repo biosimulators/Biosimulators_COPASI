@@ -52,7 +52,7 @@ jobs:
                 id: get-tagged-version
                 if: startsWith(github.ref, 'refs/tags/')
                 run: |
-                    taggedVersion = $(echo $(echo ${{ github.ref }} | cut -d '/' -f 3))
+                    taggedVersion=$(echo $(echo ${{ github.ref }} | cut -d '/' -f 3))
                     echo "processing `$taggedVersion`"
                     echo "__version__ = ${taggedVersion}" > biosimulators_copasi/_version.py
                     echo "version=${taggedVersion}" >> $GITHUB_OUTPUT
