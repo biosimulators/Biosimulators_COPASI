@@ -116,11 +116,11 @@ jobs:
                     fi
 
             #############################################
-            ## Check for Deploy, Stop if not Deploying
+            ## Check for Deploy, Stop if not Deploying (disabled due to the fact it cancels, not passes)
             #############################################
-            -   name: Cancel build if not for release
-                uses: andymckay/cancel-action@0.2
-                if: steps.update-simulator-version.outputs.needDeploy != 'true'
+#            -   name: Cancel build if not for release
+#                uses: andymckay/cancel-action@0.2
+#                if: steps.update-simulator-version.outputs.needDeploy != 'true'
 
             #*******************************************#
             #*                Release                  *#
