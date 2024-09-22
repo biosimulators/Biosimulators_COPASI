@@ -69,39 +69,10 @@ jobs:
                     python-version: "3.10"
 
             #############################################
-            ## Lint and Test
+            ## Check if we need to perform a release
             #############################################
-            -   name: Lint the package
-                run: poetry run python -m flake8
-
-            -   name: Run the tests
-                run: poetry run python -m pytest tests/ --cov=./biosimulators_copasi/ --cov-report=xml
-
-            -   name: Upload the coverage report to Codecov
-                uses: codecov/codecov-action@v2
-                with:
-                    token: ${{ secrets.CODECOV_TOKEN }}
-                    flags: unittests
-                    file: ./coverage.xml
-
-            #############################################
-            ## Compile documentation
-            #############################################
-            -   name: Install the requirements for compiling the documentation
-                run: poetry install --with docs
-
-            -   name: Compile the documentation
-                run: |
-                    poetry run sphinx-apidoc . pyproject.toml --output-dir docs-src/source --force --module-first --no-toc
-                    mkdir -p docs-src/_static
-                    poetry run sphinx-build docs-src docs
-
-            #############################################
-            ## Apply the version of the simulator to `biosimulators.json`
-            #############################################
-
-            -   id: update-simulator-version
-                name: Update the version of the simulator
+            -   id: check-new-release
+                name: Check if we need to perform a release
                 run: |
                     # We version the containers with the `biosimulators_copasi` version, but list the version 
                     # online as the COPASI version within the container.
@@ -132,11 +103,39 @@ jobs:
                     fi
 
             #############################################
+            ## Lint and Test
+            #############################################
+            -   name: Lint the package
+                run: poetry run python -m flake8
+
+            -   name: Run the tests
+                run: poetry run python -m pytest tests/ --cov=./biosimulators_copasi/ --cov-report=xml
+
+            -   name: Upload the coverage report to Codecov
+                uses: codecov/codecov-action@v2
+                with:
+                    token: ${{ secrets.CODECOV_TOKEN }}
+                    flags: unittests
+                    file: ./coverage.xml
+
+            #############################################
+            ## Compile documentation
+            #############################################
+            -   name: Install the requirements for compiling the documentation
+                run: poetry install --with docs
+
+            -   name: Compile the documentation
+                run: |
+                    poetry run sphinx-apidoc . pyproject.toml --output-dir docs-src/source --force --module-first --no-toc
+                    mkdir -p docs-src/_static
+                    poetry run sphinx-build docs-src docs
+
+            #############################################
             ## Check for Deploy, Stop if not Deploying (disabled due to the fact it cancels, not passes)
             #############################################
 #            -   name: Cancel build if not for release
 #                uses: andymckay/cancel-action@0.2
-#                if: steps.update-simulator-version.outputs.needDeploy != 'true'
+#                if: steps.check-new-release.outputs.needDeploy != 'true'
 
             #*******************************************#
             #*                Release                  *#
@@ -146,14 +145,14 @@ jobs:
             # Give nice, clear heads up in GitHub Action that We are Deploying
             #############################################
             -   name: Start the Deploy Process
-                if: steps.update-simulator-version.outputs.needDeploy == 'true'
+                if: steps.check-new-release.outputs.needDeploy == 'true'
                 run: echo 'Beginning Deploy Steps
             #############################################
             # If new tag, commit and push documentation
             #############################################
             -   id: commit-docs
                 name: Commit the compiled documentation
-                if: steps.update-simulator-version.outputs.needDeploy == 'true'
+                if: steps.check-new-release.outputs.needDeploy == 'true'
                 run: |
                     git config --local user.email "biosimulators.daemon@gmail.com"
                     git config --local user.name "biosimulatorsdaemon"
@@ -186,7 +185,7 @@ jobs:
             #############################################
             -   name: Create GitHub release
                 uses: actions/create-release@v1
-                if: steps.update-simulator-version.outputs.needDeploy == 'true'
+                if: steps.check-new-release.outputs.needDeploy == 'true'
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 with:
@@ -197,7 +196,7 @@ jobs:
             # Create PyPI release
             #############################################
             -   name: Create PyPI release
-                if: steps.update-simulator-version.outputs.needDeploy == 'true'
+                if: steps.check-new-release.outputs.needDeploy == 'true'
                 env:
                     POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
                 run: |
@@ -223,7 +222,7 @@ jobs:
             ## Form-fill the versions to the container and to `biosimulators.json`
             #############################################
             - name: Update the version of the simulator
-              if: steps.update-simulator-version.outputs.needDeploy == 'true'
+              if: steps.check-new-release.outputs.needDeploy == 'true'
               run: |
                   containerLabel=${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
                   docker pull $containerLabel
@@ -232,8 +231,8 @@ jobs:
                   
                   
                   dockerDigest=docker inspect --format='{{index .RepoDigests 0}}' $imageId | cut -d '@' -f 2
-                  copasiVersion=${{ steps.update-simulator-version.outputs.copasiVersion }}
-                  bioSimVersion=${{ steps.update-simulator-version.outputs.bioSimVersion }}
+                  copasiVersion=${{ steps.check-new-release.outputs.copasiVersion }}
+                  bioSimVersion=${{ steps.check-new-release.outputs.bioSimVersion }}
                   
                   sed -i -e 's/__CONTAINER_DIGEST__/${dockerDigest}/g' biosimulators.json
                   sed -i -e 's/__COPASI_VERSION__/${copasiVersion}/g' biosimulators.json
@@ -246,7 +245,7 @@ jobs:
             #############################################
             - id: get-docker-image-tag
               name: Determine Docker image tag
-              if: steps.update-simulator-version.outputs.needDeploy == 'true'
+              if: steps.check-new-release.outputs.needDeploy == 'true'
               run: |
                   sudo apt-get update -y
                   sudo apt-get install -y --no-install-recommends jq
@@ -264,7 +263,7 @@ jobs:
                   echo "::set-output name=dockerRegistry::${DOCKER_REGISTRY}"
 
             - name: Build Docker image
-              if: steps.update-simulator-version.outputs.needDeploy == 'true'
+              if: steps.check-new-release.outputs.needDeploy == 'true'
               run: |
                   REVISION=$(git rev-parse HEAD)
                   CREATED=$(date --rfc-3339=seconds | sed 's/ /T/')
@@ -274,19 +273,19 @@ jobs:
                     --label org.opencontainers.image.created=${CREATED} \
                     --build-arg VERSION=${{ steps.get-tagged-version.outputs.version }} \
                     --build-arg SIMULATOR_VERSION=${{ steps.get-docker-image-tag.outputs.simulatorVersion }} \
-                    --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.update-simulator-version.outputs.copasiVersion }} \
+                    --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.check-new-release.outputs.copasiVersion }} \
                     --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:latest \
                     .
 
             -   name: Push Docker image
-                if: steps.update-simulator-version.outputs.needDeploy == 'true'
+                if: steps.check-new-release.outputs.needDeploy == 'true'
                 run: |
                     docker login ${{ steps.get-docker-image-tag.outputs.dockerRegistry }} \
                       --username ${{ secrets.DOCKER_REGISTRY_USERNAME }} \
                       --password ${{ secrets.DOCKER_REGISTRY_TOKEN }}
                     docker push ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
                     
-                    if [[ "${{ github.ref }}" =~ ^refs/tags/ ]] || [ "${{ steps.update-simulator-version.outputs.simulatorVersionLatest }}" == "true" ]; then
+                    if [[ "${{ github.ref }}" =~ ^refs/tags/ ]] || [ "${{ steps.check-new-release.outputs.simulatorVersionLatest }}" == "true" ]; then
                       docker push ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:latest
                     fi
 
@@ -294,7 +293,7 @@ jobs:
             # Submit to BioSimulators registry
             #############################################
             -   name: Submit to BioSimulators registry
-                if: steps.update-simulator-version.outputs.needDeploy == 'true'
+                if: steps.check-new-release.outputs.needDeploy == 'true'
                 run: |
                     REVISION=$(git rev-parse HEAD)
                     IMAGE_DIGEST=$(docker image inspect ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }} | jq -r '.[0].RepoDigests[0]' | cut -d "@" -f 2-)
@@ -311,7 +310,7 @@ jobs:
             #############################################
 #            # If new version of simulator, commit and push the new version
 #            -   name: Commit the revised version of the simulator
-#                if: steps.update-simulator-version.outputs.needDeploy == 'true'
+#                if: steps.check-new-release.outputs.needDeploy == 'true'
 #                run: |
 #                    git config --local user.email "biosimulators.daemon@gmail.com"
 #                    git config --local user.name "biosimulatorsdaemon"
@@ -325,7 +324,7 @@ jobs:
 #                    git commit -m "Updating version of simulator"
 #
 #            -   name: Push the revised version of the simulator
-#                if: steps.update-simulator-version.outputs.simulatorVersion && steps.update-simulator-version.outputs.simulatorVersionLatest == 'true'
+#                if: steps.check-new-release.outputs.simulatorVersion && steps.check-new-release.outputs.simulatorVersionLatest == 'true'
 #                uses: ad-m/github-push-action@master
 #                with:
 #                    github_token: ${{ secrets.GITHUB_TOKEN }}
