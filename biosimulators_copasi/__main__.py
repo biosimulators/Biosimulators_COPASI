@@ -9,6 +9,8 @@
 
 import cement
 import termcolor
+import COPASI
+import basico
 from . import get_simulator_version
 from ._version import __version__
 from .core import exec_sedml_docs_in_combine_archive
@@ -33,7 +35,7 @@ ENVIRONMENT_VARIABLES.append(
 )
 
 App = build_cli('biosimulators-copasi', __version__,
-                'COPASI', get_simulator_version(), 'http://copasi.org',
+                'COPASI', COPASI.__version__ + f" (BASICO: {get_simulator_version()})", 'http://copasi.org',
                 exec_sedml_docs_in_combine_archive,
                 environment_variables=ENVIRONMENT_VARIABLES,
                 )
