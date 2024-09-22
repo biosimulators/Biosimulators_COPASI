@@ -88,7 +88,7 @@ jobs:
             #############################################
             -   name: Gets latest created release info
                 id: latest_release_info
-                uses: jossef/action-latest-release-info@v1.2.2
+                uses: fangqiuming/latest-release-version@v1.1.1
 
             -   id: update-simulator-version
                 name: Update the version of the simulator
