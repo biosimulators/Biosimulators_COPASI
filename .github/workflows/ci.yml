@@ -260,7 +260,7 @@ jobs:
               run: |
                   containerLabel=${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
                   docker pull $containerLabel
-                  imageId=$(docker image ls | grep ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }} grep ${{ steps.get-docker-image-tag.outputs.simulatorVersion }} | awk '{ print $3; }')
+                  imageId=$(docker image ls | grep ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }} | grep ${{ steps.get-docker-image-tag.outputs.simulatorVersion }} | awk '{ print $3; }')
                   
                   dockerDigest=$(docker inspect --format='{{index .RepoDigests 0}}' $imageId | cut -d '@' -f 2)
                   
