@@ -87,7 +87,7 @@ jobs:
                     oldBioSimVersion=${{ steps.latest_release_info.outputs.tag_name }}
                     echo "oldBioSimVersion=$oldBioSimVersion"
                     
-                    if [ "$oldBioSimVersion" < "$bioSimVersion" ] && [ -z ${{ steps.get-tagged-version.outputs.version }} ]; then
+                    if [ "$oldBioSimVersion" < "$bioSimVersion" ] && [ -z "${{ steps.get-tagged-version.outputs.version }}: ]; then
                         echo "needDeploy=true" >> "$GITHUB_OUTPUT"
                         echo "Deploy will be performed!"
                     else
@@ -97,7 +97,7 @@ jobs:
                         if [ "$oldBioSimVersion" < "$bioSimVersion" ]; then
                             echo "Version is not newer than existing version"
                         fi
-                        if [ -z ${{ steps.get-tagged-version.outputs.version }} ]; then
+                        if [ -z "${{ steps.get-tagged-version.outputs.version }}" ]; then
                             echo "This is not a tagged action; push a new tag to release."
                         fi
                     fi
