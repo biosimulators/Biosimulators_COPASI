@@ -167,7 +167,7 @@ jobs:
 
                   sed -i -E "s/^version\s+=\s+(\".*?\")/version = \"${bioSimVersion}\"/mg" pyproject.toml
                   
-                  sed -i -e 's/__COPASI_VERSION__/${copasiVersion}/g' biosimulators.json
+                  sed -i -E "s/__COPASI_VERSION__/${copasiVersion}/g" biosimulators.json
                   poetry update
 
             #############################################
