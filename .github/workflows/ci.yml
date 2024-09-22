@@ -54,8 +54,9 @@ jobs:
                 run: |
                     taggedVersion=$(echo $(echo ${{ github.ref }} | cut -d '/' -f 3))
                     echo "processing `$taggedVersion`"
-                    echo "__version__ = ${taggedVersion}" > biosimulators_copasi/_version.py
+                    echo "__version__ = '${taggedVersion}'" > biosimulators_copasi/_version.py
                     echo "version=${taggedVersion}" >> $GITHUB_OUTPUT
+                    echo $(cat biosimulators_copasi/_version.py)
     
 
             #############################################
