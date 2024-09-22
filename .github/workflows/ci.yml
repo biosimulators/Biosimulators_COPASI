@@ -161,19 +161,19 @@ jobs:
                 env:
                     POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
                 run: |
-                    # Install pandoc
-                    sudo apt-get update -y
-                    sudo apt-get install -y --no-install-recommends wget
-                    
-                    wget https://github.com/jgm/pandoc/releases -O /tmp/pandocVersions.html
-                    urlPart=`grep "\.deb" /tmp/pandocVersions.html | head -n 1 | cut -d'/' -f2-7 | cut -d'"' -f1`
-                    wget "https://github.com/$urlPart" -O /tmp/pandoc.deb
-                    sudo dpkg -i /tmp/pandoc.deb
-                    rm /tmp/pandocVersions.html
-                    rm /tmp/pandoc.deb
-                    
-                    # Convert README to .rst format
-                    pandoc --from=gfm --output=README.rst --to=rst README.md
+#                    # Install pandoc
+#                    sudo apt-get update -y
+#                    sudo apt-get install -y --no-install-recommends wget
+#
+#                    wget https://github.com/jgm/pandoc/releases -O /tmp/pandocVersions.html
+#                    urlPart=`grep "\.deb" /tmp/pandocVersions.html | head -n 1 | cut -d'/' -f2-7 | cut -d'"' -f1`
+#                    wget "https://github.com/$urlPart" -O /tmp/pandoc.deb
+#                    sudo dpkg -i /tmp/pandoc.deb
+#                    rm /tmp/pandocVersions.html
+#                    rm /tmp/pandoc.deb
+#
+#                    # Convert README to .rst format
+#                    pandoc --from=gfm --output=README.rst --to=rst README.md
                     
                     # Build and Publish
                     poetry build
@@ -182,7 +182,7 @@ jobs:
             #############################################
             ## Form-fill the versions to the container and to `biosimulators.json`
             #############################################
-            - name: Update the version of the simulator
+            - name: Update versioning in "Dockerfile" and "biosimulators.json"
               if: steps.check-new-release.outputs.needDeploy == 'true'
               run: |
                   containerLabel=${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
@@ -309,7 +309,7 @@ jobs:
               with:
                   tag_name: ${{ steps.get-tagged-version.outputs.version }}
                   release_name: Release ${{ steps.get-tagged-version.outputs.version }}
-                  
+
             #############################################
             ## Commit and push new version of simulator
             #############################################
