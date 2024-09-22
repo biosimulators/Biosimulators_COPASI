@@ -10,7 +10,7 @@
     }
   ],
   "image": {
-    "url": "ghcr.io/biosimulators/biosimulators_copasi/basico:__COPASI_VERSION__",
+    "url": "ghcr.io/biosimulators/biosimulators_copasi/copasi:__COPASI_VERSION__",
     "digest": "__CONTAINER_DIGEST__",
     "format": {
       "namespace": "EDAM",
