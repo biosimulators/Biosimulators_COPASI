@@ -132,9 +132,9 @@ jobs:
             #############################################
             ## Check for Deploy, Stop if not Deploying
             #############################################
-            -   name: Cancel build if the specifications already have the latest version of COPASI
+            -   name: Cancel build if not for release
                 uses: andymckay/cancel-action@0.2
-                if: github.event_name == 'schedule' && steps.update-simulator-version.outputs.needDeploy != 'true'
+                if: steps.update-simulator-version.outputs.needDeploy != 'true'
 
             #*******************************************#
             #*                Release                  *#
