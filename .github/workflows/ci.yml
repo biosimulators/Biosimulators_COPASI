@@ -73,11 +73,11 @@ jobs:
             #############################################
             -   id: check-new-release
                 name: Check if we need to perform a release
-                env:
-                    TAGGED_VERSION=${{ steps.get-tagged-version.outputs.version }}
                 run: |
                     # We version the containers with the `biosimulators_copasi` version, but list the version 
                     # online as the COPASI version within the container.
+                    taggedVersion=${{ steps.get-tagged-version.outputs.version }}
+                    
                     copasiVersion=$(poetry -q run python -c "import COPASI; print(COPASI.__version__)")
                     echo "copasiVersion=$copasiVersion" >> $GITHUB_OUTPUT
                     echo "copasiVersion=$copasiVersion"
@@ -89,7 +89,7 @@ jobs:
                     oldBioSimVersion=${{ steps.latest_release_info.outputs.tag_name }}
                     echo "oldBioSimVersion=$oldBioSimVersion"
                     
-                    if [ "$oldBioSimVersion" < "$bioSimVersion" ] && [ -z "$TAGGED_VERSION" ]; then
+                    if [ "$oldBioSimVersion" < "$bioSimVersion" ] && [ -z "$taggedVersion" ]; then
                         echo "needDeploy=true" >> "$GITHUB_OUTPUT"
                         echo "Deploy will be performed!"
                     else
@@ -99,7 +99,7 @@ jobs:
                         if [ "$oldBioSimVersion" < "$bioSimVersion" ]; then
                             echo "Version is not newer than existing version"
                         fi
-                        if [ -z "$TAGGED_VERSION" ]; then
+                        if [ -z "$taggedVersion" ]; then
                             echo "This is not a tagged action; push a new tag to release."
                         fi
                     fi
