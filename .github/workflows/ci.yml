@@ -265,7 +265,7 @@ jobs:
                   
                   dockerDigest=docker inspect --format='{{index .RepoDigests 0}}' $imageId | cut -d '@' -f 2
                   
-                  sed -i -e 's/__CONTAINER_DIGEST__/${dockerDigest}/g' biosimulators.json
+                  sed -i -E "s/__CONTAINER_DIGEST__/${dockerDigest}/g" biosimulators.json
 
             #############################################
             # Submit to BioSimulators registry
