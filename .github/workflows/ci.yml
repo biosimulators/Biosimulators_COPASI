@@ -76,7 +76,7 @@ jobs:
                 run: |
                     # We version the containers with the `biosimulators_copasi` version, but list the version 
                     # online as the COPASI version within the container.
-                    taggedVersion="'${{ steps.get-tagged-version.outputs.version }}'"
+                    taggedVersion="${{ steps.get-tagged-version.outputs.version }}"
                     
                     copasiVersion=$(poetry -q run python -c "import COPASI; print(COPASI.__version__)")
                     echo "copasiVersion=$copasiVersion" >> "$GITHUB_OUTPUT"
@@ -89,7 +89,7 @@ jobs:
                     oldBioSimVersion=${{ steps.latest_release_info.outputs.tag_name }}
                     echo "oldBioSimVersion=$oldBioSimVersion"
                     
-                    if [[ $oldBioSimVersion < $bioSimVersion ]] && ! [[ -z "$taggedVersion" ]]; then
+                    if [[ $oldBioSimVersion < $bioSimVersion ]] && ! [[ -z $taggedVersion ]]; then
                         echo "needDeploy=true" >> "$GITHUB_OUTPUT"
                         echo "Deploy will be performed!"
                     else
@@ -102,7 +102,7 @@ jobs:
                         if [[ $oldBioSimVersion == $bioSimVersion ]]; then
                             echo "Old and new versions are the same"
                         fi
-                        if [[ -z "$taggedVersion" ]]; then
+                        if [[ -z $taggedVersion ]]; then
                             echo "This is not a tagged action; push a new tag to release."
                         fi
                     fi
