@@ -107,8 +107,14 @@ jobs:
                     # online as the COPASI version within the container.
                     copasiVersion=$(poetry -q run python -c "import COPASI; print(COPASI.__version__)")
                     echo "copasiVersion=$copasiVersion" >> $GITHUB_OUTPUT
+                    echo "copasiVersion=`$copasiVersion`"
+                    
                     bioSimVersion=$(poetry -q run python -c "import biosimulators_copasi as bsc; print(bsc.__version__)")
+                    echo "bioSimVersion=$bioSimVersion" >> $GITHUB_OUTPUT
+                    echo "bioSimVersion=`$bioSimVersion`"
+                    
                     oldBioSimVersion=${{ steps.latest_release_info.outputs.tag_name }}
+                    echo "oldBioSimVersion=`$oldBioSimVersion`"
                     
                     if [ $oldBioSimVersion < $bioSimVersion ] && [ -z ${{ steps.get-tagged-version.outputs.version }} ]; then
                         echo "needDeploy=true" >> "$GITHUB_OUTPUT"
