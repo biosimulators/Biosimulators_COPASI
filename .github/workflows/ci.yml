@@ -127,6 +127,12 @@ jobs:
             #*******************************************#
 
             #############################################
+            # Give nice, clear heads up in GitHub Action that We are Deploying
+            #############################################
+            -   name: Start the Deploy Process
+                if: steps.update-simulator-version.outputs.needDeploy == 'true'
+                run: echo 'Beginning Deploy Steps
+            #############################################
             # If new tag, commit and push documentation
             #############################################
             -   id: commit-docs
