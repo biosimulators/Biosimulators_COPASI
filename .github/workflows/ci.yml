@@ -34,17 +34,29 @@ jobs:
                 with:
                     fetch-depth: 1
 
+            #*******************************************#
+            #*                Validation               *#
+            #*******************************************#
+
             #############################################
-            ## If tagged, set the `_version.py` file to reflect it
+            ## Get Last Release's Info
+            #############################################
+            - name: Gets latest created release info
+              id: latest_release_info
+              uses: fangqiuming/latest-release-version@v1.1.1
+
+            #############################################
+            ## If Tagged, Set the `_version.py` File to Reflect it
             #############################################
             -   name: Align Version with tag
                 id: get-tagged-version
                 if: startsWith(github.ref, 'refs/tags/')
                 run: |
-                    taggedVersion = $(echo $(echo "refs/tags/22.2" | cut -d '/' -f 3))
+                    taggedVersion = $(echo $(echo ${{ github.ref }} | cut -d '/' -f 3))
                     echo "processing `$taggedVersion`"
                     echo "__version__ = ${taggedVersion}" > biosimulators_copasi/_version.py
                     echo "version=${taggedVersion}" >> $GITHUB_OUTPUT
+    
 
             #############################################
             ## Install package and its dependencies
@@ -86,21 +98,18 @@ jobs:
             #############################################
             ## Apply the version of the simulator to `biosimulators.json`
             #############################################
-            -   name: Gets latest created release info
-                id: latest_release_info
-                uses: fangqiuming/latest-release-version@v1.1.1
 
             -   id: update-simulator-version
                 name: Update the version of the simulator
                 run: |
-                    # We version the containers with the `biosimulators_copasi` version, but list the version as the 
-                    # COPASI version inside.
+                    # We version the containers with the `biosimulators_copasi` version, but list the version 
+                    # online as the COPASI version within the container.
                     copasiVersion=$(poetry -q run python -c "import COPASI; print(COPASI.__version__)")
                     echo "copasiVersion=$copasiVersion" >> $GITHUB_OUTPUT
                     bioSimVersion=$(poetry -q run python -c "import biosimulators_copasi as bsc; print(bsc.__version__)")
                     oldBioSimVersion=${{ steps.latest_release_info.outputs.tag_name }}
                     
-                    if [ $oldBioSimVersion < $bioSimVersion]; then
+                    if [ $oldBioSimVersion < $bioSimVersion] && [ -z ${{ steps.get-tagged-version.outputs.version }} ]; then
                         echo "needDeploy=true" >> "$GITHUB_OUTPUT"
                     else
                         echo "needDeploy=false" >> "$GITHUB_OUTPUT"
@@ -127,81 +136,9 @@ jobs:
                 uses: andymckay/cancel-action@0.2
                 if: github.event_name == 'schedule' && steps.update-simulator-version.outputs.needDeploy != 'true'
 
-            #############################################
-            ## Release
-            #############################################
-
-            #############################################
-            ## Build Docker image
-            #############################################
-            -   id: get-docker-image-tag
-                name: Determine Docker image tag
-                run: |
-                    sudo apt-get update -y
-                    sudo apt-get install -y --no-install-recommends jq
-                    
-                    SIMULATOR_ID=$(jq -r '.id' biosimulators.json)
-                    SIMULATOR_VERSION=$(jq -r '.version' biosimulators.json)
-                    SIMULATOR_NAME=$(jq -r '.name' biosimulators.json)
-                    IMAGE_BASE_URL=$(jq -r '.image.url' biosimulators.json | cut -d : -f 1)
-                    DOCKER_REGISTRY=$(echo $IMAGE_BASE_URL | cut -d / -f 1)
-                    
-                    echo "::set-output name=simulatorId::${SIMULATOR_ID}"
-                    echo "::set-output name=simulatorVersion::${SIMULATOR_VERSION}"
-                    echo "::set-output name=simulatorName::${SIMULATOR_NAME}"
-                    echo "::set-output name=dockerImageBaseUrl::${IMAGE_BASE_URL}"
-                    echo "::set-output name=dockerRegistry::${DOCKER_REGISTRY}"
-
-            -   name: Build Docker image
-                run: |
-                    REVISION=$(git rev-parse HEAD)
-                    CREATED=$(date --rfc-3339=seconds | sed 's/ /T/')
-                    docker build \
-                      --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
-                      --label org.opencontainers.image.revision=${REVISION} \
-                      --label org.opencontainers.image.created=${CREATED} \
-                      --build-arg VERSION=${{ steps.get-tagged-version.outputs.version }} \
-                      --build-arg SIMULATOR_VERSION=${{ steps.get-docker-image-tag.outputs.simulatorVersion }} \
-                      --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.update-simulator-version.outputs.copasiVersion }} \
-                      --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:latest \
-                      .
-
-            #############################################
-            ## Apply the digest of the container to `biosimulators.json`
-            #############################################
-            -   name: Update the version of the simulator
-                run: |
-                    containerLabel=${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
-                    docker pull $containerLabel
-                    imageId=docker image ls | grep ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }} \
-                        grep ${{ steps.get-docker-image-tag.outputs.simulatorVersion }} | awk '{ print $3; ]'
-                    dockerDigest=docker inspect --format='{{index .RepoDigests 0}}' $imageId | cut -d '@' -f 2
-                    sed -i -e 's/__CONTAINER_DIGEST__/${dockerDigest}/g' biosimulators.json
-
-            #############################################
-            ## Commit and push new version of simulator
-            #############################################
-            # If new version of simulator, commit and push the new version
-            -   name: Commit the revised version of the simulator
-                if: steps.update-simulator-version.outputs.simulatorVersion && steps.update-simulator-version.outputs.simulatorVersionLatest == 'true'
-                run: |
-                    git config --local user.email "biosimulators.daemon@gmail.com"
-                    git config --local user.name "biosimulatorsdaemon"
-                    git config pull.rebase false
-                    git stash -- biosimulators.json Dockerfile
-                    git clean -f -d
-                    git checkout .
-                    git pull
-                    git stash pop
-                    git add biosimulators.json Dockerfile
-                    git commit -m "Updating version of simulator"
-
-            -   name: Push the revised version of the simulator
-                if: steps.update-simulator-version.outputs.simulatorVersion && steps.update-simulator-version.outputs.simulatorVersionLatest == 'true'
-                uses: ad-m/github-push-action@master
-                with:
-                    github_token: ${{ secrets.GITHUB_TOKEN }}
-                    branch: ${{ github.ref }}
+            #*******************************************#
+            #*                Release                  *#
+            #*******************************************#
 
             # If new tag, commit and push documentation
             -   id: commit-docs
@@ -233,7 +170,9 @@ jobs:
                     github_token: ${{ secrets.GITHUB_TOKEN }}
                     branch: ${{ steps.get-main-branch.outputs.mainBranch }}
 
+            #############################################
             # Create GitHub release
+            #############################################
             -   name: Create GitHub release
                 uses: actions/create-release@v1
                 env:
@@ -242,7 +181,9 @@ jobs:
                     tag_name: ${{ steps.get-tagged-version.outputs.version }}
                     release_name: Release ${{ steps.get-tagged-version.outputs.version }}
 
+            #############################################
             # Create PyPI release
+            #############################################
             -   name: Create PyPI release
                 env:
                     POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
@@ -264,7 +205,58 @@ jobs:
                     # Build and Publish
                     poetry build
                     poetry publish --no-interaction --username __token__ --password $POETRY_PYPI_TOKEN_PYPI
-            # build Docker image and push to GitHub Container Registry
+                    
+
+            #############################################
+            ## Build Docker image
+            #############################################
+            - id: get-docker-image-tag
+              name: Determine Docker image tag
+              run: |
+                  sudo apt-get update -y
+                  sudo apt-get install -y --no-install-recommends jq
+                  
+                  SIMULATOR_ID=$(jq -r '.id' biosimulators.json)
+                  SIMULATOR_VERSION=$(jq -r '.version' biosimulators.json)
+                  SIMULATOR_NAME=$(jq -r '.name' biosimulators.json)
+                  IMAGE_BASE_URL=$(jq -r '.image.url' biosimulators.json | cut -d : -f 1)
+                  DOCKER_REGISTRY=$(echo $IMAGE_BASE_URL | cut -d / -f 1)
+                  
+                  echo "::set-output name=simulatorId::${SIMULATOR_ID}"
+                  echo "::set-output name=simulatorVersion::${SIMULATOR_VERSION}"
+                  echo "::set-output name=simulatorName::${SIMULATOR_NAME}"
+                  echo "::set-output name=dockerImageBaseUrl::${IMAGE_BASE_URL}"
+                  echo "::set-output name=dockerRegistry::${DOCKER_REGISTRY}"
+
+            - name: Build Docker image
+              run: |
+                  REVISION=$(git rev-parse HEAD)
+                  CREATED=$(date --rfc-3339=seconds | sed 's/ /T/')
+                  docker build \
+                    --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
+                    --label org.opencontainers.image.revision=${REVISION} \
+                    --label org.opencontainers.image.created=${CREATED} \
+                    --build-arg VERSION=${{ steps.get-tagged-version.outputs.version }} \
+                    --build-arg SIMULATOR_VERSION=${{ steps.get-docker-image-tag.outputs.simulatorVersion }} \
+                    --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.update-simulator-version.outputs.copasiVersion }} \
+                    --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:latest \
+                    .
+
+            #############################################
+            ## Apply the digest of the container to `biosimulators.json`
+            #############################################
+            - name: Update the version of the simulator
+              run: |
+                  containerLabel=${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}
+                  docker pull $containerLabel
+                  imageId=docker image ls | grep ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }} \
+                      grep ${{ steps.get-docker-image-tag.outputs.simulatorVersion }} | awk '{ print $3; ]'
+                  dockerDigest=docker inspect --format='{{index .RepoDigests 0}}' $imageId | cut -d '@' -f 2
+                  sed -i -e 's/__CONTAINER_DIGEST__/${dockerDigest}/g' biosimulators.json
+
+            #############################################
+            # Push Docker image to GitHub Container Registry
+            #############################################
             -   name: Push Docker image
                 run: |
                     docker login ${{ steps.get-docker-image-tag.outputs.dockerRegistry }} \
@@ -276,7 +268,9 @@ jobs:
                       docker push ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:latest
                     fi
 
+            #############################################
             # Submit to BioSimulators registry
+            #############################################
             -   name: Submit to BioSimulators registry
                 run: |
                     REVISION=$(git rev-parse HEAD)
@@ -287,3 +281,28 @@ jobs:
                       -H "Accept: application/vnd.github.v3+json" \
                       https://api.github.com/repos/biosimulators/Biosimulators/issues \
                       -d "{\"labels\": [\"Validate/submit simulator\"], \"title\": \"Submit ${{ steps.get-docker-image-tag.outputs.simulatorName }} ${{ steps.get-docker-image-tag.outputs.simulatorVersion }}\", \"body\": \"---\nid: ${{ steps.get-docker-image-tag.outputs.simulatorId }}\nversion: ${{ steps.get-docker-image-tag.outputs.simulatorVersion }}\nspecificationsUrl: https://raw.githubusercontent.com/${{ github.repository }}/${REVISION}/biosimulators.json\nspecificationsPatch:\n  version: ${{ steps.get-docker-image-tag.outputs.simulatorVersion }}\n  image:\n    url: ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }}\n    digest: \\\"${IMAGE_DIGEST}\\\"\nvalidateImage: true\ncommitSimulator: true\n\n---\"}"
+
+
+            #############################################
+            ## Commit and push new version of simulator
+            #############################################
+#            # If new version of simulator, commit and push the new version
+#            -   name: Commit the revised version of the simulator
+#                run: |
+#                    git config --local user.email "biosimulators.daemon@gmail.com"
+#                    git config --local user.name "biosimulatorsdaemon"
+#                    git config pull.rebase false
+#                    git stash -- biosimulators.json Dockerfile
+#                    git clean -f -d
+#                    git checkout .
+#                    git pull
+#                    git stash pop
+#                    git add biosimulators.json Dockerfile
+#                    git commit -m "Updating version of simulator"
+#
+#            -   name: Push the revised version of the simulator
+#                if: steps.update-simulator-version.outputs.simulatorVersion && steps.update-simulator-version.outputs.simulatorVersionLatest == 'true'
+#                uses: ad-m/github-push-action@master
+#                with:
+#                    github_token: ${{ secrets.GITHUB_TOKEN }}
+#                    branch: ${{ github.ref }}

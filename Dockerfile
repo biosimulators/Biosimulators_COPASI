@@ -46,12 +46,8 @@ RUN apt-get update -y \
     && apt-get install -y --no-install-recommends libfreetype6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy code for command-line interface into image and install it
-COPY . /root/Biosimulators_COPASI
-
-RUN pip install /root/Biosimulators_COPASI \
-    && rm -rf /root/Biosimulators_COPASI
-RUN pip install "python_copasi==${SIMULATOR_VERSION}"
+# We should be able to just pip install; this is a good test anyway
+RUN pip install 'biosimulators-copasi=="${VERSION}"'
 ENV ALGORITHM_SUBSTITUTION_POLICY=SIMILAR_VARIABLES \
     VERBOSE=0 \
     MPLBACKEND=PDF
