@@ -55,7 +55,7 @@ jobs:
                     taggedVersion=$(echo $(echo ${{ github.ref }} | cut -d '/' -f 3))
                     echo "processing `$taggedVersion`"
                     echo "__version__ = '${taggedVersion}'" > biosimulators_copasi/_version.py
-                    echo "version=${taggedVersion}" >> $GITHUB_OUTPUT
+                    echo "version=${taggedVersion}" >> "$GITHUB_OUTPUT"
                     echo $(cat biosimulators_copasi/_version.py)
     
 
@@ -79,11 +79,11 @@ jobs:
                     taggedVersion="'${{ steps.get-tagged-version.outputs.version }}'"
                     
                     copasiVersion=$(poetry -q run python -c "import COPASI; print(COPASI.__version__)")
-                    echo "copasiVersion=$copasiVersion" >> $GITHUB_OUTPUT
+                    echo "copasiVersion=$copasiVersion" >> "$GITHUB_OUTPUT"
                     echo "copasiVersion=$copasiVersion"
                     
                     bioSimVersion=$(poetry -q run python -c "import biosimulators_copasi as bsc; print(bsc.__version__)")
-                    echo "bioSimVersion=$bioSimVersion" >> $GITHUB_OUTPUT
+                    echo "bioSimVersion=$bioSimVersion" >> "$GITHUB_OUTPUT"
                     echo "bioSimVersion=$bioSimVersion"
                     
                     oldBioSimVersion=${{ steps.latest_release_info.outputs.tag_name }}
@@ -213,11 +213,17 @@ jobs:
                   IMAGE_BASE_URL=$(jq -r '.image.url' biosimulators.json | cut -d : -f 1)
                   DOCKER_REGISTRY=$(echo $IMAGE_BASE_URL | cut -d / -f 1)
                   
-                  echo "::set-output name=simulatorId::${SIMULATOR_ID}"
-                  echo "::set-output name=simulatorVersion::${SIMULATOR_VERSION}"
-                  echo "::set-output name=simulatorName::${SIMULATOR_NAME}"
-                  echo "::set-output name=dockerImageBaseUrl::${IMAGE_BASE_URL}"
-                  echo "::set-output name=dockerRegistry::${DOCKER_REGISTRY}"
+                  echo "simulatorId=${SIMULATOR_ID}" >> "$GITHUB_OUTPUT"
+                  echo "simulatorVersion=${SIMULATOR_VERSION}" >> "$GITHUB_OUTPUT"
+                  echo "simulatorName=${SIMULATOR_NAME}" >> "$GITHUB_OUTPUT"
+                  echo "dockerImageBaseUrl=${IMAGE_BASE_URL}" >> "$GITHUB_OUTPUT"
+                  echo "dockerRegistry=${DOCKER_REGISTRY}" >> "$GITHUB_OUTPUT"
+                  
+                  echo "simulatorId=${SIMULATOR_ID}"
+                  echo "simulatorVersion=${SIMULATOR_VERSION}"
+                  echo "simulatorName=${SIMULATOR_NAME}"
+                  echo "dockerImageBaseUrl=${IMAGE_BASE_URL}"
+                  echo "dockerRegistry=${DOCKER_REGISTRY}"
 
             - name: Build Docker image
               if: steps.check-new-release.outputs.needDeploy == 'true'
