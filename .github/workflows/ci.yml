@@ -96,8 +96,11 @@ jobs:
                         echo "needDeploy=false" >> "$GITHUB_OUTPUT"
                         echo "Deploy will NOT be performed:"
                         # Get an idea of why we will not deploy
-                        if [[ $oldBioSimVersion >= $bioSimVersion ]]; then
+                        if [[ $oldBioSimVersion > $bioSimVersion ]]; then
                             echo "Version is not newer than existing version"
+                        fi
+                        if [[ $oldBioSimVersion == $bioSimVersion ]]; then
+                            echo "Old and new versions are the same"
                         fi
                         if [[ -z "$taggedVersion" ]]; then
                             echo "This is not a tagged action; push a new tag to release."
