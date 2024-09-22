@@ -96,6 +96,7 @@ jobs:
                     # We version the containers with the `biosimulators_copasi` version, but list the version as the 
                     # COPASI version inside.
                     copasiVersion=$(poetry -q run python -c "import COPASI; print(COPASI.__version__)")
+                    echo "copasiVersion=$copasiVersion" >> $GITHUB_OUTPUT
                     bioSimVersion=$(poetry -q run python -c "import biosimulators_copasi as bsc; print(bsc.__version__)")
                     oldBioSimVersion=${{ steps.latest_release_info.outputs.tag_name }}
                     
@@ -161,7 +162,7 @@ jobs:
                       --label org.opencontainers.image.created=${CREATED} \
                       --build-arg VERSION=${{ steps.get-tagged-version.outputs.version }} \
                       --build-arg SIMULATOR_VERSION=${{ steps.get-docker-image-tag.outputs.simulatorVersion }} \
-                      --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.get-docker-image-tag.outputs.simulatorVersion }} \
+                      --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:${{ steps.update-simulator-version.outputs.copasiVersion }} \
                       --tag ${{ steps.get-docker-image-tag.outputs.dockerImageBaseUrl }}:latest \
                       .
 
