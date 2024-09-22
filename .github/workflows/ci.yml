@@ -89,14 +89,14 @@ jobs:
                     oldBioSimVersion=${{ steps.latest_release_info.outputs.tag_name }}
                     echo "oldBioSimVersion=$oldBioSimVersion"
                     
-                    if [[ $oldBioSimVersion < $bioSimVersion ]] && [[ -z "$taggedVersion" ]]; then
+                    if [[ $oldBioSimVersion -lt $bioSimVersion ]] && ! [[ -z "$taggedVersion" ]]; then
                         echo "needDeploy=true" >> "$GITHUB_OUTPUT"
                         echo "Deploy will be performed!"
                     else
                         echo "needDeploy=false" >> "$GITHUB_OUTPUT"
                         echo "Deploy will NOT be performed:"
                         # Get an idea of why we will not deploy
-                        if [[ $oldBioSimVersion < $bioSimVersion ]]; then
+                        if [[ $oldBioSimVersion -ge $bioSimVersion ]]; then
                             echo "Version is not newer than existing version"
                         fi
                         if [[ -z "$taggedVersion" ]]; then
