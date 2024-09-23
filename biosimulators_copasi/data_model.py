@@ -817,18 +817,95 @@ class CopasiMappings:
 
         # Create mapping
         if for_output:
-            compartment_mapping = \
-                {compartments.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_compartment_name(str(row))
-                 for row in compartments.index} if compartments is not None else {}
-            metabolites_mapping = \
-                {metabolites.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_species_concentration_name(str(row))
-                 for row in metabolites.index} if metabolites is not None else {}
-            reactions_mapping = \
-                {reactions.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_reaction_name(str(row))
-                 for row in reactions.index} if reactions is not None else {}
-            parameters_mapping = \
-                {parameters.at[row, "sbml_id"]: CopasiMappings.format_to_copasi_parameter_name(str(row))
-                 for row in parameters.index} if parameters is not None else {}
+            # compartment_mapping = \
+            #     {compartments.at[row, "sbml_id"]: compartments.at[row, "display_name"] + ".Volume"
+            #      for row in compartments.index} if compartments is not None else {}
+            # metabolites_mapping = \
+            #     {metabolites.at[row, "sbml_id"]: '[' + metabolites.at[row, "display_name"] + ']'
+            #      for row in metabolites.index} if metabolites is not None else {}
+            # reactions_mapping = \
+            #     {reactions.at[row, "sbml_id"]: reactions.at[row, "display_name"] + ".Flux"
+            #      for row in reactions.index} if reactions is not None else {}
+            # parameters_mapping = \
+            #     {parameters.at[row, "sbml_id"]: parameters.at[row, "display_name"]
+            #      for row in parameters.index} if parameters is not None else {}
+
+            compartment_mapping = {}
+            metabolites_mapping = {}
+            reactions_mapping = {}
+            parameters_mapping = {}
+
+            if compartments is not None:
+                for row in compartments.index:
+                    sbml_id_result = compartments.at[row, "sbml_id"]
+                    display_name_result = compartments.at[row, "display_name"]
+                    sbml_keys: list[str]
+                    display_name_keys: list[str]
+                    if isinstance(sbml_id_result, str) and isinstance(display_name_result, str):
+                        sbml_keys = [sbml_id_result]
+                        display_name_keys = [display_name_result]
+                    elif isinstance(sbml_id_result, pandas.Series) and isinstance(display_name_result, pandas.Series):
+                        sbml_keys = sbml_id_result.to_list()
+                        display_name_keys = display_name_result.to_list()
+                    else:
+                        raise RuntimeError("Somehow, num sbml_keys != num display_name_keys")
+
+                    for i in range(0, len(sbml_keys)):
+                        compartment_mapping[sbml_keys[i]] = display_name_keys[i] + ".Volume"
+
+            if metabolites is not None:
+                for row in metabolites.index:
+                    sbml_id_result = metabolites.at[row, "sbml_id"]
+                    display_name_result = metabolites.at[row, "display_name"]
+                    sbml_keys: list[str]
+                    display_name_keys: list[str]
+                    if isinstance(sbml_id_result, str) and isinstance(display_name_result, str):
+                        sbml_keys = [sbml_id_result]
+                        display_name_keys = [display_name_result]
+                    elif isinstance(sbml_id_result, pandas.Series) and isinstance(display_name_result, pandas.Series):
+                        sbml_keys = sbml_id_result.to_list()
+                        display_name_keys = display_name_result.to_list()
+                    else:
+                        raise RuntimeError("Somehow, num sbml_keys != num display_name_keys")
+
+                    for i in range(0, len(sbml_keys)):
+                        metabolites_mapping[sbml_keys[i]] = '[' + display_name_keys[i] + ']'
+
+            if reactions is not None:
+                for row in reactions.index:
+                    sbml_id_result = reactions.at[row, "sbml_id"]
+                    display_name_result = reactions.at[row, "display_name"]
+                    sbml_keys: list[str]
+                    display_name_keys: list[str]
+                    if isinstance(sbml_id_result, str) and isinstance(display_name_result, str):
+                        sbml_keys = [sbml_id_result]
+                        display_name_keys = [display_name_result]
+                    elif isinstance(sbml_id_result, pandas.Series) and isinstance(display_name_result, pandas.Series):
+                        sbml_keys = sbml_id_result.to_list()
+                        display_name_keys = display_name_result.to_list()
+                    else:
+                        raise RuntimeError("Somehow, num sbml_keys != num display_name_keys")
+
+                    for i in range(0, len(sbml_keys)):
+                        reactions_mapping[sbml_keys[i]] = display_name_keys[i] + ".Flux"
+
+            if parameters is not None:
+                for row in parameters.index:
+                    sbml_id_result = parameters.at[row, "sbml_id"]
+                    display_name_result = parameters.at[row, "display_name"]
+                    sbml_keys: list[str]
+                    display_name_keys: list[str]
+                    if isinstance(sbml_id_result, str) and isinstance(display_name_result, str):
+                        sbml_keys = [sbml_id_result]
+                        display_name_keys = [display_name_result]
+                    elif isinstance(sbml_id_result, pandas.Series) and isinstance(display_name_result, pandas.Series):
+                        sbml_keys = sbml_id_result.to_list()
+                        display_name_keys = display_name_result.to_list()
+                    else:
+                        raise RuntimeError("Somehow, num sbml_keys != num display_name_keys")
+
+                    for i in range(0, len(sbml_keys)):
+                        parameters_mapping[sbml_keys[i]] = display_name_keys[i]
         else:
             compartment_mapping = {compartments.at[row, "sbml_id"]: str(row) for row in compartments.index}
             metabolites_mapping = {metabolites.at[row, "sbml_id"]: str(row) for row in metabolites.index}
@@ -905,8 +982,8 @@ class BasicoInitialization:
         self._step_size: float = BasicoInitialization._calc_simulation_step_size(self._sim)
         self.number_of_steps = self._duration_arg / self._step_size
         if int(self.number_of_steps) != self.number_of_steps:
-            difference = self.number_of_steps - int(self.number_of_steps)
-            decimal_off = difference / int(self.number_of_steps)
+            difference = self.number_of_steps - int(round(self.number_of_steps))
+            decimal_off = difference / int(round(self.number_of_steps))
             if decimal_off > pow(10, -6):
                 raise NotImplementedError("Number of steps must be an integer number of time points, "
                                           f"not '{self.number_of_steps}'")
