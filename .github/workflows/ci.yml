@@ -290,7 +290,6 @@ jobs:
               run: |
                   git config --local user.email "biosimulators.daemon@gmail.com"
                   git config --local user.name "biosimulatorsdaemon"
-                  git remote add origin https://github.com/biosimulators/Biosimulators_COPASI.git
                   git config pull.rebase false
                   
                   # Need to check if we did the release on `dev` or not, very important!
