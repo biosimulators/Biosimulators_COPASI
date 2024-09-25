@@ -733,6 +733,34 @@ class TestCore(unittest.TestCase):
         for data_set_result in report_results.values():
             self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
 
+    def test_exec_combine_archive_with_similar_species_names_in_different_compartments(self):
+        archive_filename = os.path.join(os.path.dirname(__file__), 'fixtures', 'BIOMD0000000380.omex')
+        out_dir = os.path.join(self.directory_name, 'out')
+
+        config = get_config()
+        config.REPORT_FORMATS = [
+            report_data_model.ReportFormat.h5,
+        ]
+        config.BUNDLE_OUTPUTS = True
+        config.KEEP_INDIVIDUAL_OUTPUTS = False
+
+        _, log = exec_sedml_docs_in_combine_archive(archive_filename, out_dir, config=config)
+        if log.exception:
+            raise log.exception
+
+        report = sedml_data_model.Report(
+            data_sets=[
+                sedml_data_model.DataSet(id='autogen_time_for_task1', label='Time'),
+                sedml_data_model.DataSet(id='autogen_task1_YT', label='YT'),
+                sedml_data_model.DataSet(id='autogen_task1_M', label='M'),
+            ]
+        )
+        path_in_hdf5: str = 'BIOMD0000000380_url.sedml/autogen_report_for_task1'
+        report_results = ReportReader().run(report, out_dir, path_in_hdf5, format=report_data_model.ReportFormat.h5)
+
+        for data_set_result in report_results.values():
+            self.assertFalse(numpy.any(numpy.isnan(data_set_result)))
+
     @unittest.expectedFailure
     def test_exec_sedml_docs_with_model_changes_in_combine_archive(self):
         archive_filename = os.path.join(os.path.dirname(__file__),
