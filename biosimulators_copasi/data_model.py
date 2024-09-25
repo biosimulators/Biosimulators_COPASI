@@ -984,7 +984,7 @@ class BasicoInitialization:
         if int(self.number_of_steps) != self.number_of_steps:
             difference = self.number_of_steps - int(round(self.number_of_steps))
             decimal_off = difference / int(round(self.number_of_steps))
-            if decimal_off > pow(10, -6):
+            if abs(decimal_off) > pow(10, -6):
                 raise NotImplementedError("Number of steps must be an integer number of time points, "
                                           f"not '{self.number_of_steps}'")
             self.number_of_steps = int(self.number_of_steps)
