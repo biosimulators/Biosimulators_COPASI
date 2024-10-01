@@ -199,12 +199,14 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     dh: COPASI.CDataHandler
     columns: "list"
     dh, columns = preprocessed_task.generate_data_handler(preprocessed_task.get_output_selection())
+    preprocessed_task.basico_data_model.addInterface(dh)
     if preprocessed_task.task_type == basico.T.STEADY_STATE:
         basico.run_steadystate(**(preprocessed_task.get_run_configuration()))
     else:
         basico.run_time_course(**(preprocessed_task.get_run_configuration()))
         # data = basico.run_time_course_with_output(**(preprocessed_task.get_run_configuration()))
     data = basico.get_data_from_data_handler(dh, columns)
+    preprocessed_task.basico_data_model.removeInterface(dh)
 
     # Process output 'data'
     actual_output_length, _ = data.shape

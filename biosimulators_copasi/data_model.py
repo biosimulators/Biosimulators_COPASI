@@ -965,7 +965,7 @@ class BasicoInitialization:
     def __init__(self, model: COPASI.CDataModel, algorithm: CopasiAlgorithm, variables: list[Variable],
                  has_events: bool = False):
         self.algorithm = algorithm
-        self._basico_data_model = model
+        self.basico_data_model = model
         self._sedml_var_to_copasi_name: dict[Variable, str] = CopasiMappings.map_sedml_to_copasi(variables)
         self.has_events = has_events
         self.sim = None
@@ -1036,7 +1036,7 @@ class BasicoInitialization:
         return self.algorithm.get_copasi_id()
 
     def generate_data_handler(self, output_selection: list[str]):
-        dh, columns = basico.create_data_handler(output_selection, model=self._basico_data_model)
+        dh, columns = basico.create_data_handler(output_selection, model=self.basico_data_model)
         return dh, columns
 
     @staticmethod
