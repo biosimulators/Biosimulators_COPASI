@@ -305,7 +305,8 @@ def preprocess_sed_task(task: Task, variables: list[Variable],
     # instantiate model
     basico_data_model: COPASI.CDataModel
     try:
-        basico_data_model = basico.load_model(model.source)
+        basico_data_model = \
+           basico.import_sbml(model.source, annotations_to_remove=[('initialValue', 'http://copasi.org/initialValue')])
     except COPASI.CCopasiException as e:
         raise ValueError(f"SBML '{model.source}' could not be imported into COPASI;\n\t", e)
 
