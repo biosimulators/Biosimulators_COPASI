@@ -1008,7 +1008,6 @@ class BasicoInitialization:
         problem = {
             "AutomaticStepSize": False,
             "StepNumber": self.copasi_number_of_steps,
-            #"StepSize": self._step_size,
             "Duration": self._duration_arg,
             "OutputStartTime": self.sim.output_start_time - self.init_time_offset
         }
