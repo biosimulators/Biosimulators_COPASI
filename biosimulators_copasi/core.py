@@ -191,9 +191,6 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     # prepare task
     basico.set_task_settings(preprocessed_task.task_type, preprocessed_task.get_simulation_configuration())
 
-    # temporary work around for issue with 0.0 duration tasks
-    basico_task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-
     # Execute Simulation
     data: pandas.DataFrame
     dh: COPASI.CDataHandler
@@ -229,15 +226,10 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
                     if not first_sub_series.equals(series.iloc[:, i]):
                         raise RuntimeError("Different data sets for same variable")
                 series: pandas.Series = first_sub_series
-
-            if basico_task_settings["problem"]["Duration"] > 0.0:
-                variable_results[variable.id] = numpy.full(copasi_output_length, numpy.nan)
-                for index, value in enumerate(series):
-                    adjusted_value = value if data_target != "Time" else value + offset
-                    variable_results[variable.id][index] = adjusted_value
-            else:
-                value = series.get(0) if data_target != "Time" else series.get(0) + offset
-                variable_results[variable.id] = numpy.full(copasi_output_length, value)
+            variable_results[variable.id] = numpy.full(copasi_output_length, numpy.nan)
+            for index, value in enumerate(series):
+                adjusted_value = value if data_target != "Time" else value + offset
+                variable_results[variable.id][index] = adjusted_value
     except Exception as e:
         raise e
 

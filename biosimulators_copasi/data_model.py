@@ -984,6 +984,8 @@ class BasicoInitialization:
             self.task_type = basico.T.TIME_COURSE
             self.init_time_offset: float = self.sim.initial_time
             self._duration_arg: float = self.sim.output_end_time - self.init_time_offset  # COPASI is kept in the dark
+            if self._duration_arg <= 0:
+                raise ValueError("A simulation's initial_time can not be equal to or greater than the output end time.")
             self._step_size: float = BasicoInitialization._calc_biosimulators_simulation_step_size(self.sim)
             # What COPASI understands as number of steps and what biosimulators
             # understands as number of steps is different; we must manually calculate
@@ -1044,15 +1046,7 @@ class BasicoInitialization:
 
     @staticmethod
     def _calc_biosimulators_simulation_step_size(sim: UniformTimeCourseSimulation) -> int:
-        if sim.output_end_time - sim.output_start_time < 0:
+        if (time_diff := sim.output_end_time - sim.output_start_time) <= 0:
             raise ValueError('Output end time must be greater than the output start time.')
 
-        try:
-            time_diff = sim.output_end_time - sim.output_start_time
-            if time_diff == 0:
-                raise ZeroDivisionError  # We want to have exactly 1 step, and that's what our except block does
-            step_size_arg = time_diff / sim.number_of_steps
-        except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
-            step_size_arg = sim.number_of_points
-
-        return step_size_arg
+        return time_diff / sim.number_of_steps

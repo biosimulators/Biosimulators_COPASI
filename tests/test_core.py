@@ -841,6 +841,9 @@ class TestCore(unittest.TestCase):
 
     def test_exec_sedml_docs_in_combine_archive_with_cli(self):
         doc, archive_filename = self._build_combine_archive()
+        self._prepare_and_assert_combine_archive_outputs(doc, archive_filename)
+
+    def _prepare_and_assert_combine_archive_outputs(self, doc: sedml_data_model.SedDocument, archive_filename: str):
         out_dir = os.path.join(self.directory_name, 'out')
         env = TestCore._get_combine_archive_exec_env()
 
@@ -867,14 +870,17 @@ class TestCore(unittest.TestCase):
 
         self._assert_combine_archive_outputs(doc, out_dir)
 
-    def _build_combine_archive(self, algorithm=None, orig_model_filename='model.xml', var_targets=None):
+    def _build_combine_archive(self, algorithm: sedml_data_model.Algorithm = None,
+                               orig_model_filename: str = 'model.xml', var_targets: str = None,
+                               initial_time: float = 0., output_start_time: float = 0.1, output_end_time: float = 0.2):
         if var_targets is None:
             var_targets = [None, 'A', 'C', 'DA']
-        doc = self._build_sed_doc(algorithm=algorithm)
+        doc = self._build_sed_doc(algorithm=algorithm, initial_time=initial_time,
+                                  output_start_time=output_start_time, output_end_time=output_end_time)
 
         for data_gen, target in zip(doc.data_generators, var_targets):
             if target is not None:
-                data_gen.variables[0].target = "/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{}']".format(target)
+                data_gen.variables[0].target = f"/sbml:sbml/sbml:model/sbml:listOfSpecies/sbml:species[@id='{target}']"
 
         archive_dirname = os.path.join(self.directory_name, 'archive')
         if not os.path.isdir(archive_dirname):
@@ -897,12 +903,13 @@ class TestCore(unittest.TestCase):
             ],
         )
         archive_filename = os.path.join(self.directory_name,
-                                        'archive.omex' if algorithm is None else 'archive-{}.omex'.format(algorithm.kisao_id))
+                                        'archive.omex' if algorithm is None else f'archive-{algorithm.kisao_id}.omex')
         CombineArchiveWriter().run(archive, archive_dirname, archive_filename)
 
         return doc, archive_filename
 
-    def _build_sed_doc(self, algorithm=None):
+    def _build_sed_doc(self, algorithm: sedml_data_model.Algorithm = None, initial_time: float = 0.,
+                       output_start_time: float = 0.1, output_end_time: float = 0.2):
         if algorithm is None:
             algorithm = sedml_data_model.Algorithm(
                 kisao_id='KISAO_0000304',
@@ -924,9 +931,9 @@ class TestCore(unittest.TestCase):
         doc.simulations.append(sedml_data_model.UniformTimeCourseSimulation(
             id='sim_1_time_course',
             algorithm=algorithm,
-            initial_time=0.,
-            output_start_time=0.1,
-            output_end_time=0.2,
+            initial_time=initial_time,
+            output_start_time=output_start_time,
+            output_end_time=output_end_time,
             number_of_points=20,
         ))
         doc.tasks.append(sedml_data_model.Task(
