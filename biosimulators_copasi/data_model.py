@@ -9,7 +9,8 @@
 from __future__ import annotations
 from typing import Union, get_type_hints
 
-from biosimulators_utils.sedml.data_model import UniformTimeCourseSimulation, Variable
+import COPASI
+from biosimulators_utils.sedml.data_model import UniformTimeCourseSimulation, SteadyStateSimulation, Variable
 
 import basico
 import pandas
@@ -793,6 +794,15 @@ class CopasiMappings:
 
         sed_to_id = CopasiMappings.map_sedml_to_sbml_ids(variables)
         id_to_name = CopasiMappings._map_sbml_id_to_copasi_name(for_output)
+
+        requested_set = set(sed_to_id.values())
+        generated_set = set(id_to_name.keys())
+        unaccounted_requests = requested_set.difference(generated_set)
+
+        if len(unaccounted_requests) > 0:
+            raise RuntimeError(
+                f"Requested sbml ids are not present in the copasi converted model:\n{str(unaccounted_requests)}\n")
+
         return {sedml_var: id_to_name[sed_to_id[sedml_var]] for sedml_var in sed_to_id}
 
     @staticmethod
@@ -817,19 +827,6 @@ class CopasiMappings:
 
         # Create mapping
         if for_output:
-            # compartment_mapping = \
-            #     {compartments.at[row, "sbml_id"]: compartments.at[row, "display_name"] + ".Volume"
-            #      for row in compartments.index} if compartments is not None else {}
-            # metabolites_mapping = \
-            #     {metabolites.at[row, "sbml_id"]: '[' + metabolites.at[row, "display_name"] + ']'
-            #      for row in metabolites.index} if metabolites is not None else {}
-            # reactions_mapping = \
-            #     {reactions.at[row, "sbml_id"]: reactions.at[row, "display_name"] + ".Flux"
-            #      for row in reactions.index} if reactions is not None else {}
-            # parameters_mapping = \
-            #     {parameters.at[row, "sbml_id"]: parameters.at[row, "display_name"]
-            #      for row in parameters.index} if parameters is not None else {}
-
             compartment_mapping = {}
             metabolites_mapping = {}
             reactions_mapping = {}
@@ -936,15 +933,18 @@ class CopasiMappings:
             message = f"BioSimCOPASI is unable to interpret provided symbol '{raw_symbols[symbols.index(None)]}'"
             raise NotImplementedError(message)
 
-        return {sedml_var: copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
+        result = {sedml_var: copasi_name for sedml_var, copasi_name in zip(symbolic_variables, symbols)}
+        return result
 
     @staticmethod
     def _map_sedml_target_to_sbml_id(variables: list[Variable]) -> dict[Variable, str]:
+        desired_variables = variables
         target_based_variables: list[Variable]
         raw_targets: list[str]
         targets: list[str]
 
-        target_based_variables = [variable for variable in variables if list(variable.to_tuple())[2] is not None]
+        target_based_variables = [variable for variable in desired_variables if
+                                  list(variable.to_tuple())[2] is not None]
         raw_targets = [str(list(variable.to_tuple())[2]) for variable in target_based_variables]
         targets = [CopasiMappings._extract_id_from_xpath(target) for target in raw_targets]
 
@@ -962,43 +962,56 @@ class CopasiMappings:
 
 
 class BasicoInitialization:
-    def __init__(self, algorithm: CopasiAlgorithm, variables: list[Variable], has_events: bool = False):
+    def __init__(self, model: COPASI.CDataModel, algorithm: CopasiAlgorithm, variables: list[Variable],
+                 has_events: bool = False):
         self.algorithm = algorithm
+        self.basico_data_model = model
         self._sedml_var_to_copasi_name: dict[Variable, str] = CopasiMappings.map_sedml_to_copasi(variables)
         self.has_events = has_events
-        self._sim = None
+        self.sim = None
+        self.task_type = None
         self.init_time_offset = None
         self._duration_arg = None
         self._step_size = None
-        self.number_of_steps = None
+        self.copasi_number_of_steps = None
         self._length_of_output = None
 
-    def configure_simulation_settings(self, sim: UniformTimeCourseSimulation):
-        if sim.output_end_time == sim.output_start_time:
-            raise NotImplementedError("The output end time must be greater than the output start time.")
-        self._sim: UniformTimeCourseSimulation = sim
-        self.init_time_offset: float = self._sim.initial_time
-        self._duration_arg: float = self._sim.output_end_time - self.init_time_offset  # COPASI is kept in the dark
-        self._step_size: float = BasicoInitialization._calc_simulation_step_size(self._sim)
-        self.number_of_steps = self._duration_arg / self._step_size
-        if int(self.number_of_steps) != self.number_of_steps:
-            difference = self.number_of_steps - int(round(self.number_of_steps))
-            decimal_off = difference / int(round(self.number_of_steps))
-            if abs(decimal_off) > pow(10, -6):
-                raise NotImplementedError("Number of steps must be an integer number of time points, "
-                                          f"not '{self.number_of_steps}'")
-            self.number_of_steps = int(self.number_of_steps)
-        self._length_of_output: int = int((self._sim.output_end_time - self._sim.output_start_time) / self._step_size)
-        self._length_of_output += 1
+    def configure_simulation_settings(self, sim: Union[UniformTimeCourseSimulation, SteadyStateSimulation]):
+        self.sim: Union[UniformTimeCourseSimulation, SteadyStateSimulation] = sim
+        if isinstance(sim, UniformTimeCourseSimulation):
+            if sim.output_end_time == sim.output_start_time:
+                raise NotImplementedError("The output end time must be greater than the output start time.")
+            self.task_type = basico.T.TIME_COURSE
+            self.init_time_offset: float = self.sim.initial_time
+            self._duration_arg: float = self.sim.output_end_time - self.init_time_offset  # COPASI is kept in the dark
+            if self._duration_arg <= 0:
+                raise ValueError("A simulation's initial_time can not be equal to or greater than the output end time.")
+            self._step_size: float = BasicoInitialization._calc_biosimulators_simulation_step_size(self.sim)
+            # What COPASI understands as number of steps and what biosimulators
+            # understands as number of steps is different; we must manually calculate
+            # COPASI thinks: Total number of times to iterate the simulation
+            # BioSim thinks: Total number of iterations between output start and end times
+            self.copasi_number_of_steps = (self.sim.output_end_time - self.init_time_offset) / self._step_size
+            if int(round(self.copasi_number_of_steps)) != self.copasi_number_of_steps:
+                difference = self.copasi_number_of_steps - int(round(self.copasi_number_of_steps))
+                decimal_off = difference / int(round(self.copasi_number_of_steps))
+                if abs(decimal_off) > pow(10, -6):
+                    raise NotImplementedError("Number of steps must be an integer number of time points, "
+                                              f"not '{self.copasi_number_of_steps}'")
+                self.copasi_number_of_steps = int(round(self.copasi_number_of_steps))
+            self._length_of_output: int = (
+                int((self.sim.output_end_time - self.sim.output_start_time) / self._step_size))
+            self._length_of_output += 1
+        elif isinstance(sim, SteadyStateSimulation):
+            self.task_type = basico.T.STEADY_STATE
 
     def get_simulation_configuration(self) -> dict:
         # Create the configuration basico needs to initialize the time course task
         problem = {
             "AutomaticStepSize": False,
-            "StepNumber": self.number_of_steps,
-            "StepSize": self._step_size,
+            "StepNumber": self.copasi_number_of_steps,
             "Duration": self._duration_arg,
-            "OutputStartTime": self._sim.output_start_time - self.init_time_offset
+            "OutputStartTime": self.sim.output_start_time - self.init_time_offset
         }
         method = self.algorithm.get_method_settings()
         return {
@@ -1008,9 +1021,12 @@ class BasicoInitialization:
 
     def get_run_configuration(self) -> dict:
         return {
-            "output_selection": list(self._sedml_var_to_copasi_name.values()),
+            # "output_selection": list(self._sedml_var_to_copasi_name.values()),
             "use_initial_values": True,
         }
+
+    def get_output_selection(self) -> "list[str]":
+        return list(self._sedml_var_to_copasi_name.values())
 
     def get_expected_output_length(self) -> int:
         return self._length_of_output
@@ -1024,17 +1040,13 @@ class BasicoInitialization:
     def get_copasi_algorithm_id(self) -> str:
         return self.algorithm.get_copasi_id()
 
+    def generate_data_handler(self, output_selection: list[str]):
+        dh, columns = basico.create_data_handler(output_selection, model=self.basico_data_model)
+        return dh, columns
+
     @staticmethod
-    def _calc_simulation_step_size(sim: UniformTimeCourseSimulation) -> int:
-        if sim.output_end_time - sim.output_start_time < 0:
+    def _calc_biosimulators_simulation_step_size(sim: UniformTimeCourseSimulation) -> int:
+        if (time_diff := sim.output_end_time - sim.output_start_time) <= 0:
             raise ValueError('Output end time must be greater than the output start time.')
 
-        try:
-            time_diff = sim.output_end_time - sim.output_start_time
-            if time_diff == 0:
-                raise ZeroDivisionError  # We want to have exactly 1 step, and that's what our except block does
-            step_size_arg = time_diff / sim.number_of_steps
-        except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
-            step_size_arg = sim.number_of_points
-
-        return step_size_arg
+        return time_diff / sim.number_of_steps

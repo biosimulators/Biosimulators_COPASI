@@ -28,7 +28,7 @@ from biosimulators_utils.report.data_model import ReportFormat, VariableResults,
     ReportResults  # noqa: F401
 from biosimulators_utils.sedml.data_model import \
     Algorithm, Task, Model, Simulation, ModelLanguage, ModelChange, ModelAttributeChange, \
-    UniformTimeCourseSimulation, Variable, SedDocument  # noqa: F401
+    UniformTimeCourseSimulation, SteadyStateSimulation, Variable, SedDocument  # noqa: F401
 from biosimulators_utils.sedml import validation
 from biosimulators_utils.utils.core import raise_errors_warnings
 from biosimulators_utils.warnings import warn, BioSimulatorsWarning
@@ -176,6 +176,9 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     if preprocessed_task is None:
         preprocessed_task = preprocess_sed_task(task, variables, config)
 
+    if not isinstance(task.simulation, (UniformTimeCourseSimulation, SteadyStateSimulation)):
+        raise NotImplementedError(f"Simulation type `{str(type(task.simulation))}` not currently supported")
+
     # Continued Initialization: Give preprocessed task the new task
     preprocessed_task.configure_simulation_settings(task.simulation)
 
@@ -186,16 +189,24 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     _load_algorithm_parameters(task.simulation, preprocessed_task.algorithm, config)
 
     # prepare task
-    basico.set_task_settings(basico.T.TIME_COURSE, preprocessed_task.get_simulation_configuration())
-
-    # temporary work around for issue with 0.0 duration tasks
-    basico_task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
+    basico.set_task_settings(preprocessed_task.task_type, preprocessed_task.get_simulation_configuration())
 
     # Execute Simulation
-    data: pandas.DataFrame = basico.run_time_course_with_output(**(preprocessed_task.get_run_configuration()))
+    data: pandas.DataFrame
+    dh: COPASI.CDataHandler
+    columns: "list"
+    dh, columns = preprocessed_task.generate_data_handler(preprocessed_task.get_output_selection())
+    preprocessed_task.basico_data_model.addInterface(dh)
+    if preprocessed_task.task_type == basico.T.STEADY_STATE:
+        basico.run_steadystate(**(preprocessed_task.get_run_configuration()))
+    else:
+        basico.run_time_course(**(preprocessed_task.get_run_configuration()))
+        # data = basico.run_time_course_with_output(**(preprocessed_task.get_run_configuration()))
+    data = basico.get_data_from_data_handler(dh, columns)
+    preprocessed_task.basico_data_model.removeInterface(dh)
 
     # Process output 'data'
-    actual_output_length, _ = data.shape
+    copasi_output_length, _ = data.shape
     variable_results = VariableResults()
     offset = preprocessed_task.init_time_offset
 
@@ -206,8 +217,7 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
             try:
                 series = data.loc[:, data_target]
             except KeyError as e:
-                msg = "Unable to find output. Most likely a bug regarding BASICO and DisplayNames with nested braces."
-                raise RuntimeError(msg, e)
+                raise RuntimeError("Unable to find output", e)
             # Check for duplicates (yes, that can happen)
             if isinstance(series, pandas.DataFrame):
                 _, num_cols = series.shape
@@ -216,15 +226,10 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
                     if not first_sub_series.equals(series.iloc[:, i]):
                         raise RuntimeError("Different data sets for same variable")
                 series: pandas.Series = first_sub_series
-
-            if basico_task_settings["problem"]["Duration"] > 0.0:
-                variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
-                for index, value in enumerate(series):
-                    variable_results[variable.id][index] = value if data_target != "Time" else value + offset
-            else:
-                value = series.get(0) if data_target != "Time" else series.get(0) + offset
-                sedml_utc_sim: UniformTimeCourseSimulation = task.simulation
-                variable_results[variable.id] = numpy.full(sedml_utc_sim.number_of_steps + 1, value)
+            variable_results[variable.id] = numpy.full(copasi_output_length, numpy.nan)
+            for index, value in enumerate(series):
+                adjusted_value = value if data_target != "Time" else value + offset
+                variable_results[variable.id][index] = adjusted_value
     except Exception as e:
         raise e
 
@@ -283,14 +288,16 @@ def preprocess_sed_task(task: Task, variables: list[Variable],
     _validate_sedml(config, task, model, sim, variables)
 
     # Confirm UTC Simulation
-    if not isinstance(sim, UniformTimeCourseSimulation):
-        raise ValueError("BioSimulators-COPASI can only handle UTC Simulations in this API for the time being")
-    utc_sim: UniformTimeCourseSimulation = sim
+    if not isinstance(sim, (UniformTimeCourseSimulation, SteadyStateSimulation)):
+        raise ValueError("BioSimulators-COPASI can only handle UTC and Steady State "
+                         "Simulations in this API for the time being")
+    utc_sim: Union[UniformTimeCourseSimulation, SteadyStateSimulation] = sim
 
     # instantiate model
     basico_data_model: COPASI.CDataModel
     try:
-        basico_data_model = basico.load_model(model.source)
+        basico_data_model = \
+           basico.import_sbml(model.source, annotations_to_remove=[('initialValue', 'http://copasi.org/initialValue')])
     except COPASI.CCopasiException as e:
         raise ValueError(f"SBML '{model.source}' could not be imported into COPASI;\n\t", e)
 
@@ -299,7 +306,7 @@ def preprocess_sed_task(task: Task, variables: list[Variable],
     copasi_algorithm = utils.get_algorithm(utc_sim.algorithm.kisao_id, has_events, config=config)
 
     # Create and return preprocessed simulation settings
-    preprocessed_info = data_model.BasicoInitialization(copasi_algorithm, variables, has_events)
+    preprocessed_info = data_model.BasicoInitialization(basico_data_model, copasi_algorithm, variables, has_events)
     return preprocessed_info
 
 
@@ -327,7 +334,8 @@ def _validate_sedml(config: Config, task: Task, model: Model, sim: Simulation, v
         task_errors = validation.validate_task(task)
         model_lang_errors = validation.validate_model_language(model.language, ModelLanguage.SBML)
         model_change_type_errors = validation.validate_model_change_types(model.changes, (ModelAttributeChange,))
-        simulation_type_errors = validation.validate_simulation_type(sim, (UniformTimeCourseSimulation,))
+        valid_types = (UniformTimeCourseSimulation, SteadyStateSimulation)
+        simulation_type_errors = validation.validate_simulation_type(sim, valid_types)
         model_change_errors_list = validation.validate_model_changes(model)
         simulation_errors_list = validation.validate_simulation(sim)
         data_generator_errors_list = validation.validate_data_generator_variables(variables)
