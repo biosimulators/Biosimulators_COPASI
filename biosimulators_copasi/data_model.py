@@ -985,14 +985,14 @@ class BasicoInitialization:
             self.init_time_offset: float = self.sim.initial_time
             self._duration_arg: float = self.sim.output_end_time - self.init_time_offset  # COPASI is kept in the dark
             self._step_size: float = BasicoInitialization._calc_simulation_step_size(self.sim)
-            self.number_of_steps = self._duration_arg / self._step_size
-            if int(self.number_of_steps) != self.number_of_steps:
+            self.number_of_steps = sim.number_of_steps
+            if int(round(self.number_of_steps)) != self.number_of_steps:
                 difference = self.number_of_steps - int(round(self.number_of_steps))
                 decimal_off = difference / int(round(self.number_of_steps))
                 if abs(decimal_off) > pow(10, -6):
                     raise NotImplementedError("Number of steps must be an integer number of time points, "
                                               f"not '{self.number_of_steps}'")
-                self.number_of_steps = int(self.number_of_steps)
+                self.number_of_steps = int(round(self.number_of_steps))
             self._length_of_output: int = (
                 int((self.sim.output_end_time - self.sim.output_start_time) / self._step_size))
             self._length_of_output += 1
@@ -1004,7 +1004,6 @@ class BasicoInitialization:
         problem = {
             "AutomaticStepSize": False,
             "StepNumber": self.number_of_steps,
-            "StepSize": self._step_size,
             "Duration": self._duration_arg,
             "OutputStartTime": self.sim.output_start_time - self.init_time_offset
         }
@@ -1048,7 +1047,7 @@ class BasicoInitialization:
             time_diff = sim.output_end_time - sim.output_start_time
             if time_diff == 0:
                 raise ZeroDivisionError  # We want to have exactly 1 step, and that's what our except block does
-            step_size_arg = time_diff / sim.number_of_steps
+            step_size_arg = (sim.output_end_time - sim.initial_time) / sim.number_of_steps
         except ZeroDivisionError:  # sim.output_end_time == sim.output_start_time
             step_size_arg = sim.number_of_points
 

@@ -209,7 +209,7 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     preprocessed_task.basico_data_model.removeInterface(dh)
 
     # Process output 'data'
-    actual_output_length, _ = data.shape
+    copasi_output_length, _ = data.shape
     variable_results = VariableResults()
     offset = preprocessed_task.init_time_offset
 
@@ -220,8 +220,7 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
             try:
                 series = data.loc[:, data_target]
             except KeyError as e:
-                msg = "Unable to find output. Most likely a bug regarding BASICO and DisplayNames with nested braces."
-                raise RuntimeError(msg, e)
+                raise RuntimeError("Unable to find output", e)
             # Check for duplicates (yes, that can happen)
             if isinstance(series, pandas.DataFrame):
                 _, num_cols = series.shape
@@ -232,13 +231,13 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
                 series: pandas.Series = first_sub_series
 
             if basico_task_settings["problem"]["Duration"] > 0.0:
-                variable_results[variable.id] = numpy.full(actual_output_length, numpy.nan)
+                variable_results[variable.id] = numpy.full(copasi_output_length, numpy.nan)
                 for index, value in enumerate(series):
-                    variable_results[variable.id][index] = value if data_target != "Time" else value + offset
+                    adjusted_value = value if data_target != "Time" else value + offset
+                    variable_results[variable.id][index] = adjusted_value
             else:
                 value = series.get(0) if data_target != "Time" else series.get(0) + offset
-                sedml_utc_sim: Simulation = task.simulation
-                variable_results[variable.id] = numpy.full(sedml_utc_sim.number_of_steps + 1, value)
+                variable_results[variable.id] = numpy.full(copasi_output_length, value)
     except Exception as e:
         raise e
 
