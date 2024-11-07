@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Union, get_type_hints
 
 import COPASI
-from biosimulators_utils.sedml.data_model import UniformTimeCourseSimulation, SteadyStateSimulation, Variable, Algorithm
+from biosimulators_utils.sedml.data_model import UniformTimeCourseSimulation, SteadyStateSimulation, Variable
 
 import basico
 import pandas
@@ -91,6 +91,7 @@ class CopasiAlgorithmParameter:
     def __ne__(self, other: RelativeToleranceParameter) -> bool:
         return not self.__eq__(other)
 
+
 class Resolution(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
     ID: str = "resolution"
@@ -108,6 +109,7 @@ class Resolution(CopasiAlgorithmParameter):
         if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
+
 
 class DerivationFactor(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
@@ -127,6 +129,7 @@ class DerivationFactor(CopasiAlgorithmParameter):
             raise ValueError
         self._value = new_value
 
+
 class UseNewton(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
     ID: str = "useNewton"
@@ -144,6 +147,7 @@ class UseNewton(CopasiAlgorithmParameter):
         if new_value is not None and not (type(new_value) == bool):  # noqa: E721
             raise ValueError
         self._value = new_value
+
 
 class UseIntegration(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
@@ -163,6 +167,7 @@ class UseIntegration(CopasiAlgorithmParameter):
             raise ValueError
         self._value = new_value
 
+
 class UseBackIntegration(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
     ID: str = "useBackIntegration"
@@ -180,6 +185,7 @@ class UseBackIntegration(CopasiAlgorithmParameter):
         if new_value is not None and not (type(new_value) == bool):  # noqa: E721
             raise ValueError
         self._value = new_value
+
 
 class AcceptNegativeConcentrations(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
@@ -199,6 +205,7 @@ class AcceptNegativeConcentrations(CopasiAlgorithmParameter):
             raise ValueError
         self._value = new_value
 
+
 class IterationLimit(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000486"
     ID: str = "iterationLimit"
@@ -216,6 +223,7 @@ class IterationLimit(CopasiAlgorithmParameter):
         if new_value is not None and not (type(new_value) == int):  # noqa: E721
             raise ValueError
         self._value = new_value
+
 
 class MaxForwardIntegrationDuration(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
@@ -235,6 +243,7 @@ class MaxForwardIntegrationDuration(CopasiAlgorithmParameter):
             raise ValueError
         self._value = new_value
 
+
 class MaxReverseIntegrationDuration(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
     ID: str = "maxReverseIntegrationDuration"
@@ -252,6 +261,7 @@ class MaxReverseIntegrationDuration(CopasiAlgorithmParameter):
         if new_value is not None and not (type(new_value) == float):  # noqa: E721
             raise ValueError
         self._value = new_value
+
 
 class TargetCriterion(CopasiAlgorithmParameter):
     KISAO_ID: str = ""  # To be created
@@ -278,6 +288,7 @@ class TargetCriterion(CopasiAlgorithmParameter):
         if new_value is not None and not (type(new_value) == str):  # noqa: E721
             raise ValueError
         self._value = new_value
+
 
 class RelativeToleranceParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000209"
@@ -638,6 +649,7 @@ class CopasiAlgorithm:
         event_support_equality = self.CAN_SUPPORT_EVENTS == other.CAN_SUPPORT_EVENTS
         return kisao_equality and id_equality and name_equality and event_support_equality
 
+
 class SteadyStateAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = None
     ID: str = None
@@ -684,6 +696,7 @@ class SteadyStateAlgorithm(CopasiAlgorithm):
         overrides.update(self.target_criterion.get_override_repr())
         return overrides
 
+
 class CopasiHybridAlternatingNewtonLSODASolver(SteadyStateAlgorithm):
     KISAO_ID: str = "KISAO_0000411"  # Placeholder until it gets its own solver
     ID: str = "steadystatestandard"
@@ -703,6 +716,7 @@ class CopasiHybridAlternatingNewtonLSODASolver(SteadyStateAlgorithm):
     def get_copasi_id(self) -> str:
         return CopasiHybridAlternatingNewtonLSODASolver.ID
 
+
 class PureNewtonRootFindingAlgorithm(SteadyStateAlgorithm):
     KISAO_ID: str = "KISAO_0000409"
     ID: str = "steadystatenewton"
@@ -719,6 +733,7 @@ class PureNewtonRootFindingAlgorithm(SteadyStateAlgorithm):
     def get_copasi_id(self) -> str:
         return PureNewtonRootFindingAlgorithm.ID
 
+
 class PureIntegrationRootFindingAlgorithm(SteadyStateAlgorithm):
     KISAO_ID: str = ""  # No applicable term yet
     ID: str = "steadystateintegration"
@@ -734,8 +749,10 @@ class PureIntegrationRootFindingAlgorithm(SteadyStateAlgorithm):
         super().__init__(True, use_integration, use_back_integration, resolution, derivation_factor,
                          accept_negative_concentrations, iteration_limit, max_forward_duration, max_back_duration,
                          target_criterion_distance, target_criterion_rate, units)
+
     def get_copasi_id(self) -> str:
         return PureIntegrationRootFindingAlgorithm.ID
+
 
 class GibsonBruckAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000027"
