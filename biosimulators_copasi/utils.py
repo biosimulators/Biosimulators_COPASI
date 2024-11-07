@@ -27,7 +27,6 @@ import tempfile
 
 __all__ = [
     'get_algorithm',
-    'convert_sedml_reactions_to_copasi_reactions',
     'set_algorithm_parameter_values',
     'fix_copasi_generated_combine_archive',
 ]
@@ -45,17 +44,13 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
         Returns:
            :obj:`CopasiAlgorithm`: The copasi algorithm deemed suitable
         """
-    # This step may not be necessary anymore
+    algorithm_kisao_to_class_map: dict[str, CopasiAlgorithm] = \
+        { CopasiAlgorithmType[alg_name].value.KISAO_ID: CopasiAlgorithmType[alg_name].value
+          for alg_name, _ in CopasiAlgorithmType.__members__.items() }
 
-    algorithm_kisao_to_class_map: dict[str, CopasiAlgorithm] = {
-        CopasiAlgorithmType[alg_name].value.KISAO_ID: CopasiAlgorithmType[alg_name].value
-        for alg_name, _ in CopasiAlgorithmType.__members__.items()
-    }
-
-    legal_alg_kisao_ids = [
-        kisao for kisao, obj in algorithm_kisao_to_class_map.items()
-        if not events_were_requested or obj.CAN_SUPPORT_EVENTS
-    ]
+    legal_alg_kisao_ids = \
+        [ kisao for kisao, obj in algorithm_kisao_to_class_map.items()
+        if not events_were_requested or obj.CAN_SUPPORT_EVENTS ]
 
     if kisao_id in legal_alg_kisao_ids:
         constructor = algorithm_kisao_to_class_map[kisao_id]
@@ -80,11 +75,6 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
         return constructor()  # this too is, in fact, callable
 
     raise ValueError(f"No suitable equivalent for '{kisao_id}' could be found with the provided substitution policy")
-
-
-def convert_sedml_reactions_to_copasi_reactions(sedml_reactions: list[str]) -> list[str]:
-    pass
-
 
 def set_algorithm_parameter_values(copasi_algorithm: CopasiAlgorithm, requested_changes: list) \
         -> tuple[list[AlgorithmParameterChange], list[AlgorithmParameterChange]]:

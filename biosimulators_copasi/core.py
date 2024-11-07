@@ -176,7 +176,7 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     if preprocessed_task is None:
         preprocessed_task = preprocess_sed_task(task, variables, config)
 
-    if not isinstance(task.simulation, (UniformTimeCourseSimulation, SteadyStateSimulation)):
+    if not isinstance(task.simulation, UniformTimeCourseSimulation):
         raise NotImplementedError(f"Simulation type `{str(type(task.simulation))}` not currently supported")
 
     # Continued Initialization: Give preprocessed task the new task
@@ -195,7 +195,8 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     data: pandas.DataFrame
     dh: COPASI.CDataHandler
     columns: "list"
-    dh, columns = preprocessed_task.generate_data_handler(preprocessed_task.get_output_selection())
+    output_selection: "list[str]" = preprocessed_task.get_output_selection()
+    dh, columns = preprocessed_task.generate_data_handler(output_selection)
     preprocessed_task.basico_data_model.addInterface(dh)
     if preprocessed_task.task_type == basico.T.STEADY_STATE:
         basico.run_steadystate(**(preprocessed_task.get_run_configuration()))
@@ -213,6 +214,8 @@ def exec_sed_task(task: Task, variables: List[Variable], preprocessed_task: Opti
     try:
         for variable in variables:
             data_target = preprocessed_task.get_copasi_name(variable)
+            if data_target == "Time":
+                print("woohoo!")
             series: pandas.Series
             try:
                 series = data.loc[:, data_target]
@@ -297,7 +300,8 @@ def preprocess_sed_task(task: Task, variables: list[Variable],
     basico_data_model: COPASI.CDataModel
     try:
         basico_data_model = \
-           basico.import_sbml(model.source, annotations_to_remove=[('initialValue', 'http://copasi.org/initialValue')])
+           basico.import_sbml(model.source, annotations_to_remove=[('initialValue', 'http://copasi.org/initialValue')],
+                              ensure_unique_names=True)
     except COPASI.CCopasiException as e:
         raise ValueError(f"SBML '{model.source}' could not be imported into COPASI;\n\t", e)
 

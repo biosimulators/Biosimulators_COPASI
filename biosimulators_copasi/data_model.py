@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Union, get_type_hints
 
 import COPASI
-from biosimulators_utils.sedml.data_model import UniformTimeCourseSimulation, SteadyStateSimulation, Variable
+from biosimulators_utils.sedml.data_model import UniformTimeCourseSimulation, SteadyStateSimulation, Variable, Algorithm
 
 import basico
 import pandas
@@ -91,6 +91,193 @@ class CopasiAlgorithmParameter:
     def __ne__(self, other: RelativeToleranceParameter) -> bool:
         return not self.__eq__(other)
 
+class Resolution(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "resolution"
+    NAME: str = "Resolution"
+
+    def __init__(self, value: float = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> float:
+        return self._value
+
+    def set_value(self, new_value: float):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class DerivationFactor(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "derivationfactor"
+    NAME: str = "Derivation Factor"
+
+    def __init__(self, value: float = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> float:
+        return self._value
+
+    def set_value(self, new_value: float):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class UseNewton(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "useNewton"
+    NAME: str = "Use Newton"
+
+    def __init__(self, value: bool = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> bool:
+        return self._value
+
+    def set_value(self, new_value: bool):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == bool):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class UseIntegration(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "useIntegration"
+    NAME: str = "Use Integration"
+
+    def __init__(self, value: bool = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> bool:
+        return self._value
+
+    def set_value(self, new_value: bool):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == bool):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class UseBackIntegration(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "useBackIntegration"
+    NAME: str = "Use Back Integration"
+
+    def __init__(self, value: bool = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> bool:
+        return self._value
+
+    def set_value(self, new_value: bool):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == bool):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class AcceptNegativeConcentrations(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "acceptNegativeConcentrations"
+    NAME: str = "Accept Negative Concentrations"
+
+    def __init__(self, value: bool = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> bool:
+        return self._value
+
+    def set_value(self, new_value: bool):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == bool):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class IterationLimit(CopasiAlgorithmParameter):
+    KISAO_ID: str = "KISAO_0000486"
+    ID: str = "iterationLimit"
+    NAME: str = "Iteration Limit"
+
+    def __init__(self, value: int = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> int:
+        return self._value
+
+    def set_value(self, new_value: int):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == int):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class MaxForwardIntegrationDuration(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "maxForwardIntegrationDuration"
+    NAME: str = "Maximum duration for forward integration"
+
+    def __init__(self, value: float = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> float:
+        return self._value
+
+    def set_value(self, new_value: float):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class MaxReverseIntegrationDuration(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "maxReverseIntegrationDuration"
+    NAME: str = "Maximum duration for backwards integration"
+
+    def __init__(self, value: float = None):
+        self._value = None
+        self.set_value(value)
+
+    def get_value(self) -> float:
+        return self._value
+
+    def set_value(self, new_value: float):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == float):  # noqa: E721
+            raise ValueError
+        self._value = new_value
+
+class TargetCriterion(CopasiAlgorithmParameter):
+    KISAO_ID: str = ""  # To be created
+    ID: str = "targetCriterion"
+    NAME: str = "Target Criterion"
+
+    def __init__(self, distance: bool, rate: bool):
+        new_value = ""
+        if not distance and not rate:
+            raise ValueError("At least one criterion must be made")
+        elif distance and rate:
+            new_value = "Distance and Rate"
+        else:
+            new_value = f"{'Distance' if distance else ''}"\
+                          f"{'Rate' if rate else ''}"
+        self._value: str = ""
+        self.set_value(new_value)
+
+    def get_value(self) -> str:
+        return self._value
+
+    def set_value(self, new_value: str):
+        # can't use isinstance because PEP 285
+        if new_value is not None and not (type(new_value) == str):  # noqa: E721
+            raise ValueError
+        self._value = new_value
 
 class RelativeToleranceParameter(CopasiAlgorithmParameter):
     KISAO_ID: str = "KISAO_0000209"
@@ -451,6 +638,104 @@ class CopasiAlgorithm:
         event_support_equality = self.CAN_SUPPORT_EVENTS == other.CAN_SUPPORT_EVENTS
         return kisao_equality and id_equality and name_equality and event_support_equality
 
+class SteadyStateAlgorithm(CopasiAlgorithm):
+    KISAO_ID: str = None
+    ID: str = None
+    NAME: str = "Enhanced Newton"
+    CAN_SUPPORT_EVENTS: bool = False
+
+    def __init__(self, use_newton: bool, use_integration: bool, use_back_integration: bool = False,
+                 resolution: float = 1e-09, derivation_factor: float = 0.001,
+                 accept_negative_concentrations: bool = False, iteration_limit: int = None,
+                 max_forward_duration: float = 1e09, max_back_duration: float = 1e06,
+                 target_criterion_distance: bool = True, target_criterion_rate: bool = True,
+                 units: Units = Units.discrete):
+        # We're using this as a parent abstract class, not an instance class
+        if self.__class__ == SteadyStateAlgorithm:
+            raise NotImplementedError("This class is not meant to be instantiated")
+        self.resolution = Resolution(resolution)
+        self.derivation_factor = DerivationFactor(derivation_factor)
+        self.use_newton = UseNewton(use_newton)
+        self.use_integration = UseIntegration(use_integration)
+        self.use_back_integration = UseBackIntegration(use_back_integration)
+        self.accept_negative_concentrations = AcceptNegativeConcentrations(accept_negative_concentrations)
+        self.iteration_limit = IterationLimit(iteration_limit)
+        self.max_forward_duration = MaxForwardIntegrationDuration(max_forward_duration)
+        self.max_back_duration = MaxReverseIntegrationDuration(max_back_duration)
+        self.target_criterion = TargetCriterion(target_criterion_distance, target_criterion_rate)
+
+        self.iteration_limit = IterationLimit(iteration_limit)
+        self._units = units
+
+    def get_unit_set(self) -> Units:
+        return self._units
+
+    def get_overrides(self) -> dict:
+        overrides = {}
+        overrides.update(self.resolution.get_override_repr())
+        overrides.update(self.derivation_factor.get_override_repr())
+        overrides.update(self.use_newton.get_override_repr())
+        overrides.update(self.use_integration.get_override_repr())
+        overrides.update(self.use_back_integration.get_override_repr())
+        overrides.update(self.accept_negative_concentrations.get_override_repr())
+        overrides.update(self.iteration_limit.get_override_repr())
+        overrides.update(self.max_forward_duration.get_override_repr())
+        overrides.update(self.max_back_duration.get_override_repr())
+        overrides.update(self.target_criterion.get_override_repr())
+        return overrides
+
+class CopasiHybridAlternatingNewtonLSODASolver(SteadyStateAlgorithm):
+    KISAO_ID: str = "KISAO_0000411"  # Placeholder until it gets its own solver
+    ID: str = "steadystatestandard"
+
+    def __init__(self, use_integration: bool = True, use_back_integration: bool = False,
+                 resolution: float = 1e-09, derivation_factor: float = 0.001,
+                 accept_negative_concentrations: bool = False, iteration_limit: int = None,
+                 max_forward_duration: float = 1e09, max_back_duration: float = 1e06,
+                 target_criterion_distance: bool = True, target_criterion_rate: bool = True,
+                 units: Units = Units.discrete):
+        if not (use_integration or use_back_integration):
+            raise ValueError("Can not use hybrid approach with no forward or back integration allowed.")
+        super().__init__(True, use_integration, use_back_integration, resolution, derivation_factor,
+                         accept_negative_concentrations, iteration_limit, max_forward_duration, max_back_duration,
+                         target_criterion_distance, target_criterion_rate, units)
+
+    def get_copasi_id(self) -> str:
+        return CopasiHybridAlternatingNewtonLSODASolver.ID
+
+class PureNewtonRootFindingAlgorithm(SteadyStateAlgorithm):
+    KISAO_ID: str = "KISAO_0000409"
+    ID: str = "steadystatenewton"
+
+    def __init__(self, resolution: float = 1e-09, derivation_factor: float = 0.001,
+                 accept_negative_concentrations: bool = False, iteration_limit: int = None,
+                 max_forward_duration: float = 1e09, max_back_duration: float = 1e06,
+                 target_criterion_distance: bool = True, target_criterion_rate: bool = True,
+                 units: Units = Units.discrete):
+        super().__init__(True, False, False, resolution, derivation_factor,
+                         accept_negative_concentrations, iteration_limit, max_forward_duration, max_back_duration,
+                         target_criterion_distance, target_criterion_rate, units)
+
+    def get_copasi_id(self) -> str:
+        return PureNewtonRootFindingAlgorithm.ID
+
+class PureIntegrationRootFindingAlgorithm(SteadyStateAlgorithm):
+    KISAO_ID: str = ""  # No applicable term yet
+    ID: str = "steadystateintegration"
+
+    def __init__(self, use_integration: bool = True, use_back_integration: bool = False,
+                 resolution: float = 1e-09, derivation_factor: float = 0.001,
+                 accept_negative_concentrations: bool = False, iteration_limit: int = None,
+                 max_forward_duration: float = 1e09, max_back_duration: float = 1e06,
+                 target_criterion_distance: bool = True, target_criterion_rate: bool = True,
+                 units: Units = Units.discrete):
+        if not (use_integration or use_back_integration):
+            raise ValueError("Can not use integration approach with no forward or back integration allowed.")
+        super().__init__(True, use_integration, use_back_integration, resolution, derivation_factor,
+                         accept_negative_concentrations, iteration_limit, max_forward_duration, max_back_duration,
+                         target_criterion_distance, target_criterion_rate, units)
+    def get_copasi_id(self) -> str:
+        return PureIntegrationRootFindingAlgorithm.ID
 
 class GibsonBruckAlgorithm(CopasiAlgorithm):
     KISAO_ID: str = "KISAO_0000027"
@@ -758,6 +1043,8 @@ class SDESolveRI5Algorithm(CopasiAlgorithm):
 
 
 class CopasiAlgorithmType(enum.Enum):
+    CHANLS = CopasiHybridAlternatingNewtonLSODASolver
+    NEWTON = PureNewtonRootFindingAlgorithm
     GIBSON_BRUCK = GibsonBruckAlgorithm
     DIRECT_METHOD = DirectMethodAlgorithm
     TAU_LEAP = TauLeapAlgorithm
@@ -968,12 +1255,12 @@ class BasicoInitialization:
         self.basico_data_model = model
         self._sedml_var_to_copasi_name: dict[Variable, str] = CopasiMappings.map_sedml_to_copasi(variables)
         self.has_events = has_events
+        self._values = None
         self.sim = None
         self.task_type = None
         self.init_time_offset = None
         self._duration_arg = None
-        self._step_size = None
-        self.copasi_number_of_steps = None
+        self._output_start_time = None
         self._length_of_output = None
 
     def configure_simulation_settings(self, sim: Union[UniformTimeCourseSimulation, SteadyStateSimulation]):
@@ -982,37 +1269,44 @@ class BasicoInitialization:
             if sim.output_end_time == sim.output_start_time:
                 raise NotImplementedError("The output end time must be greater than the output start time.")
             self.task_type = basico.T.TIME_COURSE
+            # COPASI is kept in the dark about initial time; we'll calculate that after
             self.init_time_offset: float = self.sim.initial_time
-            self._duration_arg: float = self.sim.output_end_time - self.init_time_offset  # COPASI is kept in the dark
+            self._duration_arg: float = self.sim.output_end_time - self.init_time_offset
+            self._output_start_time = self.sim.output_start_time - self.init_time_offset
             if self._duration_arg <= 0:
                 raise ValueError("A simulation's initial_time can not be equal to or greater than the output end time.")
-            self._step_size: float = BasicoInitialization._calc_biosimulators_simulation_step_size(self.sim)
+            if (time_diff := sim.output_end_time - sim.output_start_time) <= 0:
+                raise ValueError('Output end time must be greater than the output start time.')
+
             # What COPASI understands as number of steps and what biosimulators
             # understands as number of steps is different; we must manually calculate
             # COPASI thinks: Total number of times to iterate the simulation
             # BioSim thinks: Total number of iterations between output start and end times
-            self.copasi_number_of_steps = (self.sim.output_end_time - self.init_time_offset) / self._step_size
-            if int(round(self.copasi_number_of_steps)) != self.copasi_number_of_steps:
-                difference = self.copasi_number_of_steps - int(round(self.copasi_number_of_steps))
-                decimal_off = difference / int(round(self.copasi_number_of_steps))
-                if abs(decimal_off) > pow(10, -6):
-                    raise NotImplementedError("Number of steps must be an integer number of time points, "
-                                              f"not '{self.copasi_number_of_steps}'")
-                self.copasi_number_of_steps = int(round(self.copasi_number_of_steps))
-            self._length_of_output: int = (
-                int((self.sim.output_end_time - self.sim.output_start_time) / self._step_size))
-            self._length_of_output += 1
+            # So we calculate values
+            if int(sim.number_of_steps) != sim.number_of_steps:
+                raise NotImplementedError("Number of steps must be an integer number of time points, "
+                                          f"not '{sim.number_of_steps}'")
+            self._values = ([((i * time_diff) / sim.number_of_steps) + self.sim.output_start_time
+                             for i in range(sim.number_of_steps)] + [self.sim.output_end_time])
+            self._length_of_output: int = len(self._values)
         elif isinstance(sim, SteadyStateSimulation):
             self.task_type = basico.T.STEADY_STATE
 
     def get_simulation_configuration(self) -> dict:
         # Create the configuration basico needs to initialize the time course task
-        problem = {
-            "AutomaticStepSize": False,
-            "StepNumber": self.copasi_number_of_steps,
-            "Duration": self._duration_arg,
-            "OutputStartTime": self.sim.output_start_time - self.init_time_offset
-        }
+        if isinstance(self.algorithm, SteadyStateAlgorithm):
+            problem = {
+                "JacobianRequested": True,
+                "StabilityAnalysisRequested": True
+            }
+        else:
+            problem = {
+                "AutomaticStepSize": False,
+                "Duration": self._duration_arg,
+                "OutputStartTime": self.sim.output_start_time - self.init_time_offset,
+                "Use Values": True,
+                "Values": self._values
+            }
         method = self.algorithm.get_method_settings()
         return {
             "problem": problem,
@@ -1021,12 +1315,11 @@ class BasicoInitialization:
 
     def get_run_configuration(self) -> dict:
         return {
-            # "output_selection": list(self._sedml_var_to_copasi_name.values()),
             "use_initial_values": True,
         }
 
     def get_output_selection(self) -> "list[str]":
-        return list(self._sedml_var_to_copasi_name.values())
+        return list(set(self._sedml_var_to_copasi_name.values()))
 
     def get_expected_output_length(self) -> int:
         return self._length_of_output
@@ -1045,8 +1338,6 @@ class BasicoInitialization:
         return dh, columns
 
     @staticmethod
-    def _calc_biosimulators_simulation_step_size(sim: UniformTimeCourseSimulation) -> int:
-        if (time_diff := sim.output_end_time - sim.output_start_time) <= 0:
-            raise ValueError('Output end time must be greater than the output start time.')
-
-        return time_diff / sim.number_of_steps
+    def _get_times(number_of_steps: int, output_start_time: float, output_end_time: float) -> "list[float]":
+        time_range: float = output_end_time - output_start_time
+        return [(i * time_range) / number_of_steps for i in range(number_of_steps)] + [output_start_time]

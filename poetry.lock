@@ -421,13 +421,13 @@ test-no-images = ["pytest", "pytest-cov", "pytest-rerunfailures", "pytest-xdist"
 
 [[package]]
 name = "copasi-basico"
-version = "0.75"
+version = "0.76"
 description = "Simplified COPASI interface for python"
 optional = false
 python-versions = "*"
 files = [
-    {file = "copasi_basico-0.75-py3-none-any.whl", hash = "sha256:d2f4657f4589539c563c580b37fad019089d9f117c206e70ebe7346494405846"},
-    {file = "copasi_basico-0.75.tar.gz", hash = "sha256:615307cf554c798b4f35abb38ef02e1bc0da13290ee569ba862f5eeb0b8c0b2d"},
+    {file = "copasi_basico-0.76-py3-none-any.whl", hash = "sha256:8b1dca36a0127be3bc4e9b1211935d7dab4540e8e78ea2d45a6a2df50e10860d"},
+    {file = "copasi_basico-0.76.tar.gz", hash = "sha256:9f4ac5faa41276f4e1042a47137a0d569042c62639227e0fe6cb90dbeb5304b9"},
 ]
 
 [package.dependencies]
