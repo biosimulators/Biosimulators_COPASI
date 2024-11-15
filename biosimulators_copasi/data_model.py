@@ -1303,8 +1303,8 @@ class BasicoInitialization:
             if int(sim.number_of_steps) != sim.number_of_steps:
                 raise NotImplementedError("Number of steps must be an integer number of time points, "
                                           f"not '{sim.number_of_steps}'")
-            self._values = ([((i * time_diff) / sim.number_of_steps) + self.sim.output_start_time
-                             for i in range(sim.number_of_steps)] + [self.sim.output_end_time])
+            self._values = ([((i * time_diff) / sim.number_of_steps) + self._output_start_time
+                             for i in range(sim.number_of_steps)] + [self._duration_arg])
             self._length_of_output: int = len(self._values)
         elif isinstance(sim, SteadyStateSimulation):
             self.task_type = basico.T.STEADY_STATE
