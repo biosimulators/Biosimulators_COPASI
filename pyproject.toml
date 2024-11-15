@@ -19,8 +19,8 @@ exclude = ['tests', 'tests.*']
 [tool.poetry.dependencies]
 python = "^3.10"
 biosimulators_utils = {version = "^0.2.2", extras = ["logging", "sbml"]}
-python-copasi = "*"
-copasi_basico = ">=0.75"
+python-copasi = ">=4.45.296"
+copasi_basico = ">=0.80"
 docker = "^7.1.0"
 evalidate = "^2.0.1"
 kisao = "^2.34"
