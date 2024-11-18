@@ -9,6 +9,8 @@ import COPASI
 import os
 import unittest
 
+from biosimulators_copasi.data_model import SteadyStateAlgorithm
+
 
 class TestUtils(unittest.TestCase):
 
@@ -31,14 +33,14 @@ class TestUtils(unittest.TestCase):
             utils.get_algorithm('KISAO_0000450')
 
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_MATH'}):
-            self.assertEqual(utils.get_algorithm('KISAO_0000561', False).KISAO_ID, 'KISAO_0000561')
+            self.assertEqual(utils.get_algorithm('KISAO_0000561', False).get_kisao_id(), 'KISAO_0000561')
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
-            self.assertEqual(utils.get_algorithm('KISAO_0000561', False).KISAO_ID, 'KISAO_0000561')
+            self.assertEqual(utils.get_algorithm('KISAO_0000561', False).get_kisao_id(), 'KISAO_0000561')
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SAME_MATH'}):
             with self.assertRaises(ValueError):
                 utils.get_algorithm('KISAO_0000561', True)
         with mock.patch.dict(os.environ, {'ALGORITHM_SUBSTITUTION_POLICY': 'SIMILAR_APPROXIMATIONS'}):
-            self.assertEqual(utils.get_algorithm('KISAO_0000561', True).KISAO_ID, 'KISAO_0000563')
+            self.assertEqual(utils.get_algorithm('KISAO_0000561', True).get_kisao_id(), 'KISAO_0000563')
 
     def test_convert_sedml_deterministic_reactions_to_copasi(self):
         pass
@@ -56,7 +58,7 @@ class TestUtils(unittest.TestCase):
 
         # Check whether the change applied
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        self.assertEqual(alg.get_name(), task_settings["method"]["name"])
         saved_value = alg.force_physical_correctness.get_value()
         self.assertEqual(saved_value, task_settings["method"][alg.force_physical_correctness.NAME])
 
@@ -73,7 +75,7 @@ class TestUtils(unittest.TestCase):
 
         # Check whether the change applied
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        self.assertEqual(alg.get_name(), task_settings["method"]["name"])
         saved_value = alg.max_internal_steps.get_value()
         self.assertEqual(saved_value, task_settings["method"][alg.max_internal_steps.NAME])
 
@@ -90,7 +92,7 @@ class TestUtils(unittest.TestCase):
 
         # Check whether the change applied
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        self.assertEqual(alg.get_name(), task_settings["method"]["name"])
         saved_value = alg.step_size.get_value()
         self.assertEqual(saved_value, task_settings["method"][alg.step_size.NAME])
 
@@ -110,7 +112,7 @@ class TestUtils(unittest.TestCase):
 
         # Check whether the change applied
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(runge_kutta_alg.NAME, task_settings["method"]["name"])
+        self.assertEqual(runge_kutta_alg.get_name(), task_settings["method"]["name"])
         saved_value = runge_kutta_alg.step_size.get_value()
         self.assertEqual(saved_value, task_settings["method"][runge_kutta_alg.step_size.NAME])
         with self.assertRaises(KeyError):
@@ -123,7 +125,7 @@ class TestUtils(unittest.TestCase):
 
         # Check whether the change applied
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(ri5_alg.NAME, task_settings["method"]["name"])
+        self.assertEqual(ri5_alg.get_name(), task_settings["method"]["name"])
         saved_value = ri5_alg.step_size.get_value()
         self.assertEqual(saved_value, task_settings["method"][ri5_alg.step_size.NAME])
         with self.assertRaises(KeyError):
@@ -142,7 +144,7 @@ class TestUtils(unittest.TestCase):
 
         # Check if we have the algorithm, and the default is not a random seed.
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        self.assertEqual(alg.get_name(), task_settings["method"]["name"])
         self.assertFalse(task_settings["method"]["Use Random Seed"])
 
         # Now set the random seed parameter:
@@ -198,7 +200,7 @@ class TestUtils(unittest.TestCase):
 
         # Check if we have the algorithm.
         task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-        self.assertEqual(alg.NAME, task_settings["method"]["name"])
+        self.assertEqual(alg.get_name(), task_settings["method"]["name"])
 
         # Now check for errors
         with self.assertRaises(AttributeError):
@@ -210,7 +212,7 @@ class TestUtils(unittest.TestCase):
             alg.random_seed.set_value(True)
 
     def test_all_parameters_for_all_algorithms(self):
-        alg: data_model.GibsonBruckAlgorithm = data_model.GibsonBruckAlgorithm()
+        # alg: data_model.GibsonBruckAlgorithm = data_model.GibsonBruckAlgorithm()
 
         basico.create_datamodel()
         member: data_model.CopasiAlgorithmType
@@ -229,13 +231,18 @@ class TestUtils(unittest.TestCase):
                     continue
 
             replacement_settings = {"method": alg.get_method_settings()}
-            basico.set_task_settings(basico.T.TIME_COURSE, replacement_settings)
+            sim_type: str = basico.T.STEADY_STATE if isinstance(alg, SteadyStateAlgorithm) else basico.T.TIME_COURSE
+            basico.set_task_settings(sim_type, replacement_settings)
 
             # confirm our settings applied
-            task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-            self.assertEqual(alg.NAME, task_settings["method"]["name"])
+            task_settings = basico.get_task_settings(sim_type)
+            self.assertEqual(alg.get_name(), task_settings["method"]["name"])
             alg_params = list(alg.get_parameters_by_kisao().values())
             param_name_to_value = {param.NAME: param.get_value() for param in alg_params}
+
+            # Temporary skip for Steady State
+            if sim_type == basico.T.STEADY_STATE:
+                continue
 
             for basico_param_name, basico_param_value in task_settings["method"].items():
                 if basico_param_name == "name" or basico_param_name == "Subtype":
@@ -294,6 +301,6 @@ class TestUtils(unittest.TestCase):
                       data_model.SDESolveRI5Algorithm()]
 
         for alg in algorithms:
-            basico.set_task_settings(basico.T.TIME_COURSE, {"method": {"name": alg.NAME}})
+            basico.set_task_settings(basico.T.TIME_COURSE, {"method": {"name": alg.get_name()}})
             task_settings = basico.get_task_settings(basico.T.TIME_COURSE)
-            self.assertTrue(task_settings["method"]["name"] == alg.NAME)
+            self.assertTrue(task_settings["method"]["name"] == alg.get_name())

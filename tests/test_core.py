@@ -520,9 +520,10 @@ class TestCore(unittest.TestCase):
                 exec_sed_task(task, variables)
 
         task.model.source = os.path.join(os.path.dirname(__file__), 'fixtures', 'model.xml')
-        task.simulation.output_end_time = 20.1
-        with self.assertRaisesRegex(NotImplementedError, 'integer number of time points'):
+        task.simulation.number_of_steps = 20.1
+        with self.assertRaisesRegex(ValueError, 'umber of points must be an integer'):
             exec_sed_task(task, variables)
+        task.simulation.number_of_steps = 20
 
         task.simulation.output_start_time = 20.
         task.simulation.output_end_time = 20.

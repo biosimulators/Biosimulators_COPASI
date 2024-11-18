@@ -614,10 +614,6 @@ class DeterministicReactionsParameter(CopasiAlgorithmParameter):
 
 
 class CopasiAlgorithm:
-    KISAO_ID: str
-    ID: CopasiAlgorithmType
-    NAME: str
-    CAN_SUPPORT_EVENTS: bool
 
     def get_parameters_by_kisao(self) -> dict[str, CopasiAlgorithmParameter]:
         return {
@@ -626,7 +622,8 @@ class CopasiAlgorithm:
             if isinstance(getattr(self, member), CopasiAlgorithmParameter)
         }
 
-    def get_copasi_id(self) -> str:
+    @staticmethod
+    def get_copasi_id() -> str:
         raise NotImplementedError
 
     def get_unit_set(self) -> Units:
@@ -635,26 +632,36 @@ class CopasiAlgorithm:
     def get_overrides(self) -> dict:
         raise NotImplementedError
 
+    @staticmethod
+    def get_kisao_id() -> str:
+        return None
+
+    @staticmethod
+    def get_name() -> str:
+        return "Enhanced Newton"
+
+    @staticmethod
+    def can_support_events():
+        return False
+
     def get_method_settings(self) -> dict[str, str]:
-        settings: dict[str, str] = {"name": self.NAME}
-        settings.update(self.get_overrides())
+        settings: dict[str, str] = {"name": self.get_name()}
+        additional_settings = self.get_overrides()
+        for key, value in additional_settings.items():
+            settings[key] = value
         return settings
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return False
-        kisao_equality = self.KISAO_ID == other.KISAO_ID
-        id_equality = self.ID == other.ID
-        name_equality = self.NAME == other.NAME
-        event_support_equality = self.CAN_SUPPORT_EVENTS == other.CAN_SUPPORT_EVENTS
+        kisao_equality = self.get_kisao_id() == other.get_kisao_id()
+        id_equality = self.get_copasi_id() == other.get_copasi_id()
+        name_equality = self.get_name() == other.get_name()
+        event_support_equality = self.can_support_events() == other.can_support_events()
         return kisao_equality and id_equality and name_equality and event_support_equality
 
 
 class SteadyStateAlgorithm(CopasiAlgorithm):
-    KISAO_ID: str = None
-    ID: str = None
-    NAME: str = "Enhanced Newton"
-    CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, use_newton: bool, use_integration: bool, use_back_integration: bool = False,
                  resolution: float = 1e-09, derivation_factor: float = 0.001,
@@ -696,10 +703,20 @@ class SteadyStateAlgorithm(CopasiAlgorithm):
         overrides.update(self.target_criterion.get_override_repr())
         return overrides
 
+    @staticmethod
+    def get_kisao_id() -> str:
+        return None
+
+    @staticmethod
+    def get_name() -> str:
+        return "Enhanced Newton"
+
+    @staticmethod
+    def can_support_events():
+        return False
+
 
 class CopasiHybridAlternatingNewtonLSODASolver(SteadyStateAlgorithm):
-    KISAO_ID: str = "KISAO_0000411"  # Placeholder until it gets its own solver
-    ID: str = "steadystatestandard"
 
     def __init__(self, use_integration: bool = True, use_back_integration: bool = False,
                  resolution: float = 1e-09, derivation_factor: float = 0.001,
@@ -713,13 +730,24 @@ class CopasiHybridAlternatingNewtonLSODASolver(SteadyStateAlgorithm):
                          accept_negative_concentrations, iteration_limit, max_forward_duration, max_back_duration,
                          target_criterion_distance, target_criterion_rate, units)
 
-    def get_copasi_id(self) -> str:
-        return CopasiHybridAlternatingNewtonLSODASolver.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "steadystatestandard"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000411"  # Placeholder until it gets its own solver
+
+    @staticmethod
+    def get_name() -> str:
+        return "Enhanced Newton"
+
+    @staticmethod
+    def can_support_events():
+        return False
 
 
 class PureNewtonRootFindingAlgorithm(SteadyStateAlgorithm):
-    KISAO_ID: str = "KISAO_0000409"
-    ID: str = "steadystatenewton"
 
     def __init__(self, resolution: float = 1e-09, derivation_factor: float = 0.001,
                  accept_negative_concentrations: bool = False, iteration_limit: int = None,
@@ -730,13 +758,24 @@ class PureNewtonRootFindingAlgorithm(SteadyStateAlgorithm):
                          accept_negative_concentrations, iteration_limit, max_forward_duration, max_back_duration,
                          target_criterion_distance, target_criterion_rate, units)
 
-    def get_copasi_id(self) -> str:
-        return PureNewtonRootFindingAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "steadystatenewton"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000409"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Enhanced Newton"
+
+    @staticmethod
+    def can_support_events():
+        return False
 
 
 class PureIntegrationRootFindingAlgorithm(SteadyStateAlgorithm):
-    KISAO_ID: str = ""  # No applicable term yet
-    ID: str = "steadystateintegration"
 
     def __init__(self, use_integration: bool = True, use_back_integration: bool = False,
                  resolution: float = 1e-09, derivation_factor: float = 0.001,
@@ -750,23 +789,45 @@ class PureIntegrationRootFindingAlgorithm(SteadyStateAlgorithm):
                          accept_negative_concentrations, iteration_limit, max_forward_duration, max_back_duration,
                          target_criterion_distance, target_criterion_rate, units)
 
-    def get_copasi_id(self) -> str:
-        return PureIntegrationRootFindingAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "steadystateintegration"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return ""  # No applicable term yet
+
+    @staticmethod
+    def get_name() -> str:
+        return "Enhanced Newton"
+
+    @staticmethod
+    def can_support_events():
+        return False
 
 
 class GibsonBruckAlgorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000027"
-    ID: str = "stochastic"
-    NAME: str = "Stochastic (Gibson + Bruck)"
-    CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return GibsonBruckAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "stochastic"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000027"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Stochastic (Gibson + Bruck)"
+
+    @staticmethod
+    def can_support_events():
+        return True
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -779,18 +840,27 @@ class GibsonBruckAlgorithm(CopasiAlgorithm):
 
 
 class DirectMethodAlgorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000029"
-    ID: str = "directmethod"
-    NAME: str = "Stochastic (Direct method)"
-    CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, units: Units = Units.discrete):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.random_seed = RandomSeedParameter(random_seed)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return DirectMethodAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "directmethod"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000029"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Stochastic (Direct method)"
+
+    @staticmethod
+    def can_support_events():
+        return True
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -803,10 +873,6 @@ class DirectMethodAlgorithm(CopasiAlgorithm):
 
 
 class TauLeapAlgorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000039"
-    ID: str = "tauleap"
-    NAME: str = "Stochastic (τ-Leap)"
-    CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, epsilon: float = None,
                  units: Units = Units.discrete):
@@ -815,8 +881,21 @@ class TauLeapAlgorithm(CopasiAlgorithm):
         self.epsilon = EpsilonParameter(epsilon)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return TauLeapAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "tauleap"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000039"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Stochastic (τ-Leap)"
+
+    @staticmethod
+    def can_support_events():
+        return False
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -830,10 +909,6 @@ class TauLeapAlgorithm(CopasiAlgorithm):
 
 
 class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000048"
-    ID: str = "adaptivesa"
-    NAME: str = "Stochastic (Adaptive SSA/τ-Leap)"
-    CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, epsilon: float = None,
                  units: Units = Units.discrete):
@@ -842,8 +917,21 @@ class AdaptiveSSATauLeapAlgorithm(CopasiAlgorithm):
         self.epsilon = EpsilonParameter(epsilon)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return AdaptiveSSATauLeapAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "adaptivesa"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000048"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Stochastic (Adaptive SSA/τ-Leap)"
+
+    @staticmethod
+    def can_support_events():
+        return True
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -872,8 +960,21 @@ class LsodaAlgorithm(CopasiAlgorithm):
         self.max_internal_steps = MaximumInternalStepsParameter(max_internal_steps)
         self.max_internal_step_size = MaximumInternalStepSizeParameter(max_internal_step_size)
 
-    def get_copasi_id(self) -> str:
-        return LsodaAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "lsoda"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000560"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Deterministic (LSODA)"
+
+    @staticmethod
+    def can_support_events():
+        return True
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -889,10 +990,6 @@ class LsodaAlgorithm(CopasiAlgorithm):
 
 
 class Radau5Algorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000304"
-    ID: str = "radau5"
-    NAME: str = "Deterministic (RADAU5)"
-    CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
                  integrate_reduced_model: bool = None, max_internal_steps: int = None, initial_step_size: float = None,
@@ -904,8 +1001,21 @@ class Radau5Algorithm(CopasiAlgorithm):
         self.initial_step_size = InitialStepSizeParameter(initial_step_size)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return Radau5Algorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "radau5"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000304"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Deterministic (RADAU5)"
+
+    @staticmethod
+    def can_support_events():
+        return False
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -921,10 +1031,6 @@ class Radau5Algorithm(CopasiAlgorithm):
 
 
 class HybridLsodaAlgorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000562"
-    ID: str = "hybridlsoda"
-    NAME: str = "Hybrid (LSODA)"
-    CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
                  integrate_reduced_model: bool = None, max_internal_steps: int = None,
@@ -941,8 +1047,21 @@ class HybridLsodaAlgorithm(CopasiAlgorithm):
         self.partitioning_interval = PartitioningIntervalParameter(partitioning_interval)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return HybridLsodaAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "hybridlsoda"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000562"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Hybrid (LSODA)"
+
+    @staticmethod
+    def can_support_events():
+        return False
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -962,10 +1081,6 @@ class HybridLsodaAlgorithm(CopasiAlgorithm):
 
 
 class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000561"
-    ID: str = "hybrid"
-    NAME: str = "Hybrid (Runge-Kutta)"
-    CAN_SUPPORT_EVENTS: bool = False
 
     def __init__(self, max_internal_steps: int = None, random_seed: int = None, lower_limit: float = None,
                  upper_limit: float = None, step_size: float = None, partitioning_interval: float = None,
@@ -978,8 +1093,21 @@ class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
         self.partitioning_interval = PartitioningIntervalParameter(partitioning_interval)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return HybridRungeKuttaAlgorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "hybrid"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000561"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Hybrid (Runge-Kutta)"
+
+    @staticmethod
+    def can_support_events():
+        return False
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -996,10 +1124,6 @@ class HybridRungeKuttaAlgorithm(CopasiAlgorithm):
 
 
 class HybridRK45Algorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000563"
-    ID: str = "hybridode45"
-    NAME: str = "Hybrid (RK-45)"
-    CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, relative_tolerance: float = None, absolute_tolerance: float = None,
                  max_internal_steps: int = None, random_seed: int = None, deterministic_reactions: list = None,
@@ -1011,8 +1135,21 @@ class HybridRK45Algorithm(CopasiAlgorithm):
         self.deterministic_reactions = DeterministicReactionsParameter(deterministic_reactions)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return HybridRK45Algorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "hybridode45"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000563"
+
+    @staticmethod
+    def get_name() -> str:
+        return "Hybrid (RK-45)"
+
+    @staticmethod
+    def can_support_events():
+        return True
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -1028,10 +1165,6 @@ class HybridRK45Algorithm(CopasiAlgorithm):
 
 
 class SDESolveRI5Algorithm(CopasiAlgorithm):
-    KISAO_ID: str = "KISAO_0000566"
-    ID: str = "sde"
-    NAME: str = "SDE Solver (RI5)"
-    CAN_SUPPORT_EVENTS: bool = True
 
     def __init__(self, absolute_tolerance: float = None, max_internal_steps: int = None, step_size: float = None,
                  tolerance_for_root_finder: float = None, force_physical_correctness: bool = None,
@@ -1043,8 +1176,21 @@ class SDESolveRI5Algorithm(CopasiAlgorithm):
         self.force_physical_correctness = ForcePhysicalCorrectnessParameter(force_physical_correctness)
         self._units = units
 
-    def get_copasi_id(self) -> str:
-        return SDESolveRI5Algorithm.ID
+    @staticmethod
+    def get_copasi_id() -> str:
+        return "sde"
+
+    @staticmethod
+    def get_kisao_id() -> str:
+        return "KISAO_0000566"
+
+    @staticmethod
+    def get_name() -> str:
+        return "SDE Solver (RI5)"
+
+    @staticmethod
+    def can_support_events():
+        return True
 
     def get_unit_set(self) -> Units:
         return self._units
@@ -1345,7 +1491,7 @@ class BasicoInitialization:
         return self._sedml_var_to_copasi_name.get(sedml_var)
 
     def get_kisao_id_for_kisao_algorithm(self) -> str:
-        return self.algorithm.KISAO_ID
+        return self.algorithm.get_kisao_id()
 
     def get_copasi_algorithm_id(self) -> str:
         return self.algorithm.get_copasi_id()

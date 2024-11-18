@@ -45,12 +45,12 @@ def get_algorithm(kisao_id: str, events_were_requested: bool = False, config: Co
            :obj:`CopasiAlgorithm`: The copasi algorithm deemed suitable
         """
     algorithm_kisao_to_class_map: dict[str, CopasiAlgorithm] = \
-        {CopasiAlgorithmType[alg_name].value.KISAO_ID: CopasiAlgorithmType[alg_name].value
+        {CopasiAlgorithmType[alg_name].value.get_kisao_id(): CopasiAlgorithmType[alg_name].value
          for alg_name, _ in CopasiAlgorithmType.__members__.items()}
 
     legal_alg_kisao_ids = \
         [kisao for kisao, obj in algorithm_kisao_to_class_map.items()
-         if not events_were_requested or obj.CAN_SUPPORT_EVENTS]
+         if not events_were_requested or obj.can_support_events()]
 
     if kisao_id in legal_alg_kisao_ids:
         constructor = algorithm_kisao_to_class_map[kisao_id]

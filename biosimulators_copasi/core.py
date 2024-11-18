@@ -421,7 +421,7 @@ def _load_algorithm_parameters(sim: Simulation, copasi_algorithm: utils.CopasiAl
     # Load the algorithm parameter changes specified by `simulation.algorithm_parameter_changes`
     algorithm_substitution_policy: AlgSubPolicy = bsu_sim_utils.get_algorithm_substitution_policy(config=config)
     requested_algorithm: Algorithm = sim.algorithm
-    if copasi_algorithm.KISAO_ID != requested_algorithm.kisao_id:
+    if copasi_algorithm.get_kisao_id() != requested_algorithm.kisao_id:
         return
 
     unsupported_parameters, bad_parameters = utils.set_algorithm_parameter_values(copasi_algorithm,
